@@ -36,13 +36,13 @@ export default function RegisterModal({ isOpen, onClose }) {
                 <form onSubmit={handleSubmit} className="space-y-3">
                     {/* Email */}
                     <div>
-                        <label className="block text-sm">Email</label>
+                        <label className="block text-sm bg">Email</label>
                         <input
                             type="email"
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
-                            className="w-full p-2 rounded text-black"
+                            className="w-full p-2 rounded text-black bg-white"
                             required
                         />
                     </div>
@@ -55,7 +55,7 @@ export default function RegisterModal({ isOpen, onClose }) {
                             name="password"
                             value={formData.password}
                             onChange={handleChange}
-                            className="w-full p-2 rounded text-black"
+                            className="w-full p-2 rounded text-black bg-white"
                             required
                         />
                     </div>
@@ -68,7 +68,7 @@ export default function RegisterModal({ isOpen, onClose }) {
                             name="confirmPassword"
                             value={formData.confirmPassword}
                             onChange={handleChange}
-                            className="w-full p-2 rounded text-black"
+                            className="w-full p-2 rounded text-black bg-white"
                             required
                         />
                     </div>
@@ -80,7 +80,7 @@ export default function RegisterModal({ isOpen, onClose }) {
                             name="role"
                             value={formData.role}
                             onChange={handleChange}
-                            className="w-full p-2 rounded text-black"
+                            className="w-full p-2 rounded text-black bg-white"
                         >
                             <option>Patient</option>
                             <option>Doctor</option>
