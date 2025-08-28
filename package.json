@@ -3,16 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
-    "start": "next start",
-    "lint": "eslint"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   },
   "dependencies": {
-    "next": "15.5.0",
+    "axios": "^1.11.0",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.18.0",
+    "next": "^15.5.0",
     "next-pwa": "^5.6.0",
-    "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "nodemon": "^3.1.10",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -21,5 +27,19 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.0",
     "tailwindcss": "^4"
-  }
+  },
+  "description": "The aim of this project is to design and prototype a mobile health (mHealth) application to support individuals with type 2 diabetes, particularly in low- and middle-income countries (LMICs). The app will focus on improving blood sugar control, medication adherence, and digital literacy, especially for middle-aged users with limited experience using mobile technology. The system will be multilingual, lightweight, and capable of functioning offline.",
+  "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anantchhabda/Diabetes-Management-Application.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/anantchhabda/Diabetes-Management-Application/issues"
+  },
+  "homepage": "https://github.com/anantchhabda/Diabetes-Management-Application#readme"
 }
