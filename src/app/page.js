@@ -1,10 +1,12 @@
 // src/app/page.js
 'use client';
-import React from 'react';
+import RegisterModal from "@/components/RegisterModal";
 import { useRouter } from 'next/navigation'; // App Router navigation
+import { useState } from "react";
 
 export default function HomePage() {
   const router = useRouter();
+  const [isOpenRegister, setIsOpenRegister] = useState(false);
 
   return (
     <div style={{
@@ -17,7 +19,7 @@ export default function HomePage() {
       backgroundColor: 'rgba(219, 222, 226, 1)',
       boxSizing: 'border-box',
     }}>
-      
+
       {/* Logo */}
       <div style={{
         width: '25vw',
@@ -39,20 +41,22 @@ export default function HomePage() {
 
       {/* Buttons */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%', maxWidth: '250px' }}>
-        <button 
-          style={buttonStyle('#004B5E')} 
+        <button
+          style={buttonStyle('#004B5E')}
           onClick={() => router.push('/login')}
         >
           Log In
         </button>
 
-        <button 
-          style={buttonStyle('#00C896')} 
-          onClick={() => router.push('/register')}
+        <button
+          style={buttonStyle('#00C896')}
+          onClick={() => setIsOpenRegister(true)}
         >
           Register
         </button>
       </div>
+
+      <RegisterModal isOpen={isOpenRegister} onClose={() => setIsOpenRegister(false)} />
 
       <style>
         {`
