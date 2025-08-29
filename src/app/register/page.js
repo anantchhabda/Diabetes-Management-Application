@@ -1,12 +1,6 @@
 export default function RegisterPage() {
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-      fontSize: '2rem'
-    }}>
+    <div className="flex justify-center items-center h-screen text-2xl bg-cyan-500">
       Register
     </div>
   );

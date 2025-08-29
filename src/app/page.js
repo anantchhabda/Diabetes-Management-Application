@@ -1,32 +1,16 @@
 // src/app/page.js
 'use client';
 import React from 'react';
-import { useRouter } from 'next/navigation'; // App Router navigation
+import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
   const router = useRouter();
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: '100vh',
-      padding: '20px',
-      backgroundColor: 'rgba(219, 222, 226, 1)',
-      boxSizing: 'border-box',
-    }}>
+    <div className="flex flex-col justify-center items-center min-h-screen px-5 bg-cyan-500">
       
       {/* Logo */}
-      <div style={{
-        width: '25vw',
-        maxWidth: '120px',
-        height: '25vw',
-        maxHeight: '120px',
-        marginBottom: '5vh',
-        animation: 'pulse 2s infinite',
-      }}>
+      <div className="w-[25vw] max-w-[120px] h-[25vw] max-h-[120px] mb-[5vh]">
         <svg viewBox="0 0 64 64" width="100%" height="100%">
           <path
             d="M32 2 C20 20, 8 32, 32 62 C56 32, 44 20, 32 2 Z"
@@ -38,45 +22,21 @@ export default function HomePage() {
       </div>
 
       {/* Buttons */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%', maxWidth: '250px' }}>
-        <button 
-          style={buttonStyle('#004B5E')} 
+      <div className="flex flex-col gap-5 w-full max-w-[250px]">
+        <button
           onClick={() => router.push('/login')}
+          className="w-full py-3 bg-[#004B5E] text-white text-lg rounded-md hover:opacity-90 transition"
         >
           Log In
         </button>
 
-        <button 
-          style={buttonStyle('#00C896')} 
+        <button
           onClick={() => router.push('/register')}
+          className="w-full py-3 bg-[#00C896] text-white text-lg rounded-md hover:opacity-90 transition"
         >
           Register
         </button>
       </div>
-
-      <style>
-        {`
-          @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-          }
-        `}
-      </style>
     </div>
   );
-}
-
-// Reusable button style function
-function buttonStyle(color) {
-  return {
-    width: '100%',
-    padding: '12px 0',
-    backgroundColor: color,
-    color: 'white',
-    fontSize: '1.1rem',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-  };
 }
