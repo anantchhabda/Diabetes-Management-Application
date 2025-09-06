@@ -1,0 +1,12 @@
+{
+    "start-page": {
+        "login": "लग इन गर्नुहोस्",
+        "register": "दर्ता गर्नुहोस्"
+    },
+    "login-modal": {
+        "phone-number": "फोन नम्बर",
+        "password": "पासवर्ड",
+        "show-button": "देखाउनुहोस्",
+        "hide-button": "लुकाउनुहोस्"
+    }
+}
