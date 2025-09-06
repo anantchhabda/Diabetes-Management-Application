@@ -2,9 +2,11 @@
 'use client';
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import { getDictionary } from './dictionaries'
 
-export default function HomePage() {
+export default async function HomePage({ params }) {
   const router = useRouter();
+  const { lang } = await params
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen px-5 bg-cyan-500">
