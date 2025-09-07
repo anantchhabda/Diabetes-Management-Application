@@ -2,11 +2,12 @@ import dbConnect from '../../../../lib/db';
 import User from '../../../../lib/models/User';
 import bcrypt from 'bcryptjs';
 import {NextResponse} from 'next/server';
+import {signJwt} from '../../../../lib/auth';
 
 export async function POST(req) {
     await dbConnect()
     const {phoneNumber, password} = await req.json();
-    const user = User.findOne({phoneNumber});
+    const user = await User.findOne({phoneNumber});
     if (!user) {
         return NextResponse.json({error: 'User not found'}, {status: 404});
     }
@@ -14,8 +15,9 @@ export async function POST(req) {
     if (!matched) {
         return NextResponse.json({error: 'Incorrect password'}, {status: 401});
     }
+    const token = signJwt({sub: user._id.toString(), role: user.role});
     return NextResponse.json(
-        {_id: user._id, role: user.role},
+        {_id: user._id, role: user.role, token},
         {status: 200}
     );
 }
