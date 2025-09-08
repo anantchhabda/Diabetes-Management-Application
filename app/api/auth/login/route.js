@@ -15,7 +15,7 @@ export async function POST(req) {
     if (!matched) {
         return NextResponse.json({error: 'Incorrect password'}, {status: 401});
     }
-    const token = signJwt({sub: user._id.toString(), role: user.role});
+    const token = signJwt({_id: user._id, phoneNumber: user.phoneNumber, role: user.role});
     return NextResponse.json(
         {_id: user._id, role: user.role, token},
         {status: 200}
