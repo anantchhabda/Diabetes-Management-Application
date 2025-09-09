@@ -7,10 +7,15 @@ import {NextResponse} from 'next/server';
 
 export async function POST(req) {
     await dbConnect(); //connect to MongoDB
-    const {phone, password, role} = await req.json(); //read user data
+    const {phone, password, confirmPassword, role} = await req.json(); //read user data
 
-    if (!phone || !password || !role) {
-        return NextResponse.json({error: "phone, password, role are required"}, {status: 400});
+    if (!phone || !password || !confirmPassword || !role) {
+        return NextResponse.json({error: "phone, password, confirmPassword, role are required"}, {status: 400});
+    }
+
+    //confirm password must match
+    if (password !== confirmPassword) {
+        return NextResponse.json({error: 'Passwords do not match'}, {status: 400});
     }
         
     try {
@@ -20,8 +25,8 @@ export async function POST(req) {
         //Issue 1-day onboarding token
         const token = signJWT({sub: String(user._id), role, scope: 'onboarding'}, {expiresIn: '1d'});
         const next = 
-            role === 'Patient' ? '/onboarding/patient':
-            role === 'Doctor' ?    '/onboarding/doctor':
+            role === 'Patient': '/onboarding/patient':
+            role === 'Doctor':  '/onboarding/doctor':
                                 '/onboarding/familymember';
         return NextResponse.json({token, role, next}, {status: 201});
     } catch (err) {
