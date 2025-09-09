@@ -1,6 +1,5 @@
 import {dbConnect} from '../../../../lib/db.js';
 import User from '../../../../lib/models/User.js';
-import bcrypt from 'bcryptjs';
 import {NextResponse} from 'next/server';
 import {signJWT} from '../../../../lib/auth.js';
 
