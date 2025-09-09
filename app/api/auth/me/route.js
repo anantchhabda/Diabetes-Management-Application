@@ -1,10 +1,13 @@
-import dbConnect from '../../../../lib/db';
-import User from '../../../../lib/models/User';
-import Patient from '../../../../lib/models/Patient';
-import Doctor from '../../../../lib/models/Doctor';
-import FamilyMember from '../../../../lib/models/FamilyMember';
+export const runtime = 'nodejs';
+
+import {dbConnect} from '../../../../lib/db.js';
+import User from '../../../../lib/models/User.js';
+import Patient from '../../../../lib/models/Patient.js';
+import Doctor from '../../../../lib/models/Doctor.js';
+import FamilyMember from '../../../../lib/models/FamilyMember.js';
 import {NextResponse} from "next/server";
-import {requireAuth} from '../../../../lib/auth';
+import {requireAuth} from '../../../../lib/auth.js';
+import {verifyJWT} from '../../../../lib/auth.js'
 
 export async function GET(req) {
     await dbConnect();
