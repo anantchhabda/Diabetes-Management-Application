@@ -1,23 +1,37 @@
-import dbConnect from '../../../../lib/db';
-import User from '../../../../lib/models/User';
+import {dbConnect} from '../../../../lib/db.js';
+import User from '../../../../lib/models/User.js';
 import bcrypt from 'bcryptjs';
 import {NextResponse} from 'next/server';
-import {signJwt} from '../../../../lib/auth';
+import {signJWT} from '../../../../lib/auth.js';
 
 export async function POST(req) {
     await dbConnect()
-    const {phoneNumber, password} = await req.json();
-    const user = await User.findOne({phoneNumber});
-    if (!user) {
-        return NextResponse.json({error: 'User not found'}, {status: 404});
+    const {phone, password} = await req.json();
+    if (!phone || !password) {
+        return NextResponse.json({error: 'phone, password required'}, {status: 400});
     }
-    const matched = await bcrypt.compare(password, user.password);
+    
+    const user = await User.findOne({phone});
+    if (!user) {
+        return NextResponse.json({error: 'User not found'}, {status: 401});
+    }
+    const matched = await user.compare(password, user.password);
     if (!matched) {
         return NextResponse.json({error: 'Incorrect password'}, {status: 401});
     }
-    const token = signJwt({_id: user._id, phoneNumber: user.phoneNumber, role: user.role});
+
+    if (!user.onboardingComplete) {
+        const token = signJWT({sub: String(user._id), role: user.role, scope: 'onboarding'}, {expiresIn: '1d'});
+        const next = 
+            user.role === 'Patient' ? '/onboarding/patient':
+            user.role === 'Doctor' ? '/onboarding/doctor':
+                                    '/onboarding/familymember';
+        return NextResponse.json({token, role: user.role, next}, {status: 200});
+    }
+
+    const token signJWT({sub: String(user._id), role: user.role, scope: 'auth'}, {expiresIn: '1d'});
     return NextResponse.json(
-        {_id: user._id, role: user.role, token},
+        {token, role: user.role},
         {status: 200}
     );
 }
