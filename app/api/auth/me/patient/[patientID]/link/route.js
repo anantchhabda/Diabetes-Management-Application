@@ -28,6 +28,7 @@ export async function POST(req, {params}) {
     const existingRequest = await LinkRequest.findOne({
     requesterType: roleCheck.payload.role,
     requesterID: requester._id,
+    requesterName: requester.name,
     patientID,
     status: 'Pending'
     });
@@ -40,6 +41,7 @@ export async function POST(req, {params}) {
     const newRequest = await LinkRequest.create({
     requesterType: roleCheck.payload.role,
     requesterID: requester._id,
+    requesterName: requester.name,
     patientID,
     status: 'Pending'
     });
