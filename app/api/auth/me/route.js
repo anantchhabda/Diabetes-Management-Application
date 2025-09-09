@@ -23,7 +23,7 @@ export async function GET(req) {
             name = doctor.name;
             break;
         case 'Family Member':
-            const familyMember = await familyMember.findOne({userID: user._id});
+            const familyMember = await FamilyMember.findOne({userID: user._id});
             name = familyMember.name;
             break;
     }
