@@ -1,10 +1,19 @@
 import dbConnect from '../../../../lib/db';
 import User from '../../../../lib/models/User';
 import {NextResponse} from 'next/server';
+import {signJwt} from '../../../../lib/auth';
 
 export async function POST(req) {
     await dbConnect(); //connect to MongoDB
     const {phoneNumber, password, role} = await req.json(); //read user data
+    if (!phone || !password || !confirmPassword || !role) {
+        return NextResponse.json({error: "phone, password, confirmPassword, role are required"}, {status: 400});
+    }
+
+    //confirm password must match
+    if (password !== confirmPassword) {
+        return NextResponse.json({error: 'Passwords do not match'}, {status: 400});
+    }
     const existUser = await User.findOne({phoneNumber});
     if (existUser) {
         return NextResponse.json(
@@ -12,11 +21,19 @@ export async function POST(req) {
             {status: 400} //bad request
         );
     }
-    const user = await User.create({phoneNumber, password, role}); //save uder data
-    return NextResponse.json(
-        {_id: user._id,
-        phoneNumber: user.phoneNumber,
-        role: user.role},
-        {status: 201} //created
-    );
+    try {
+        const user = await User.create({phoneNumber, password, role}); //save user data
+        const token = signJwt({_id: user._id, phoneNumber: user.phoneNumber, role: user.role, scope: 'onboarding'});
+        return NextResponse.json(
+            {_id: user._id,
+            phoneNumber: user.phoneNumber,
+            role: user.role,
+            token},
+            {status: 201} //created
+        );
+    } catch (err) {
+        console.error(err);
+        return NextResponse.json({error: 'Registration failed'}, {status: 500});
+    }
+    
 }

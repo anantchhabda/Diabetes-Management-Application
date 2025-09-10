@@ -10,7 +10,10 @@ export async function GET(req) {
     await dbConnect();
     const {payload, error} = requireAuth(req);
     if (error) return error;
-    const user = await User.findById(payload.sub).select('role phone');
+    if (!payload?._id) {
+        return NextResponse.json({error: 'Unauthorized'}, {status: 401});
+    }
+    const user = await User.findById(payload.sub).select('role phone onboardingComplete');
     if (!user) return NextResponse.json({error: 'User not found'}, {status: 404});
     let name=''
     switch(user.role) {
@@ -28,6 +31,6 @@ export async function GET(req) {
             break;
     }
     return NextResponse.json(
-        {_id: user._id, role: user.role, phone: user.phone, name}
+        {_id: user._id, role: user.role, phone: user.phone, name, onboardingComplete: user.onboardingComplete}
     );
 }
