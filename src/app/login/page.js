@@ -1,74 +1,93 @@
-'use client';
-import React, { useState } from 'react';
+"use client"; // required to use JS in App Router
+
+import { useEffect } from "react";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  useEffect(() => {
+    const form = document.getElementById("loginForm");
+    const phoneInput = document.getElementById("phone");
+    const passwordInput = document.getElementById("password");
+    const errorMsg = document.getElementById("error");
+    const toggleBtn = document.getElementById("togglePassword");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+    // Handle form submit
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Please enter a valid email address');
-      return;
-    }
+      const phone = phoneInput.value.trim();
+      const password = passwordInput.value;
 
-    if (!password) {
-      setError('Password cannot be empty');
-      return;
-    }
+      if (!/^\d{7,15}$/.test(phone)) {
+        errorMsg.textContent = "Please enter a valid phone number (7-15 digits)";
+        return;
+      }
 
-    setError('');
-    alert(`Logging in with:\nEmail: ${email}\nPassword: ${password}`);
-  };
+      if (!password) {
+        errorMsg.textContent = "Password cannot be empty";
+        return;
+      }
+
+      errorMsg.textContent = "";
+      alert(`Logging in with:\nPhone: ${phone}\nPassword: ${password}`);
+    });
+
+    // Toggle password visibility
+    toggleBtn.addEventListener("click", () => {
+      const isPassword = passwordInput.getAttribute("type") === "password";
+      passwordInput.setAttribute("type", isPassword ? "text" : "password");
+      toggleBtn.textContent = isPassword ? "Hide" : "Show";
+    });
+
+    // Restrict phone input to numbers only
+    phoneInput.addEventListener("input", () => {
+      phoneInput.value = phoneInput.value.replace(/\D/g, "");
+    });
+  }, []);
 
   return (
-    <div className="flex justify-center items-center h-screen bg-cyan-500 px-4">
+    <div className="flex justify-center items-center min-h-screen bg-cyan-500 px-4">
       <form
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-5 w-full max-w-[300px] bg-white p-6 rounded-xl shadow-lg"
+        id="loginForm"
+        className="flex flex-col gap-5 w-full max-w-xs bg-white p-6 rounded-xl shadow-lg"
       >
         <h1 className="text-2xl font-bold text-center text-[#004B5E]">Login</h1>
 
-        {/* Email field */}
+        {/* Phone Number */}
         <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="tel"
+          id="phone"
+          placeholder="Phone Number"
+          required
+          inputMode="numeric"
           className="w-full px-3 py-2 border border-gray-300 rounded-md 
                      focus:outline-none focus:ring-2 focus:ring-[#00C896]
                      text-gray-900 placeholder-gray-600"
-          required
         />
 
-        {/* Password field with toggle */}
+        {/* Password */}
         <div className="relative w-full">
           <input
-            type={showPassword ? 'text' : 'password'}
+            type="password"
+            id="password"
             placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            required
             className="w-full px-3 py-2 border border-gray-300 rounded-md 
                        focus:outline-none focus:ring-2 focus:ring-[#00C896]
                        text-gray-900 placeholder-gray-600"
-            required
           />
           <button
             type="button"
-            onClick={() => setShowPassword(!showPassword)}
+            id="togglePassword"
             className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[#004B5E] font-semibold"
           >
-            {showPassword ? 'Hide' : 'Show'}
+            Show
           </button>
         </div>
 
         {/* Error message */}
-        {error && <p className="text-red-600 text-sm">{error}</p>}
+        <p id="error" className="text-red-600 text-sm"></p>
 
-        {/* Login button */}
+        {/* Submit button */}
         <button
           type="submit"
           className="w-full py-3 bg-[#004B5E] text-white text-lg rounded-md hover:opacity-90 transition"
