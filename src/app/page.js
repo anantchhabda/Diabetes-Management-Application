@@ -1,14 +1,26 @@
 // src/app/page.js
-'use client';
-import React from 'react';
-import { useRouter } from 'next/navigation';
+"use client";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import RegisterModal from "@/components/RegisterModal";
 
 export default function HomePage() {
   const router = useRouter();
+  const [isOpenRegister, setIsOpenRegister] = useState(false);
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen px-5 bg-cyan-500">
-      
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
+        padding: "20px",
+        backgroundColor: "rgba(219, 222, 226, 1)",
+        boxSizing: "border-box",
+      }}
+    >
       {/* Logo */}
       <div className="w-[25vw] max-w-[120px] h-[25vw] max-h-[120px] mb-[5vh]">
         <svg viewBox="0 0 64 64" width="100%" height="100%">
@@ -22,21 +34,51 @@ export default function HomePage() {
       </div>
 
       {/* Buttons */}
-      <div className="flex flex-col gap-5 w-full max-w-[250px]">
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "20px",
+          width: "100%",
+          maxWidth: "250px",
+        }}
+      >
         <button
-          onClick={() => router.push('/login')}
+          onClick={() => router.push("/login")}
           className="w-full py-3 bg-[#004B5E] text-white text-lg rounded-md hover:opacity-90 transition"
         >
           Log In
         </button>
 
         <button
-          onClick={() => router.push('/register')}
-          className="w-full py-3 bg-[#00C896] text-white text-lg rounded-md hover:opacity-90 transition"
+          style={{
+            backgroundColor: "#00C896",
+            color: "#fff",
+            padding: "12px",
+            fontSize: "16px",
+            borderRadius: "6px",
+          }}
+          onClick={() => setIsOpenRegister(true)}
         >
           Register
         </button>
       </div>
+
+      {/* Registration Modal */}
+      <RegisterModal
+        isOpen={isOpenRegister}
+        onClose={() => setIsOpenRegister(false)}
+      />
+
+      <style>
+        {`
+          @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+          }
+        `}
+      </style>
     </div>
   );
 }
