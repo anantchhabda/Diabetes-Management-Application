@@ -1,5 +1,4 @@
-"use client"; // required to use JS in App Router
-
+"use client";
 import { useEffect } from "react";
 
 export default function LoginPage() {
@@ -13,12 +12,12 @@ export default function LoginPage() {
     // Handle form submit
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-
       const phone = phoneInput.value.trim();
       const password = passwordInput.value;
 
       if (!/^\d{7,15}$/.test(phone)) {
-        errorMsg.textContent = "Please enter a valid phone number (7-15 digits)";
+        errorMsg.textContent =
+          "Please enter a valid phone number (7-15 digits)";
         return;
       }
 
@@ -45,14 +44,16 @@ export default function LoginPage() {
   }, []);
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-cyan-500 px-4">
+    <div
+      className="flex justify-center items-center min-h-screen px-4"
+      style={{ backgroundColor: "rgba(58, 211, 249, 1)" }}
+    >
       <form
         id="loginForm"
         className="flex flex-col gap-5 w-full max-w-xs bg-white p-6 rounded-xl shadow-lg"
       >
         <h1 className="text-2xl font-bold text-center text-[#004B5E]">Login</h1>
 
-        {/* Phone Number */}
         <input
           type="tel"
           id="phone"
@@ -64,7 +65,6 @@ export default function LoginPage() {
                      text-gray-900 placeholder-gray-600"
         />
 
-        {/* Password */}
         <div className="relative w-full">
           <input
             type="password"
@@ -84,10 +84,8 @@ export default function LoginPage() {
           </button>
         </div>
 
-        {/* Error message */}
         <p id="error" className="text-red-600 text-sm"></p>
 
-        {/* Submit button */}
         <button
           type="submit"
           className="w-full py-3 bg-[#004B5E] text-white text-lg rounded-md hover:opacity-90 transition"
