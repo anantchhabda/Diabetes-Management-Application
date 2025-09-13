@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const PatientSchema = new mongoose.Schema({
-    userID: {
+    user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
@@ -24,17 +24,21 @@ const PatientSchema = new mongoose.Schema({
         required: true
     },
     yearOfDiag: {
-        type: Number
+        type: Number,
+        required: true
     },
     typeOfDiag: {
         type: String,
-        enum: ["Type 1", "Type 2", "Gestational"]
+        enum: ["Type 1", "Type 2", "Gestational"],
+        required: true
     },
     doctorID: {
-        type: mongoose.Schema.Types.ObjectId
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Doctor'
     },
     familyID: {
-        type: mongoose.Schema.Types.ObjectId
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'FamilyMember'
     }
 });
 
