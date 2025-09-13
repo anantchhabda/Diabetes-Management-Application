@@ -1,59 +1,62 @@
-import dbConnect from '../../../../../../../lib/db';
-import Patient from '../../../../../../../lib/models/Patient';
-import Doctor from '../../../../../../../lib/models/Doctor';
-import FamilyMember from '../../../../../../../lib/models/FamilyMember';
-import LinkRequest from '../../../../../../../lib/models/LinkRequest';
+import dbConnect from '../../../../../../lib/db';
+import Doctor from '../../../../../../lib/models/Doctor'
+import Patient from '../../../../../../lib/models/Patient';
+import LinkRequest from '../../../../../../lib/models/LinkRequest';
 import {NextResponse} from "next/server";
-import {requireRole} from '../../../../../../../lib/auth';
+import {requireRole} from '../../../../../../lib/auth';
+import FamilyMember from '../../../../../../lib/models/FamilyMember';
 
 export async function PUT(req, {params}) {
     await dbConnect();
     const roleCheck = requireRole(req, ['Patient']);
     if (roleCheck.error) return roleCheck.error;
-    try {
-        const {requestID} = params;
-        const request = await LinkRequest.findById(requestID);
-        if (!request) {
-            return NextResponse.json(
-                {message: 'Request not found'},
-                {status: 404}
-            );
-        }
-        if (String(request.patientID) !== String(roleCheck.payload._id)) {
-            return NextResponse.json(
-                {message: 'Forbidden'},
-                {status: 403}
-            );
-        }
-        request.status = 'Accepted';
-        await request.save();
-        if (request.requesterRole=='Doctor') {
-            await Patient.findByIdAndUpdate(
-                request.patientID,
-                {$addToSet: {doctorID: request.requesterID}}
-            );
-            await Doctor.findByIdAndUpdate(
-                request.requesterID,
-                {$addToSet: {patientID: request.patientID}}
-            );
-        } else if (request.requesterRole=='Family Member') {
-            await Patient.findByIdAndUpdate(
-                request.patientID,
-                {$addToSet: {familyID: request.requesterID}}
-            );
-            await FamilyMember.findByIdAndUpdate(
-                request.requesterID,
-                {$addToSet: {patientID: request.patientID}}
-            );
-        }
+
+    const mePatient = await Patient.findOne({user: roleCheck.payload.sub}).select('_id doctorID familyID user');
+    if (!mePatient) return NextResponse.json(
+        {error: 'Patient profile not found'}, {status: 404}
+    );
+    const {requestID} = await params;
+    const request = await LinkRequest.findById(requestID)
+        .select('_id patient requesterRole requesterUser status');
+    
+    if (!request) return NextResponse.json(
+        {message: 'Request not found'},
+        {status: 404}
+    );
+        
+    const matchesUser = String(request.patient) === String(roleCheck.payload.sub);
+    const matchesPatient = String(request.patient) === String(mePatient._id);
+    if (!matchesUser && !matchesPatient) {
+        return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+    }
+
+    if (request.status === 'Accepted') {
         return NextResponse.json(
-            {message: 'Request accepted successfully'}
-        );
-    } catch (err) {
-        console.error(err);
-        return NextResponse.json(
-            { error: 'Accepting request failed', details: err.message },
-            {status: 500}
+            {message: 'Already accepted'}, {status: 200}
         );
     }
+
+    if (request.requesterRole === 'Doctor') {
+        const d = await Doctor.findOne({user: request.requesterUser}).select('_id');
+        if(!d) return NextResponse.json(
+            {error: 'Doctor profile not found'}, {status: 404});
+        mePatient.doctorID = d._id;
+    } else if (request.requesterRole === 'Family Member') {
+        const f = await FamilyMember.findOne({user: request.requesterUser}).select('_id');
+        if (!f) return NextResponse.json(
+            {error: ' Family profile not found'}, {status: 404});
+        mePatient.familyID = f._id;
+    } else {
+        return NextResponse.json(
+            {error: 'Unknown requesterRole'}, {status: 400}
+        );
+    }
+
+    await mePatient.save();
+    request.status = 'Accepted';
+    await request.save();
+
+    return NextResponse.json(
+        {message: 'Request accepted successfully'}, {status: 200}
+    );
 }
