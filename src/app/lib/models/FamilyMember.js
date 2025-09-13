@@ -1,14 +1,11 @@
 import mongoose from 'mongoose';
 
 const FamilyMemberSchema = new mongoose.Schema({
-    userID: {
+    user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
-    patients: [{
-        type: mongoose.Schema.Types.ObjectId
-    }],
     name: {
         type: String, 
         required: true
