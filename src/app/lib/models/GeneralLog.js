@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const GeneralLogSchema = new mongoose.Schema({
-    patientID: {
+    patient: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Patient',
         required: true
