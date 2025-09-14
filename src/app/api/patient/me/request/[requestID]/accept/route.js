@@ -11,11 +11,7 @@ export async function PUT(req, {params}) {
     const roleCheck = requireRole(req, ['Patient']);
     if (roleCheck.error) return roleCheck.error;
 
-    const mePatient = await Patient.findOne({user: roleCheck.payload.sub}).select('_id doctorID familyID user');
-    if (!mePatient) return NextResponse.json(
-        {error: 'Patient profile not found'}, {status: 404}
-    );
-    const {requestID} = await params;
+    const {requestID} = params;
     const request = await LinkRequest.findById(requestID)
         .select('_id patient requesterRole requesterUser status');
     
@@ -23,18 +19,19 @@ export async function PUT(req, {params}) {
         {message: 'Request not found'},
         {status: 404}
     );
+
+    const mePatient = await Patient.findOne({user: roleCheck.payload.sub}).select('_id doctorID familyID user');
+    if (!mePatient) return NextResponse.json(
+        {error: 'Patient profile not found'}, {status: 404}
+    );
         
-    const matchesUser = String(request.patient) === String(roleCheck.payload.sub);
-    const matchesPatient = String(request.patient) === String(mePatient._id);
-    if (!matchesUser && !matchesPatient) {
+    if (String(request.patient) !== String(mePatient._id)) {
         return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    if (request.status === 'Accepted') {
-        return NextResponse.json(
-            {message: 'Already accepted'}, {status: 200}
-        );
-    }
+    if (request.status === 'Accepted') return NextResponse.json(
+        {message: 'Already accepted'}, {status: 200}
+    );
 
     if (request.requesterRole === 'Doctor') {
         const d = await Doctor.findOne({user: request.requesterUser}).select('_id');
