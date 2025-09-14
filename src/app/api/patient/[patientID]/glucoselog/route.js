@@ -13,12 +13,10 @@ export async function GET(req, { params }) {
     const {payload, error} = requireRole(req, ['Doctor', 'Family Member']);
     if (error) return error;
 
-    const {patientId} = await params;
+    const {patientID} = await params;
 
     // Load patient and verify linkage depending on the viewer role
-    let patient =
-        (await Patient.findById(patientId).select('_id doctorID familyID user')) ||
-        (await Patient.findOne({user: patientId}).select('_id doctorID familyID user'));
+    const patient = await Patient.findById(patientID).select('_id doctorID familyID user');
     if (!patient) return NextResponse.json({ error: 'Patient not found' }, { status: 404 });
 
     if (payload.role === 'Doctor') {
@@ -35,11 +33,9 @@ export async function GET(req, { params }) {
 
     const url = new URL(req.url);
     const date = url.searchParams.get('date');
-    if(!date) {
-        return NextResponse.json(
-            {error: 'date is required'}, {status: 400}
-        );
-    }
+    if(!date) return NextResponse.json(
+        {error: 'date is required'}, {status: 400}
+    );
 
     const start = new Date(date);
     const end = new Date(start);
