@@ -12,7 +12,7 @@ export async function POST(req, {params}) {
     if (roleCheck.error) return roleCheck.error;
 
     try {
-        const {patientID} = params;     //Patient._id
+        const {patientID} = await params;     //Patient._id
         const patient = await Patient.findById(patientID).select('_id');
         if (!patient) {
             return NextResponse.json(
