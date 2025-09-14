@@ -9,12 +9,13 @@ export async function DELETE(req, {params}) {
     const roleCheck = requireRole(req, ['Patient']);
     if (roleCheck.error) return roleCheck.error;
 
+    const {requestID} = await params;
+
     const mePatient = await Patient.findOne({user: roleCheck.payload.sub}).select('_id');
     if (!mePatient) return NextResponse.json(
         {error: 'Patient profile not found'}, {status: 404}
     );
 
-    const {requestID} = params;
     const request = await LinkRequest.findById(requestID);
     if (!request) {
         return NextResponse.json(
@@ -22,9 +23,15 @@ export async function DELETE(req, {params}) {
         );
     }
     
-    if (String(request.patientID) !== String(mePatient._id)) {
+    if (String(request.patient) !== String(mePatient._id)) {
         return NextResponse.json(
             {message: 'Forbidden'}, {status: 403}
+        );
+    }
+
+    if (request.status === 'Accepted') {
+        return NextResponse.json(
+            {message:'Already accepted'}, {status: 409}
         );
     }
 
