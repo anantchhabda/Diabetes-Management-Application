@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-
   const form = document.getElementById("registerForm");
   const phoneInput = document.getElementById("phone");
   const passwordInput = document.getElementById("password");
@@ -42,8 +41,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setError("");
     alert(`Registering with:\nPhone: ${phone}\nRole: ${role}`);
-
-    // redirect to patient onboardng
-    window.location.href = "/patient-onboarding";
   });
 });

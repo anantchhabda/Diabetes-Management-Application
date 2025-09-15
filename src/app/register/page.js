@@ -62,12 +62,13 @@ export default function RegisterPage() {
         <p id="error" className="text-red-600 text-sm"></p>
 
         {/* Submit */}
-        <button
+        <a
           type="submit"
-          className="w-full py-3 bg-[#004B5E] text-white text-lg rounded-md hover:opacity-90 transition"
+          className="w-full py-3 bg-[#004B5E] text-white text-lg rounded-md text-center hover:opacity-90 transition"
+          href="/patient-onboarding"
         >
           Register
-        </button>
+        </a>
       </form>
 
       {/* Attach script */}
