@@ -1,7 +1,10 @@
 "use client";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const router = useRouter();
+
   useEffect(() => {
     const form = document.getElementById("loginForm");
     const phoneInput = document.getElementById("phone");
@@ -27,7 +30,7 @@ export default function LoginPage() {
       }
 
       errorMsg.textContent = "";
-      alert(`Logging in with:\nPhone: ${phone}\nPassword: ${password}`);
+      router.push("/home");
     });
 
     // Toggle password visibility
@@ -41,7 +44,7 @@ export default function LoginPage() {
     phoneInput.addEventListener("input", () => {
       phoneInput.value = phoneInput.value.replace(/\D/g, "");
     });
-  }, []);
+  }, [router]);
 
   return (
     <div
