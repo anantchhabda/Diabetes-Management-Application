@@ -64,7 +64,7 @@ export async function GET(req) {
         nextDate.setDate(nextDate.getDate()+1);
 
         const logs = await InsulinLog.find({
-            patientID: patient._id,
+            patient: patient._id,
             date: {$gte: startDate, $lt: nextDate} //all documents for a single day (before 00:00 of the next day)
         });
 
