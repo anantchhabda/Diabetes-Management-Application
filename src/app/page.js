@@ -1,15 +1,6 @@
-"use client";
-import { useRouter } from "next/navigation";
-import React from "react";
-
-export default function HomePage() {
-  const router = useRouter();
-
+export default function Page() {
   return (
-    <div
-      className="flex flex-col justify-center items-center min-h-screen px-5"
-      style={{ backgroundColor: "rgba(58, 211, 249, 1)" }}
-    >
+    <main className="flex flex-col justify-center items-center min-h-screen px-5 bg-[rgba(58,211,249,1)]">
       {/* Logo */}
       <div className="w-[25vw] max-w-[120px] h-[25vw] max-h-[120px] mb-[5vh]">
         <svg viewBox="0 0 64 64" width="100%" height="100%">
@@ -24,20 +15,20 @@ export default function HomePage() {
 
       {/* Buttons */}
       <div className="flex flex-col gap-5 w-full max-w-[250px]">
-        <button
-          onClick={() => router.push("/login")}
-          className="w-full py-3 bg-[#004B5E] text-white text-lg rounded-md hover:opacity-90 transition"
+        <a
+          href="/login"
+          className="w-full py-3 bg-[#004B5E] text-white text-lg rounded-md text-center hover:opacity-90 transition"
         >
           Log In
-        </button>
+        </a>
 
-        <button
-          onClick={() => router.push("/register")}
-          className="w-full py-3 bg-[#00C896] text-white text-lg rounded-md hover:opacity-90 transition"
+        <a
+          href="/register"
+          className="w-full py-3 bg-[#00C896] text-white text-lg rounded-md text-center hover:opacity-90 transition"
         >
           Register
-        </button>
+        </a>
       </div>
-    </div>
+    </main>
   );
 }

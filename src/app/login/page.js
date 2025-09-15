@@ -1,53 +1,8 @@
-"use client";
-import { useEffect } from "react";
+import Script from "next/script";
 
-export default function LoginPage() {
-  useEffect(() => {
-    const form = document.getElementById("loginForm");
-    const phoneInput = document.getElementById("phone");
-    const passwordInput = document.getElementById("password");
-    const errorMsg = document.getElementById("error");
-    const toggleBtn = document.getElementById("togglePassword");
-
-    // Handle form submit
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      const phone = phoneInput.value.trim();
-      const password = passwordInput.value;
-
-      if (!/^\d{7,15}$/.test(phone)) {
-        errorMsg.textContent =
-          "Please enter a valid phone number (7-15 digits)";
-        return;
-      }
-
-      if (!password) {
-        errorMsg.textContent = "Password cannot be empty";
-        return;
-      }
-
-      errorMsg.textContent = "";
-      alert(`Logging in with:\nPhone: ${phone}\nPassword: ${password}`);
-    });
-
-    // Toggle password visibility
-    toggleBtn.addEventListener("click", () => {
-      const isPassword = passwordInput.getAttribute("type") === "password";
-      passwordInput.setAttribute("type", isPassword ? "text" : "password");
-      toggleBtn.textContent = isPassword ? "Hide" : "Show";
-    });
-
-    // Restrict phone input to numbers only
-    phoneInput.addEventListener("input", () => {
-      phoneInput.value = phoneInput.value.replace(/\D/g, "");
-    });
-  }, []);
-
+export default function Page() {
   return (
-    <div
-      className="flex justify-center items-center min-h-screen px-4"
-      style={{ backgroundColor: "rgba(58, 211, 249, 1)" }}
-    >
+    <main className="flex justify-center items-center min-h-screen px-4">
       <form
         id="loginForm"
         className="flex flex-col gap-5 w-full max-w-xs bg-white p-6 rounded-xl shadow-lg"
@@ -57,23 +12,29 @@ export default function LoginPage() {
         <input
           type="tel"
           id="phone"
+          name="phone"
           placeholder="Phone Number"
           required
           inputMode="numeric"
+          autoComplete="tel"
+          pattern="[0-9]{7,15}"
+          title="Enter 7–15 digits"
           className="w-full px-3 py-2 border border-gray-300 rounded-md 
                      focus:outline-none focus:ring-2 focus:ring-[#00C896]
-                     text-gray-900 placeholder-gray-600"
+                     text-gray-900 placeholder-gray-700"
         />
 
         <div className="relative w-full">
           <input
             type="password"
             id="password"
+            name="password"
             placeholder="Password"
             required
+            autoComplete="current-password"
             className="w-full px-3 py-2 border border-gray-300 rounded-md 
                        focus:outline-none focus:ring-2 focus:ring-[#00C896]
-                       text-gray-900 placeholder-gray-600"
+                       text-gray-900 placeholder-gray-700"
           />
           <button
             type="button"
@@ -84,7 +45,12 @@ export default function LoginPage() {
           </button>
         </div>
 
-        <p id="error" className="text-red-600 text-sm"></p>
+        <p
+          id="error"
+          role="alert"
+          aria-live="polite"
+          className="text-red-600 text-sm min-h-[1.25rem]"
+        ></p>
 
         <button
           type="submit"
@@ -93,6 +59,8 @@ export default function LoginPage() {
           Log In
         </button>
       </form>
-    </div>
+
+      <Script src="/js/login.js" strategy="afterInteractive" />
+    </main>
   );
 }

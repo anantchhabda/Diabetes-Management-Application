@@ -1,62 +1,22 @@
-"use client";
-import { useState } from "react";
+import Script from "next/script";
 
 export default function RegisterPage() {
-  const [formData, setFormData] = useState({
-    phone: "",
-    password: "",
-    confirmPassword: "",
-    role: "Patient",
-  });
-  const [error, setError] = useState("");
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!/^\d{7,15}$/.test(formData.phone)) {
-      setError("Please enter a valid phone number (7-15 digits)");
-      return;
-    }
-    if (!formData.password) {
-      setError("Password cannot be empty");
-      return;
-    }
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match!");
-      return;
-    }
-    setError("");
-    alert(
-      `Registering with:\nPhone: ${formData.phone}\nRole: ${formData.role}`
-    );
-    // TODO: send formData to your API
-  };
-
   return (
-    <div
-      className="flex justify-center items-center min-h-screen px-4"
-      style={{ backgroundColor: "rgba(58, 211, 249, 1)" }}
-    >
+    <main className="flex justify-center items-center min-h-screen px-4">
       <form
-        onSubmit={handleSubmit}
+        id="registerForm"
         className="flex flex-col gap-5 w-full max-w-xs bg-white p-6 rounded-xl shadow-lg"
+        noValidate
       >
         <h1 className="text-2xl font-bold text-center text-[#004B5E]">
           Register
         </h1>
 
+        {/* Phone */}
         <input
           type="tel"
-          name="phone"
+          id="phone"
           placeholder="Phone Number"
-          value={formData.phone}
-          onChange={handleChange}
           inputMode="numeric"
           className="w-full px-3 py-2 border border-gray-300 rounded-md 
                      focus:outline-none focus:ring-2 focus:ring-[#00C896]
@@ -64,34 +24,31 @@ export default function RegisterPage() {
           required
         />
 
+        {/* Password */}
         <input
           type="password"
-          name="password"
+          id="password"
           placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
+          required
           className="w-full px-3 py-2 border border-gray-300 rounded-md 
                      focus:outline-none focus:ring-2 focus:ring-[#00C896]
                      text-gray-900 placeholder-gray-600"
-          required
         />
 
+        {/* Confirm Password */}
         <input
           type="password"
-          name="confirmPassword"
+          id="confirmPassword"
           placeholder="Confirm Password"
-          value={formData.confirmPassword}
-          onChange={handleChange}
+          required
           className="w-full px-3 py-2 border border-gray-300 rounded-md 
                      focus:outline-none focus:ring-2 focus:ring-[#00C896]
                      text-gray-900 placeholder-gray-600"
-          required
         />
 
+        {/* Role */}
         <select
-          name="role"
-          value={formData.role}
-          onChange={handleChange}
+          id="role"
           className="w-full px-3 py-2 border border-gray-300 rounded-md 
                      focus:outline-none focus:ring-2 focus:ring-[#00C896]
                      text-gray-900 placeholder-gray-600"
@@ -101,8 +58,10 @@ export default function RegisterPage() {
           <option>Family</option>
         </select>
 
-        {error && <p className="text-red-600 text-sm">{error}</p>}
+        {/* Error message */}
+        <p id="error" className="text-red-600 text-sm"></p>
 
+        {/* Submit */}
         <button
           type="submit"
           className="w-full py-3 bg-[#004B5E] text-white text-lg rounded-md hover:opacity-90 transition"
@@ -110,6 +69,9 @@ export default function RegisterPage() {
           Register
         </button>
       </form>
-    </div>
+
+      {/* Attach script */}
+      <Script src="/js/register.js" strategy="afterInteractive" />
+    </main>
   );
 }
