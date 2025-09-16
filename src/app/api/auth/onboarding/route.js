@@ -44,13 +44,6 @@ export async function POST(req) {
             {message: 'Unauthorized or access expired'},
             {status: 401}
     );
-
-    if (user.onboardingComplete) {
-        return NextResponse.json(
-            {message: 'Onboarding completed'},
-            {status: 409}
-        );
-    }
     try {
         const body = await req.json();
         let created;    //Capture the created profile doc
