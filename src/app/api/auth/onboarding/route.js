@@ -55,8 +55,8 @@ export async function POST(req) {
         const body = await req.json();
         let created;    //Capture the created profile doc
 
-        const pre = typeof payload.profileId === 'string' ? payload.profileId : undefined;
-        if (pre && !Types.ObjectId.isValid(pre)) return NextResponse.json({ error: 'Invalid profileId' }, { status: 400 });
+        const pre = payload.profileId;
+        if (!Types.ObjectId.isValid(pre)) return NextResponse.json({ error: 'Invalid profileId' }, { status: 400 });
         
         if (user.role=='Patient') {
             const {name, dob, sex, address, yearOfDiag, typeOfDiag} = body;
