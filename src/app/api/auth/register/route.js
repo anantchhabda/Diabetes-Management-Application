@@ -38,6 +38,7 @@ export async function POST(req) {
             {userId: user._id,
             phoneNumber: user.phoneNumber,
             role: user.role,
+            profileId: String(preProfileId),
             token},
             {status: 201} //created
         );
