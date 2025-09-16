@@ -25,11 +25,13 @@ export async function POST(req) {
 
     try {
         const user = await User.create({phoneNumber, password, role}); //save user data
+        const preProfileId = new mongoose.Types.ObjectId();
         const token = signJwt({
-            sub: user._id, 
+            sub: String(user._id), 
             phoneNumber: user.phoneNumber, 
             role: user.role, 
-            scope: 'onboarding'
+            scope: 'onboarding',
+            profileId: String(preProfileId)
         });
 
         return NextResponse.json(
