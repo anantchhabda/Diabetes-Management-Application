@@ -1,15 +1,13 @@
-// src/app/page.js
-'use client';
-import React from 'react';
-import { useRouter } from 'next/navigation';
+"use client"; // needed if you're in Next.js app directory
 
-export default function HomePage() {
+import { useRouter } from "next/navigation";
+
+export default function Page() {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen px-5 bg-cyan-500">
-      
-      {/* Logo */}
+    <main className="flex flex-col justify-center items-center min-h-screen px-5 bg-[rgba(58,211,249,1)]">
+      {/* Inbuilt logo --> change to external logo file? */}
       <div className="w-[25vw] max-w-[120px] h-[25vw] max-h-[120px] mb-[5vh]">
         <svg viewBox="0 0 64 64" width="100%" height="100%">
           <path
@@ -21,22 +19,22 @@ export default function HomePage() {
         </svg>
       </div>
 
-      {/* Buttons */}
+      {/* Login  and register buttons */}
       <div className="flex flex-col gap-5 w-full max-w-[250px]">
         <button
-          onClick={() => router.push('/login')}
-          className="w-full py-3 bg-[#004B5E] text-white text-lg rounded-md hover:opacity-90 transition"
+          onClick={() => router.push("/login")}
+          className="w-full py-3 bg-[#004B5E] text-white text-lg rounded-md text-center hover:opacity-90 transition"
         >
           Log In
         </button>
 
         <button
-          onClick={() => router.push('/register')}
-          className="w-full py-3 bg-[#00C896] text-white text-lg rounded-md hover:opacity-90 transition"
+          onClick={() => router.push("/register")}
+          className="w-full py-3 bg-[#00C896] text-white text-lg rounded-md text-center hover:opacity-90 transition"
         >
           Register
         </button>
       </div>
-    </div>
+    </main>
   );
 }
