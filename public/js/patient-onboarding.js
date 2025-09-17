@@ -7,17 +7,18 @@
 
   form.addEventListener("submit", function (e) {
     e.preventDefault();
-    savedMsg.textContent = "";
+
+    // clear previous saved message
+    if (savedMsg) savedMsg.textContent = "";
 
     const data = Object.fromEntries(new FormData(form));
     const errors = {};
 
-    // fields
+    // required fields, skipping readonly fields 
     [
       "fullName",
       "dateOfBirth",
       "sex",
-      "phone",
       "fullAddress",
       "yearOfDiagnosis",
       "diagnosisType",
@@ -27,12 +28,7 @@
       }
     });
 
-    // validate phone
-    if (data.phone && !/^\+?[0-9 ()-]{7,}$/.test(data.phone)) {
-      errors.phone = "Invalid phone number";
-    }
-
-    // validate year
+    // year validation..is it required?
     if (data.yearOfDiagnosis) {
       const y = Number(data.yearOfDiagnosis);
       if (!Number.isInteger(y) || y < 1900 || y > currentYear) {
@@ -40,21 +36,20 @@
       }
     }
 
-    // reset error
+    // reset all previous error messages
     form
       .querySelectorAll("p[id^='error-']")
       .forEach((p) => (p.textContent = ""));
 
-    // show error
+    // show new errors
     Object.entries(errors).forEach(([key, msg]) => {
       const el = document.getElementById(`error-${key}`);
       if (el) el.textContent = msg;
     });
 
+    // stop if errors
     if (Object.keys(errors).length > 0) return;
 
-    setTimeout(() => {
-      savedMsg.textContent = "Saved at " + new Date().toLocaleTimeString();
-    }, 300);
+      window.location.href = "/homepage";
   });
 })();

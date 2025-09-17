@@ -23,30 +23,34 @@ export default function Page() {
           />
         </div>
 
-        {/* Password */}
+        {/* Phone Number */}
         <div>
           <label
-            htmlFor="password"
+            htmlFor="phone"
             className="block text-lg font-semibold text-slate-800 mb-2"
           >
-            Password
+            Phone Number
           </label>
           <input
-            id="password"
-            name="password"
-            type="password"
-            placeholder="Password"
-            className="w-full h-10 rounded bg-white border border-gray-300 px-3 
-                       text-gray-900 placeholder-gray-600 shadow-sm 
-                       focus:outline-none focus:ring-2 focus:ring-[#00C896]"
+            id="phone"
+            name="phone"
+            type="tel"
+            value="0488665812"
+            readOnly
+            className="w-full h-10 rounded bg-[#0c6a70] border-0 text-white/95 px-3 shadow-sm"
           />
+          <p id="error-phone" className="text-red-600 text-sm"></p>
         </div>
 
         {/* Full Name */}
         <Field label="Full Name*" id="fullName" placeholder="Full Name" />
 
+        {/* Error for Full Name */}
+        <p id="error-fullName" className="text-red-600 text-sm"></p>
+
         {/* Date of Birth */}
         <Field label="Date of Birth*" id="dateOfBirth" type="date" />
+        <p id="error-dateOfBirth" className="text-red-600 text-sm"></p>
 
         {/* Sex */}
         <div>
@@ -69,15 +73,8 @@ export default function Page() {
             <option>Intersex</option>
             <option>Prefer not to say</option>
           </select>
+          <p id="error-sex" className="text-red-600 text-sm"></p>
         </div>
-
-        {/* Phone */}
-        <Field
-          label="Phone Number*"
-          id="phone"
-          type="tel"
-          placeholder="Phone Number"
-        />
 
         {/* Full Address */}
         <div>
@@ -96,6 +93,7 @@ export default function Page() {
                        text-gray-900 placeholder-gray-600 shadow-sm 
                        focus:outline-none focus:ring-2 focus:ring-[#00C896]"
           />
+          <p id="error-fullAddress" className="text-red-600 text-sm"></p>
         </div>
 
         {/* Year of Diagnosis */}
@@ -105,6 +103,7 @@ export default function Page() {
           type="number"
           placeholder="Year of Diagnosis"
         />
+        <p id="error-yearOfDiagnosis" className="text-red-600 text-sm"></p>
 
         {/* Diagnosis Type */}
         <div>
@@ -126,9 +125,13 @@ export default function Page() {
             <option>Type 2</option>
             <option>Gestational</option>
           </select>
+          <p id="error-diagnosisType" className="text-red-600 text-sm"></p>
         </div>
 
-        {/* Save Button*/}
+        {/* Saved message */}
+        <p id="savedMsg" className="text-green-600 text-sm mb-2"></p>
+
+        {/* Save Button */}
         <button
           type="submit"
           className="w-full py-3 bg-[#004B5E] text-white text-lg rounded-md hover:opacity-90 transition"
@@ -142,6 +145,7 @@ export default function Page() {
   );
 }
 
+// Reusable input Field component
 function Field({ label, id, type = "text", placeholder }) {
   return (
     <div>

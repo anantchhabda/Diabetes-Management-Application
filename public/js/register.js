@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+(function () {
   const form = document.getElementById("registerForm");
   const phoneInput = document.getElementById("phone");
   const passwordInput = document.getElementById("password");
@@ -6,25 +6,31 @@ document.addEventListener("DOMContentLoaded", () => {
   const roleSelect = document.getElementById("role");
   const errorMsg = document.getElementById("error");
 
+  if (!form || !phoneInput || !passwordInput || !confirmInput || !roleSelect || !errorMsg) return;
+
+  // show error
   function setError(msg) {
     errorMsg.textContent = msg || "";
   }
 
-  //phone input only digits
-  phoneInput.addEventListener("input", () => {
+  // phone number digits only
+  phoneInput.addEventListener("input", function () {
+    const start = phoneInput.selectionStart;
+    const end = phoneInput.selectionEnd;
     phoneInput.value = phoneInput.value.replace(/\D/g, "");
+    phoneInput.setSelectionRange(start, end);
   });
 
-  // validate form
-  form.addEventListener("submit", (e) => {
+  // handle form submission
+  form.addEventListener("submit", function (e) {
     e.preventDefault();
 
-    const phone = phoneInput.value.trim();
-    const password = passwordInput.value;
-    const confirmPassword = confirmInput.value;
+    const phone = (phoneInput.value || "").trim();
+    const password = passwordInput.value || "";
+    const confirmPassword = confirmInput.value || "";
     const role = roleSelect.value;
 
-    if (!/^[0-9]{7,15}$/.test(phone)) {
+    if (!/^\d{7,15}$/.test(phone)) {
       setError("Please enter a valid phone number (7–15 digits)");
       return;
     }
@@ -40,6 +46,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     setError("");
-    alert(`Registering with:\nPhone: ${phone}\nRole: ${role}`);
+
+    // redirecting to homepage if validation successful
+    window.location.href = "/patient-onboarding";
   });
-});
+})();

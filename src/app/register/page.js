@@ -1,3 +1,5 @@
+"use client";
+
 import Script from "next/script";
 
 export default function RegisterPage() {
@@ -61,17 +63,16 @@ export default function RegisterPage() {
         {/* Error message */}
         <p id="error" className="text-red-600 text-sm"></p>
 
-        {/* Submit */}
-        <a
+        {/* Submit button */}
+        <button
           type="submit"
           className="w-full py-3 bg-[#004B5E] text-white text-lg rounded-md text-center hover:opacity-90 transition"
-          href="/patient-onboarding"
         >
           Register
-        </a>
+        </button>
       </form>
 
-      {/* Attach script */}
+      {/* Attach external script */}
       <Script src="/js/register.js" strategy="afterInteractive" />
     </main>
   );
