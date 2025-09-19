@@ -1,8 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: rgba(58, 211, 249, 1); /*global background for all pages */
+  --background: #D1FFFA; 
   --foreground: #171717;
+  --color-primary: #049EDB;
+  --color-secondary: #024059;
+  --color-tertiary: #04BF8A;
+  --color-accent: #03A64A;
+  --color-error: #532523;
+  --color-textWhite: #dfe2df;
+  --color-textBlack: #464646;
 }
 
 @theme inline {
@@ -12,7 +19,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: rgba(58, 211, 249, 1);
+    --background: #049EDB;
     --foreground: #ededed;
   }
 }

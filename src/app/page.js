@@ -6,7 +6,7 @@ export default function Page() {
   const router = useRouter();
 
   return (
-    <main className="flex flex-col justify-center items-center min-h-screen px-5 bg-[rgba(58,211,249,1)]">
+    <main className="flex flex-col justify-center items-center min-h-screen px-5 bg-[var(--color-background)]">
       {/* Inbuilt logo --> change to external logo file? */}
       <div className="w-[25vw] max-w-[120px] h-[25vw] max-h-[120px] mb-[5vh]">
         <svg viewBox="0 0 64 64" width="100%" height="100%">
@@ -23,14 +23,14 @@ export default function Page() {
       <div className="flex flex-col gap-5 w-full max-w-[250px]">
         <button
           onClick={() => router.push("/login")}
-          className="w-full py-3 bg-[#004B5E] text-white text-lg rounded-md text-center hover:opacity-90 transition"
+          className="w-full py-3 bg-[var(--color-secondary)] text-[var(--color-textWhite)] text-lg rounded-md text-center hover:opacity-90 transition"
         >
           Log In
         </button>
 
         <button
           onClick={() => router.push("/register")}
-          className="w-full py-3 bg-[#00C896] text-white text-lg rounded-md text-center hover:opacity-90 transition"
+          className="w-full py-3 bg-[var(--color-tertiary)] text-[var(--color-textWhite)] text-lg rounded-md text-center hover:opacity-90 transition"
         >
           Register
         </button>
