@@ -19,9 +19,9 @@ export default function Page() {
           autoComplete="tel"
           pattern="[0-9]{7,15}"
           title="Enter 7–15 digits"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md 
-                     focus:outline-none focus:ring-2 focus:ring-[#00C896]
-                     text-gray-900 placeholder-gray-700"
+          className="w-full px-3 py-2 border border-[var(--color-gray-300)] rounded-md 
+                     focus:outline-none focus:ring-2 focus:ring-[var(--color-tertiary)]
+                     text-[var(--color-gray-900)] placeholder-[var(--color-gray-700)]"
         />
 
         <div className="relative w-full">
@@ -33,13 +33,13 @@ export default function Page() {
             required
             autoComplete="current-password"
             className="w-full px-3 py-2 border border-gray-300 rounded-md 
-                       focus:outline-none focus:ring-2 focus:ring-[#00C896]
+                       focus:outline-none focus:ring-2 focus:ring-[var(--color-tertiary)]
                        text-gray-900 placeholder-gray-700"
           />
           <button
             type="button"
             id="togglePassword"
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[#004B5E] font-semibold"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-secondary)] font-semibold"
           >
             Show
           </button>
@@ -54,7 +54,7 @@ export default function Page() {
 
         <button
           type="submit"
-          className="w-full py-3 bg-[#004B5E] text-white text-lg rounded-md hover:opacity-90 transition"
+          className="w-full py-3 bg-[var(--color-secondary)] text-[var(--color-textWhite)] text-lg rounded-md hover:opacity-90 transition"
         >
           Log In
         </button>
