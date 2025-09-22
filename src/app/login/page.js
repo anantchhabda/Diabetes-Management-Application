@@ -1,74 +1,57 @@
-'use client';
-import React, { useState } from 'react';
+import Script from "next/script";
 
-export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Please enter a valid email address');
-      return;
-    }
-
-    if (!password) {
-      setError('Password cannot be empty');
-      return;
-    }
-
-    setError('');
-    alert(`Logging in with:\nEmail: ${email}\nPassword: ${password}`);
-  };
-
+export default function Page() {
   return (
-    <div className="flex justify-center items-center h-screen bg-cyan-500 px-4">
+    <main className="flex justify-center items-center min-h-screen px-4">
       <form
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-5 w-full max-w-[300px] bg-white p-6 rounded-xl shadow-lg"
+        id="loginForm"
+        className="flex flex-col gap-5 w-full max-w-xs bg-white p-6 rounded-xl shadow-lg"
       >
         <h1 className="text-2xl font-bold text-center text-[#004B5E]">Login</h1>
 
-        {/* Email field */}
         <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="tel"
+          id="phone"
+          name="phone"
+          placeholder="Phone Number"
+          required
+          inputMode="numeric"
+          autoComplete="tel"
+          pattern="[0-9]{7,15}"
+          title="Enter 7–15 digits"
           className="w-full px-3 py-2 border border-gray-300 rounded-md 
                      focus:outline-none focus:ring-2 focus:ring-[#00C896]
-                     text-gray-900 placeholder-gray-600"
-          required
+                     text-gray-900 placeholder-gray-700"
         />
 
-        {/* Password field with toggle */}
         <div className="relative w-full">
           <input
-            type={showPassword ? 'text' : 'password'}
+            type="password"
+            id="password"
+            name="password"
             placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            required
+            autoComplete="current-password"
             className="w-full px-3 py-2 border border-gray-300 rounded-md 
                        focus:outline-none focus:ring-2 focus:ring-[#00C896]
-                       text-gray-900 placeholder-gray-600"
-            required
+                       text-gray-900 placeholder-gray-700"
           />
           <button
             type="button"
-            onClick={() => setShowPassword(!showPassword)}
+            id="togglePassword"
             className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[#004B5E] font-semibold"
           >
-            {showPassword ? 'Hide' : 'Show'}
+            Show
           </button>
         </div>
 
-        {/* Error message */}
-        {error && <p className="text-red-600 text-sm">{error}</p>}
+        <p
+          id="error"
+          role="alert"
+          aria-live="polite"
+          className="text-red-600 text-sm min-h-[1.25rem]"
+        ></p>
 
-        {/* Login button */}
         <button
           type="submit"
           className="w-full py-3 bg-[#004B5E] text-white text-lg rounded-md hover:opacity-90 transition"
@@ -76,6 +59,8 @@ export default function LoginPage() {
           Log In
         </button>
       </form>
-    </div>
+
+      <Script src="/js/login.js" strategy="afterInteractive" />
+    </main>
   );
 }
