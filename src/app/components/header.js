@@ -8,17 +8,14 @@ export default function Header() {
         <header className={styles.header}>
             <div className={styles.headerContent}>
                 <div className={styles.placeholder}></div>
-                <Link href="/" className={styles.logoLink}>
-                    <div className="rounded-full bg-black p-2">
-                        <svg viewBox="0 0 64 64" width="24" height="24">
-                            <path
-                                d="M32 2 C20 20, 8 32, 32 62 C56 32, 44 20, 32 2 Z"
-                                fill="white"
-                                stroke="white"
-                                strokeWidth="2"
-                            />
-                        </svg>
-                    </div>
+                <Link href="/homepage" className={styles.logoLink}>
+                    <Image
+                        src="/logos/DMA-logo-black.png"
+                        alt="Diabetes Management Logo"
+                        width={60}
+                        height={60}
+                        priority
+                    />
                 </Link>
                 
                 <Link href="/settings" className={styles.settingsButton}>
