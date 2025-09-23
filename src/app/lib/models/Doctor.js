@@ -1,10 +1,16 @@
 import mongoose from 'mongoose';
 
 const DoctorSchema = new mongoose.Schema({
+    profileId: {
+        type: String,
+        required: true,
+        unique: true
+    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: true,
+        unique: true
     },
     name: {
         type: String,

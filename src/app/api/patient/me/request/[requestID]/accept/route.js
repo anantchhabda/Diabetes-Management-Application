@@ -20,12 +20,12 @@ export async function PUT(req, {params}) {
         {status: 404}
     );
 
-    const mePatient = await Patient.findOne({user: roleCheck.payload.sub}).select('_id doctorID familyID user');
+    const mePatient = await Patient.findOne({user: roleCheck.payload.sub}).select('profileId doctorID familyID user');
     if (!mePatient) return NextResponse.json(
         {error: 'Patient profile not found'}, {status: 404}
     );
         
-    if (String(request.patient) !== String(mePatient._id)) {
+    if (String(request.patient) !== String(mePatient.profileId)) {
         return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
@@ -34,15 +34,15 @@ export async function PUT(req, {params}) {
     );
 
     if (request.requesterRole === 'Doctor') {
-        const d = await Doctor.findOne({user: request.requesterUser}).select('_id');
+        const d = await Doctor.findOne({profileId: request.requesterUser}).select('profileId');
         if(!d) return NextResponse.json(
             {error: 'Doctor profile not found'}, {status: 404});
-        mePatient.doctorID = d._id;
+        mePatient.doctorID = d.profileId;
     } else if (request.requesterRole === 'Family Member') {
-        const f = await FamilyMember.findOne({user: request.requesterUser}).select('_id');
+        const f = await FamilyMember.findOne({profileId: request.requesterUser}).select('profileId');
         if (!f) return NextResponse.json(
             {error: ' Family profile not found'}, {status: 404});
-        mePatient.familyID = f._id;
+        mePatient.familyID = f.profileId;
     } else {
         return NextResponse.json(
             {error: 'Unknown requesterRole'}, {status: 400}

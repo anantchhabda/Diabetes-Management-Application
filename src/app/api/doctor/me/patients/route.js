@@ -9,13 +9,13 @@ export async function GET(req) {
   const { payload, error } = requireRole(req, ['Doctor']);
   if (error) return error;
 
-  const doctor = await Doctor.findOne({ user: payload.sub }).select('_id');
+  const doctor = await Doctor.findOne({ user: payload.sub }).select('profileId');
   if (!doctor) {
     return NextResponse.json({ error: 'Doctor profile not found' }, { status: 404 });
   }
 
-  const patients = await Patient.find({ doctorID: doctor._id })
-    .select('_id name dob sex yearOfDiag typeOfDiag');
+  const patients = await Patient.find({ doctorID: doctor.profileId })
+    .select('profileId name dob sex yearOfDiag typeOfDiag');
 
   return NextResponse.json({ patients }, { status: 200 });
 }

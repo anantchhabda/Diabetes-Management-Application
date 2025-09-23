@@ -10,7 +10,7 @@ export async function POST(req) {
     if (roleCheck.error) return roleCheck.error;
 
     try {
-        const patient = await Patient.findOne({ user: roleCheck.payload.sub }).select('_id');
+        const patient = await Patient.findOne({ user: roleCheck.payload.sub }).select('profileId');
         if (!patient) {
             return NextResponse.json({ error: 'Patient profile not found' }, { status: 404 });
         }
@@ -22,7 +22,7 @@ export async function POST(req) {
         }
 
         const log = await GeneralLog.create({
-            patient: patient._id,
+            patient: patient.profileId,
             comment,
             date: new Date(date) //automatically stored at midnight of that date
         });
@@ -47,7 +47,7 @@ export async function GET(req) {
     if (roleCheck.error) return roleCheck.error;
 
     try {
-        const patient = await Patient.findOne({ user: roleCheck.payload.sub }).select('_id');
+        const patient = await Patient.findOne({ user: roleCheck.payload.sub }).select('profileId');
         if (!patient) {
             return NextResponse.json({ error: 'Patient profile not found' }, { status: 404 });
         }
@@ -63,7 +63,7 @@ export async function GET(req) {
         nextDate.setDate(nextDate.getDate()+1);
 
         const logs = await GeneralLog.find({
-            patient: patient._id,
+            patient: patient.profileId,
             date: {$gte: startDate, $lt: nextDate} //all documents for a single day (before 00:00 of the next day)
         });
 

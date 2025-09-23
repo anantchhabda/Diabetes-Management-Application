@@ -11,7 +11,7 @@ export async function GET(req) {
     const {payload, error} = requireAuth(req);
     if (error) return error;
 
-    const user = await User.findById(payload.sub).select('role phoneNumber onboardingComplete');
+    const user = await User.findById(payload.sub).select('_id role phoneNumber onboardingComplete');
     if (!user) return NextResponse.json({error: 'User not found'}, {status: 404});
     
     let name = null;
@@ -20,11 +20,11 @@ export async function GET(req) {
     switch(user.role) {
         case 'Patient': {
             const patient = await Patient.findOne({user: user._id})
-                .select('_id name dob sex');
+                .select('profileId name dob sex');
             if (patient) {
                 name = patient.name;
                 profile = {
-                    patientId: patient._id,
+                    patientId: patient.profileId,
                     name: patient.name,
                     dob: patient.dob,
                     sex: patient.sex
@@ -34,11 +34,11 @@ export async function GET(req) {
         }
         case 'Doctor': {
             const doctor = await Doctor.findOne({user: user._id})
-                .select('_id name clinicName clinicAddress');
+                .select('profileId name clinicName clinicAddress');
             if (doctor) {
                 name = doctor.name;
                 profile = {
-                    doctorId: doctor._id,
+                    doctorId: doctor.profileId,
                     name: doctor.name,
                     clinicName: doctor.clinicName,
                     clinicAddress: doctor.clinicAddress
@@ -48,11 +48,11 @@ export async function GET(req) {
         }
         case 'Family Member': {
             const familyMember = await FamilyMember.findOne({user: user._id})
-                .select('_id name address');
+                .select('profileId name address');
             if (familyMember) {
                 name = familyMember.name;
                 profile = {
-                    familyMemberId: familyMember._id,
+                    familyMemberId: familyMember.profileId,
                     name: familyMember.name
                 };
             }

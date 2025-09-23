@@ -1,9 +1,5 @@
 import dbConnect from '../../../lib/db';
-import mongoose from 'mongoose';
 import User from '../../../lib/models/User';
-import Patient from '../../../lib/models/Patient';
-import Doctor from '../../../lib/models/Doctor';
-import FamilyMember from '../../../lib/models/FamilyMember';
 import bcrypt from 'bcryptjs';
 import {NextResponse} from 'next/server';
 import {signJwt} from '../../../lib/auth';
@@ -27,19 +23,19 @@ export async function POST(req) {
     }
 
     if (!user.onboardingComplete) {
-        const preProfileId = new mongoose.Types.ObjectId();
         const token = signJwt({
             sub: String(user._id), 
             phoneNumber: user.phoneNumber, 
             role: user.role, 
             scope: 'onboarding',
-            profileId: String(preProfileId)
+            profileId: user.profileId
         });
 
         return NextResponse.json(
             {userId: user._id,
             phoneNumber: user.phoneNumber,
             role: user.role,
+            profileId: user.profileId,
             token},
             {status: 201} //create onboarding token
             );
@@ -49,27 +45,15 @@ export async function POST(req) {
         sub: user._id, 
         phoneNumber: user.phoneNumber, 
         role: user.role, 
-        scope: 'auth'
+        scope: 'auth',
+        profileId: user.profileId
     });
 
-    //fetch profileId to include in response
-    let profileId = null;
-    if (user.role === 'Patient') {
-        const p = await Patient.findOne({user: user._id}).select('_id');
-        profileId = p ? String(p._id) : null;
-
-    } else if (user.role === 'Doctor') {
-        const d = await Doctor.findOne({user: user._id}).select('_id');
-        profileId = d ? String(d._id): null;
-
-    } else if (user.role === 'Family Member') {
-        const f = await FamilyMember.findOne({user: user._id}).select('_id')
-        profileId = f ? String(f._id): null;
-    }
+    
     return NextResponse.json(
         {userId: user._id, 
         role: user.role, 
-        profileId,
+        profileId: user.profileId,
         authToken},
         {status: 200} //login okay
     );

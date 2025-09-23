@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const GeneralLogSchema = new mongoose.Schema({
     patient: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Patient',
         required: true
     },
@@ -15,6 +15,6 @@ const GeneralLogSchema = new mongoose.Schema({
         type: Date,
         required: true
     }
-});
+}, { timestamps: true });
 
 export default mongoose.models.GeneralLog || mongoose.model('GeneralLog', GeneralLogSchema);

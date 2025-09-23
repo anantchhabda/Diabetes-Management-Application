@@ -1,4 +1,28 @@
+'use client';
+
 export default function Page() {
+  if (typeof window !== 'undefined') {
+    //get registeration data from localStorage
+    const token = localStorage.getItem('onboardingToken');
+    
+    if (token) {
+      try {
+        //decode Jwt
+        const payloadBase64 = token.split('.')[1];
+        const payload = JSON.parse(atob(payloadBase64));
+
+        const profileId = payload.profileId;
+        const phone = payload.phoneNumber;
+        const patientInput = document.getElementById('patientId');
+        const phoneInput = document.getElementById('phone');
+        if (patientInput) patientInput.value = profileId || '';
+        if (phoneInput) phoneInput.value = phone || '';
+      } catch (err) {
+        console.error('Failed to get PatientId and phone number', err);
+      }
+    }
+  }
+
   return (
     <main className="flex justify-center items-center min-h-screen px-4">
       <form
@@ -17,7 +41,6 @@ export default function Page() {
             id="patientId"
             name="patientId"
             type="text"
-            value="PDP-000123"
             readOnly
             className="w-full h-10 rounded bg-[#0c6a70] border-0 text-white/95 px-3 shadow-sm"
           />
@@ -35,7 +58,6 @@ export default function Page() {
             id="phone"
             name="phone"
             type="tel"
-            value="0488665812"
             readOnly
             className="w-full h-10 rounded bg-[#0c6a70] border-0 text-white/95 px-3 shadow-sm"
           />

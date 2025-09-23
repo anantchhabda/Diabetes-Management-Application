@@ -1,10 +1,16 @@
 import mongoose from 'mongoose';
 
 const PatientSchema = new mongoose.Schema({
+    profileId: {
+        type: String,
+        required: true,
+        unique: true
+    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: true,
+        unique: true
     },
     name: {
         type: String,
@@ -16,7 +22,7 @@ const PatientSchema = new mongoose.Schema({
     },
     sex: {
         type: String,
-        enum: ['Male', 'Female', 'Other'],
+        enum: ['Male', 'Female', 'Intersex', 'Prefer not to say'],
         required: true
     },
     address: {
@@ -24,7 +30,7 @@ const PatientSchema = new mongoose.Schema({
         required: true
     },
     yearOfDiag: {
-        type: Number,
+        type: String,
         required: true
     },
     typeOfDiag: {
@@ -33,11 +39,11 @@ const PatientSchema = new mongoose.Schema({
         required: true
     },
     doctorID: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Doctor'
     },
     familyID: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'FamilyMember'
     }
 });

@@ -11,7 +11,7 @@ export async function DELETE(req, {params}) {
 
     const {requestID} = await params;
 
-    const mePatient = await Patient.findOne({user: roleCheck.payload.sub}).select('_id');
+    const mePatient = await Patient.findOne({user: roleCheck.payload.sub}).select('profileId');
     if (!mePatient) return NextResponse.json(
         {error: 'Patient profile not found'}, {status: 404}
     );
@@ -23,7 +23,7 @@ export async function DELETE(req, {params}) {
         );
     }
     
-    if (String(request.patient) !== String(mePatient._id)) {
+    if (String(request.patient) !== String(mePatient.profileId)) {
         return NextResponse.json(
             {message: 'Forbidden'}, {status: 403}
         );

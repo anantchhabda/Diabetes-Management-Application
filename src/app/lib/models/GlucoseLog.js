@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const GlucoseLogSchema = new mongoose.Schema({
     patient: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Patient',
         required: true
     },
@@ -23,7 +23,7 @@ const GlucoseLogSchema = new mongoose.Schema({
         type: Date,
         required: true
     }
-});
+}, { timestamps: true });
 
 //flag high glucose level
 GlucoseLogSchema.pre('save', function(next) {

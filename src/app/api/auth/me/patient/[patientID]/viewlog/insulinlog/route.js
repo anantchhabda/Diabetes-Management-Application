@@ -1,10 +1,10 @@
-import dbConnect from '../../../../lib/db';
+import dbConnect from '../../../../../../../lib/db';
 import { NextResponse } from 'next/server';
-import { requireRole } from '../../../../lib/auth';
-import Patient from '../../../../lib/models/Patient';
-import Doctor from '../../../../lib/models/Doctor';
-import FamilyMember from '../../../../lib/models/FamilyMember';
-import GeneralLog from '../../../../lib/models/GeneralLog';
+import { requireRole } from '../../../../../../../lib/auth';
+import Patient from '../../../../../../../lib/models/Patient';
+import Doctor from '../../../../../../../lib/models/Doctor';
+import FamilyMember from '../../../../../../../lib/models/FamilyMember';
+import InsulinLog from '../../../../../../../lib/models/InsulinLog';
 
 export async function GET(req, { params }) {
     await dbConnect();
@@ -16,17 +16,17 @@ export async function GET(req, { params }) {
     const {patientID} = await params;
 
     // Load patient and verify linkage depending on the viewer role
-    const patient = await Patient.findById(patientID).select('_id doctorID familyID user');
+    const patient = await Patient.findOne({ profileId: patientID }).select('profileId doctorID familyID user');
     if (!patient) return NextResponse.json({ error: 'Patient not found' }, { status: 404 });
 
     if (payload.role === 'Doctor') {
-        const me = await Doctor.findOne({ user: payload.sub }).select('_id');
-        if (!me || String(patient.doctorID) !== String(me._id)) {
+        const me = await Doctor.findOne({ user: payload.sub }).select('profileId');
+        if (!me || String(patient.doctorID) !== String(me.profileId)) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
     } else {
-        const me = await FamilyMember.findOne({ user: payload.sub }).select('_id');
-        if (!me || String(patient.familyID) !== String(me._id)) {
+        const me = await FamilyMember.findOne({ user: payload.sub }).select('profileId');
+        if (!me || String(patient.familyID) !== String(me.profileId)) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
     }
@@ -41,10 +41,10 @@ export async function GET(req, { params }) {
     const end = new Date(start);
     end.setDate(end.getDate() + 1);
 
-    const logs = await GeneralLog.find({
-        patient: patient._id,
+    const logs = await InsulinLog.find({
+        patient: patient.profileId,
         date: { $gte: start, $lt: end }
-    }).select('_id comment date');
+    }).select('_id type dose date');
 
     return NextResponse.json({ logs }, {status: 200});
 }

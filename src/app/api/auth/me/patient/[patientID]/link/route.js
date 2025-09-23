@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import dbConnect from '../../../../../../lib/db';
 import Patient from '../../../../../../lib/models/Patient';
 import Doctor from '../../../../../../lib/models/Doctor';
@@ -14,7 +13,7 @@ export async function POST(req, {params}) {
 
     try {
         const {patientID} = await params;     //Patient._id
-        const patient = await Patient.findById(patientID).select('_id');
+        const patient = await Patient.findOne({profileId: patientID}).select('profileId');
         if (!patient) {
             return NextResponse.json(
             {message: 'Patient not found'}, {status: 404}
@@ -23,9 +22,9 @@ export async function POST(req, {params}) {
 
         let requester;
         if (roleCheck.payload.role === 'Doctor') {
-            requester = await Doctor.findOne({user: roleCheck.payload.sub}).select('name');
+            requester = await Doctor.findOne({user: roleCheck.payload.sub}).select('profileId name');
         } else {
-            requester = await FamilyMember.findOne({user: roleCheck.payload.sub}).select('name');
+            requester = await FamilyMember.findOne({user: roleCheck.payload.sub}).select('profileId name');
         }
         if (!requester) return NextResponse.json(
             {message:'Requester not found'}, {status: 404}
@@ -33,8 +32,8 @@ export async function POST(req, {params}) {
         
         //If request accepted, return status
         const accepted = await LinkRequest.findOne({
-            patient: patient._id,
-            requesterUser: roleCheck.payload.sub,
+            patient: patient.profileId,
+            requesterUser: requester.profileId,
             requesterRole: roleCheck.payload.role,
             status: 'Accepted'
         }).select('_id');
@@ -49,8 +48,8 @@ export async function POST(req, {params}) {
         }
 
         const existing = await LinkRequest.findOne({
-            patient: patient._id,
-            requesterUser: roleCheck.payload.sub,
+            patient: patient.profileId,
+            requesterUser: requester.profileId,
             requesterRole: roleCheck.payload.role,
             status: 'Pending'
         }).select('_id');
@@ -62,8 +61,8 @@ export async function POST(req, {params}) {
         }
 
         const newRequest = await LinkRequest.create({
-            patient: patient._id,
-            requesterUser: roleCheck.payload.sub,
+            patient: patient.profileId,
+            requesterUser: requester.profileId,
             requesterRole: roleCheck.payload.role,
             requesterName: requester.name,
             status: 'Pending'
@@ -72,7 +71,7 @@ export async function POST(req, {params}) {
         return NextResponse.json(
             {message: 'Request sent successfully',
             status: 'Pending',
-            requestID: newRequest._id},
+            requestId: newRequest._id},
             {status: 200}
         );
 
@@ -84,57 +83,3 @@ export async function POST(req, {params}) {
         );
     }
 }
-=======
-import dbConnect from '../../../../lib/db';
-import Doctor from '../../../../lib/models/Doctor';
-import FamilyMember from '../../../../lib/models/FamilyMember';
-import LinkRequest from '../../../../lib/models/LinkRequest';
-import {NextResponse} from "next/server";
-import {requireAuth} from '../../../../lib/auth';
-import {requireRole} from '../../../../lib/auth';
-
-export async function POST(req, {params}) {
-    await dbConnect();
-    const {payload, error} = requireAuth(req);
-    if (error) return error;
-    const roleCheck = requireRole(req, ['Doctor', 'FamilyMember']);
-    if (roleCheck.error) return roleCheck.error;
-    const {patientID} = params;
-    let requester;
-    if (roleCheck.payload.role=='Doctor') {
-        requester = await Doctor.findOne({userID: roleCheck.payload._id});
-    } else {
-        requester = await FamilyMember.findOne({userID: roleCheck.payload._id});
-    }
-    if (!requester) {
-        return NextResponse.json(
-            {message: 'Requester not found'},
-            {status: 404}
-        );
-    }
-    const existingRequest = await LinkRequest.findOne({
-    requesterType: roleCheck.payload.role,
-    requesterID: requester._id,
-    requesterName: requester.name,
-    patientID,
-    status: 'Pending'
-    });
-    if (existingRequest) {
-        return NextResponse.json(
-            {message: 'Request already pending'},
-            {status: 200}
-        );
-    }
-    const newRequest = await LinkRequest.create({
-    requesterType: roleCheck.payload.role,
-    requesterID: requester._id,
-    requesterName: requester.name,
-    patientID,
-    status: 'Pending'
-    });
-    return NextResponse.json({
-        message: 'Request sent successfully',
-        requestID: newRequest._id
-        });
-}
->>>>>>> b7e8a4d999327b82f90097fa35c3e8773ee6d4e0

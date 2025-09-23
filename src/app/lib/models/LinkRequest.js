@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const LinkRequestSchema = new mongoose.Schema({
     patient: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Patient',
         required: true,
         index: true
@@ -13,7 +13,7 @@ const LinkRequestSchema = new mongoose.Schema({
         required: true
     },
     requesterUser: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'User',
         required: true,
         index: true
