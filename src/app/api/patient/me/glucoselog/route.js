@@ -78,3 +78,90 @@ export async function GET(req) {
     }
 }
 
+export async function PATCH(req) {
+    await dbConnect();
+    const roleCheck = requireRole(req, ['Patient']);
+    if (roleCheck.error) return roleCheck.error;
+
+    try {
+        const patient = await Patient.findOne({user: roleCheck.payload.sub}).select('profileId');
+        if (!patient) {
+            return NextResponse.json({ error: 'Patient profile not found' }, { status: 404 });
+        }
+
+        const url = new URL(req.url);
+        const id = url.searchParams.get('id');
+        if (!id) {
+            return NextResponse.json({error: 'id is required'}, {status: 400});
+        }
+
+        const {glucoseLevel, date} = await req.json();
+        if (glucoseLevel == null && date == null) {
+            return NextResponse.json({error: 'Nothing to update'}, {status : 400});
+        }
+
+        const update = {};
+        if (glucoseLevel != null) update.glucoseLevel = glucoseLevel;
+        if (date != null) update.date = new Date(date);
+
+        const updated = await GlucoseLog.findOneAndUpdate(
+            {_id: id, patient: patient.profileId},
+            {$set: update},
+            {new: true}
+        );
+
+        if (!updated) {
+            return NextResponse.json(
+                {error: 'Log not found'}, {status: 404}
+            );
+        }
+
+        return NextResponse.json(
+            {message: 'Glucose log updated', log: updated}, 
+            {status: 200}
+        );
+    } catch (err) {
+        return NextResponse.json(
+            {error: 'Updating glucose log failed', details: err.message},
+            {status: 500}
+        );
+    }
+}
+
+export async function DELETE(req) {
+    await dbConnect();
+    const roleCheck = requireRole(req, ['Patient']);
+    if (roleCheck.error) return roleCheck.error;
+
+    try {
+        const patient = await Patient.findOne({user: roleCheck.payload.sub}).select('profileId');
+        if (!patient) {
+            return NextResponse.json(
+                {error: 'Patient profile not found'},
+                {status: 404}
+            );
+        }
+
+        const url = new URL(req.url);
+        const id = url.searchParams.get('id');
+        if (!id) {
+            return NextResponse.json(
+                {error: 'glucoseLogID is required'},
+                {status: 400}
+            );
+        }
+
+        const result = await GlucoseLog.deleteOne({_id: id, patient: patient.profileId});
+        if (result.deletedCount === 0) {
+            return NextResponse.json({error: 'Log not found'}, {status: 404});
+        }
+
+        return NextResponse.json({message: 'Glucose log deleted'}, {status: 200});
+    } catch (err) {
+        console.error(err);
+        return NextResponse.json(
+            {error: 'Deleting glucose log failed', details: err.message},
+            {status: 500}
+        );
+    }
+}
