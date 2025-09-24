@@ -30,6 +30,7 @@
 
     setError("");
     alert(`Logging in with:\nPhone: ${phone}\nPassword: ${password}`);
+    window.location.href = "/homepage";
   });
 
   // password hide unhide

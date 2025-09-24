@@ -42,7 +42,7 @@ export default function Page() {
             name="patientId"
             type="text"
             readOnly
-            className="w-full h-10 rounded bg-[#0c6a70] border-0 text-white/95 px-3 shadow-sm"
+            className="w-full h-10 rounded bg-[var(--color-secondary)] border-0 text-[var(--color-textWhite)] px-3 shadow-sm"
           />
         </div>
 
@@ -59,7 +59,7 @@ export default function Page() {
             name="phone"
             type="tel"
             readOnly
-            className="w-full h-10 rounded bg-[#0c6a70] border-0 text-white/95 px-3 shadow-sm"
+            className="w-full h-10 rounded bg-[var(--color-secondary)] border-0 text-[var(--color-textWhite)] px-3 shadow-sm"
           />
           <p id="error-phone" className="text-red-600 text-sm"></p>
         </div>
@@ -86,8 +86,8 @@ export default function Page() {
             id="sex"
             name="sex"
             required
-            className="w-full h-10 rounded bg-white border border-gray-300 px-3 
-                       text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#00C896]"
+            className="w-full h-10 rounded bg-white border border-[var(--color-gray-300)] px-3 
+                       text-[var(--color-gray-900)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-tertiary)]"
           >
             <option value="">Select...</option>
             <option>Male</option>
@@ -111,7 +111,7 @@ export default function Page() {
             name="fullAddress"
             rows={3}
             placeholder="Street, City, Country, Postcode"
-            className="w-full rounded bg-white border border-gray-300 px-3 
+            className="w-full rounded bg-white border border-[var(--color-gray-300)] px-3 
                        text-gray-900 placeholder-gray-600 shadow-sm 
                        focus:outline-none focus:ring-2 focus:ring-[#00C896]"
           />
@@ -139,8 +139,8 @@ export default function Page() {
             id="diagnosisType"
             name="diagnosisType"
             required
-            className="w-full h-10 rounded bg-white border border-gray-300 px-3 
-                       text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#00C896]"
+            className="w-full h-10 rounded bg-white border border-[var(--color-gray-300)] px-3 
+                       text-[var(--color-gray-900)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-tertiary)]"
           >
             <option value="">Select...</option>
             <option>Type 1</option>
@@ -156,7 +156,7 @@ export default function Page() {
         {/* Save Button */}
         <button
           type="submit"
-          className="w-full py-3 bg-[#004B5E] text-white text-lg rounded-md hover:opacity-90 transition"
+          className="w-full py-3 bg-[var(--color-secondary)] text-[var(--color-textWhite)] text-lg rounded-md hover:opacity-90 transition"
         >
           Save
         </button>
@@ -182,8 +182,8 @@ function Field({ label, id, type = "text", placeholder }) {
         name={id}
         type={type}
         placeholder={placeholder || ""}
-        className="w-full h-10 rounded bg-white border border-gray-300 px-3 
-                   text-gray-900 placeholder-gray-600 shadow-sm 
+        className="w-full h-10 rounded bg-white border border-[var(--color-gray-300)] px-3 
+                   text-[var(--color-gray-900)] placeholder-gray-600 shadow-sm 
                    focus:outline-none focus:ring-2 focus:ring-[#00C896]"
       />
     </div>
