@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
 const InsulinLogSchema = new mongoose.Schema({
-    patients: {
-        type: mongoose.Schema.Types.ObjectId,
+    patient: {
+        type: String,
         ref: 'Patient',
         required: true
     },
@@ -14,7 +14,11 @@ const InsulinLogSchema = new mongoose.Schema({
     dose: {
         type: Number,
         required: true
+    },
+    date: {
+        type: Date,
+        required: true
     }
-});
+}, { timestamps: true });
 
 export default mongoose.models.InsulinLog || mongoose.model('InsulinLog', InsulinLogSchema);

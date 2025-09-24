@@ -20,6 +20,11 @@ const UserSchema = new mongoose.Schema({
     onboardingComplete: {
         type: Boolean,
         default: false
+    },
+    profileId: {
+        type: String,
+        unique: true,
+        required: true
     }
 });
 

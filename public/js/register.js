@@ -22,7 +22,7 @@
   });
 
   // handle form submission
-  form.addEventListener("submit", function (e) {
+  form.addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const phone = (phoneInput.value || "").trim();
@@ -47,7 +47,32 @@
 
     setError("");
 
-    // redirecting to homepage if validation successful
-    window.location.href = "/patient-onboarding";
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({phoneNumber:phone, password: password, role: role})
+      });
+      const data = await response.json();
+      
+      if (!response.ok) {
+        setError(data.error || data.message || 'Something went wrong');
+        return;
+      }
+      console.log('User registered:', data);
+
+      //save token to localStorage
+      localStorage.setItem('onboardingToken', data.token);
+
+      // redirecting to homepage if validation successful & **the role is patient
+      window.location.href = "/patient-onboarding";
+
+    } catch (err) {
+      console.error('Error', err);
+      setError('Error, please try again');
+    }
+
   });
 })();

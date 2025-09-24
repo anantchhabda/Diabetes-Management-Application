@@ -5,7 +5,7 @@
 
   if (!form) return;
 
-  form.addEventListener("submit", function (e) {
+  form.addEventListener("submit", async function (e) {
     e.preventDefault();
 
     // clear previous saved message
@@ -50,6 +50,49 @@
     // stop if errors
     if (Object.keys(errors).length > 0) return;
 
-      window.location.href = "/homepage";
+    console.log("Submitting onboarding form...");
+    console.log("Form data:", data);
+
+    try {
+      const token = localStorage.getItem('onboardingToken');
+      if (!token) {
+        savedMsg.textContent = 'Session expired, please register again'
+        return;
+      }
+      const res = await fetch('/api/auth/onboarding', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`, //send token
+        },
+        body: JSON.stringify({
+          name: data.fullName,
+          dob: data.dateOfBirth,
+          sex: data.sex,
+          address: data.fullAddress,
+          yearOfDiag: data.yearOfDiagnosis,
+          typeOfDiag: data.diagnosisType,
+        }),
+      });
+      const result = await res.json();
+
+      if (!res.ok) {
+        savedMsg.textContent = result.error || 'Onboarding failed';
+        return;
+      }
+      //save new auth token
+      localStorage.setItem('authToken', result.authToken);
+      
+      //success feddback
+      savedMsg.textContent = 'Onboarding successful! Redirecting to homepage';
+      
+      //redirect to [role] homepage
+      setTimeout(() => {
+        window.location.href = "/homepage";
+      }, 1200);
+    } catch (err) {
+      console.error('Error', err);
+      savedMsg.textContent = 'Error, please try again';
+    }
   });
 })();

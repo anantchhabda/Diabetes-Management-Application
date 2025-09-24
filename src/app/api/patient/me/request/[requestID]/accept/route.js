@@ -1,54 +1,59 @@
-import dbConnect from '../../../../lib/db';
-import Patient from '../../../../lib/models/Patient';
-import Doctor from '../../../../lib/models/Doctor';
-import FamilyMember from '../../../../lib/models/FamilyMember';
-import LinkRequest from '../../../../lib/models/LinkRequest';
+import dbConnect from '../../../../../../lib/db';
+import Doctor from '../../../../../../lib/models/Doctor'
+import Patient from '../../../../../../lib/models/Patient';
+import LinkRequest from '../../../../../../lib/models/LinkRequest';
 import {NextResponse} from "next/server";
-import {requireAuth} from '../../../../lib/auth';
-import {requireRole} from '../../../../lib/auth';
+import {requireRole} from '../../../../../../lib/auth';
+import FamilyMember from '../../../../../../lib/models/FamilyMember';
 
 export async function PUT(req, {params}) {
     await dbConnect();
-    const {payload, error} = requireAuth(req);
-    if (error) return error;
     const roleCheck = requireRole(req, ['Patient']);
     if (roleCheck.error) return roleCheck.error;
+
     const {requestID} = params;
-    const request = await LinkRequest.findById(requestID);
-    if (!request) {
+    const request = await LinkRequest.findById(requestID)
+        .select('_id patient requesterRole requesterUser status');
+    
+    if (!request) return NextResponse.json(
+        {message: 'Request not found'},
+        {status: 404}
+    );
+
+    const mePatient = await Patient.findOne({user: roleCheck.payload.sub}).select('profileId doctorID familyID user');
+    if (!mePatient) return NextResponse.json(
+        {error: 'Patient profile not found'}, {status: 404}
+    );
+        
+    if (String(request.patient) !== String(mePatient.profileId)) {
+        return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+    }
+
+    if (request.status === 'Accepted') return NextResponse.json(
+        {message: 'Already accepted'}, {status: 200}
+    );
+
+    if (request.requesterRole === 'Doctor') {
+        const d = await Doctor.findOne({profileId: request.requesterUser}).select('profileId');
+        if(!d) return NextResponse.json(
+            {error: 'Doctor profile not found'}, {status: 404});
+        mePatient.doctorID = d.profileId;
+    } else if (request.requesterRole === 'Family Member') {
+        const f = await FamilyMember.findOne({profileId: request.requesterUser}).select('profileId');
+        if (!f) return NextResponse.json(
+            {error: ' Family profile not found'}, {status: 404});
+        mePatient.familyID = f.profileId;
+    } else {
         return NextResponse.json(
-            {message: 'Request not found'},
-            {status: 404}
+            {error: 'Unknown requesterRole'}, {status: 400}
         );
     }
-    if (String(request.patientID) !== String(payload._id)) {
-        return NextResponse.json(
-            {message: 'Forbidden'},
-            {status: 403}
-        );
-    }
+
+    await mePatient.save();
     request.status = 'Accepted';
     await request.save();
-    if (request.requesterType=='Doctor') {
-        await Patient.findByIdAndUpdate(
-            request.patientID,
-            {$addToSet: {doctorID: request.requesterID}}
-        );
-        await Doctor.findByIdAndUpdate(
-            request.requesterID,
-            {$addToSet: {patientID: request.patientID}}
-        );
-    } else if (request.requesterType=='Family Member') {
-        await Patient.findByIdAndUpdate(
-            request.patientID,
-            {$addToSet: {familyID: request.requesterID}}
-        );
-        await FamilyMember.findByIdAndUpdate(
-            request.requesterID,
-            {$addToSet: {patientID: request.patientID}}
-        );
-    }
+
     return NextResponse.json(
-        {message: 'Request accepted successfully'}
+        {message: 'Request accepted successfully'}, {status: 200}
     );
 }

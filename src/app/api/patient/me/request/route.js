@@ -1,15 +1,22 @@
 import dbConnect from '../../../../lib/db';
+import Patient from '../../../../lib/models/Patient'
 import LinkRequest from '../../../../lib/models/LinkRequest';
 import {NextResponse} from "next/server";
-import {requireAuth} from '../../../../lib/auth';
 import {requireRole} from '../../../../lib/auth';
 
 export async function GET(req) {
-    await dbConnect()
-    const {payload, error} = requireAuth(req);
-    if (error) return error;
+    await dbConnect();
     const roleCheck = requireRole(req, ['Patient']);
     if (roleCheck.error) return roleCheck.error;
-    const requests = await LinkRequest.find({patientID: payload._id});
-    return NextResponse.json({requests});
+
+    const me = await Patient.findOne({user: roleCheck.payload.sub}).select('profileId');
+    if (!me) return NextResponse.json(
+        {error: 'Patient profile not found'}, {status: 404}
+    )
+
+    const requests = await LinkRequest
+        .find({patient: me.profileId})
+        .select('_id requesterRole requesterName status');
+
+    return NextResponse.json({requests}, {status: 200});
 }
