@@ -110,7 +110,7 @@ export default function Page() {
         </button>
       </form>
 
-      <script src="/js/patient-onboarding.js" defer></script>
+      <script src="/js/family-onboarding.js" defer></script>
     </main>
   );
 }
