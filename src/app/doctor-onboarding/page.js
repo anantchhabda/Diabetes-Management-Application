@@ -93,7 +93,7 @@ export default function Page() {
                        text-gray-900 placeholder-gray-600 shadow-sm 
                        focus:outline-none focus:ring-2 focus:ring-[#00C896]"
           />
-          <p id="error-fullAddress" className="text-red-600 text-sm"></p>
+          <p id="error-clinicAddress" className="text-red-600 text-sm"></p>
         </div>
 
         {/* Clinic Name */}
@@ -111,7 +111,7 @@ export default function Page() {
         </button>
       </form>
 
-      <script src="/js/patient-onboarding.js" defer></script>
+      <script src="/js/doctor-onboarding.js" defer></script>
     </main>
   );
 }

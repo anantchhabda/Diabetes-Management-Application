@@ -19,22 +19,15 @@
       "fullName",
       "dateOfBirth",
       "sex",
-      "fullAddress",
-      "yearOfDiagnosis",
-      "diagnosisType",
+      "clinicAddress",
+      "clinicName",
     ].forEach((f) => {
       if (!data[f] || data[f].trim() === "") {
         errors[f] = "Required";
       }
     });
 
-    // year validation..is it required?
-    if (data.yearOfDiagnosis) {
-      const y = Number(data.yearOfDiagnosis);
-      if (!Number.isInteger(y) || y < 1900 || y > currentYear) {
-        errors.yearOfDiagnosis = `Enter a year between 1900 and ${currentYear}`;
-      }
-    }
+
 
     // reset all previous error messages
     form
