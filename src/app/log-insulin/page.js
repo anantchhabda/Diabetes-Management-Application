@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useState } from "react";
 
 export default function InsulinPage() {
@@ -67,15 +68,19 @@ export default function InsulinPage() {
 
                 {/* Labels */}
                 <div className="flex justify-around mb-3">
+                    <Link href={"/log-glucose"}>
                     <div className="px-3 py-1 rounded font-bold text-white bg-sky-500">
                         Glucose
                     </div>
+                    </Link>
                     <div className="px-3 py-1 rounded font-bold text-white bg-blue-600">
                         Insulin
                     </div>
+                    <Link href={"/log-comments"}>
                     <div className="px-3 py-1 rounded font-bold text-white bg-emerald-600">
                         Comments
                     </div>
+                    </Link>
                 </div>
 
                 {/* Table */}

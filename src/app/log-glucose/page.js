@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link"; // Import Link
 
 export default function TrackerPage() {
   const meals = [
@@ -17,14 +18,12 @@ export default function TrackerPage() {
   const [tempValue, setTempValue] = useState("");
   const [date, setDate] = useState("2025-09-25");
 
-  // Open modal for a meal
   const handleEdit = (meal) => {
     setCurrentMeal(meal);
     setTempValue(data[meal] || "");
     setModalOpen(true);
   };
 
-  // Save value from modal
   const handleSaveModal = () => {
     setData({ ...data, [currentMeal]: tempValue });
     setModalOpen(false);
@@ -60,12 +59,16 @@ export default function TrackerPage() {
           <div className="px-3 py-1 rounded font-bold text-white bg-sky-500">
             Glucose
           </div>
-          <div className="px-3 py-1 rounded font-bold text-white bg-emerald-700">
-            Insulin
-          </div>
+          <Link href="/log-insulin">
+            <div className="px-3 py-1 rounded font-bold text-white bg-emerald-700 cursor-pointer">
+              Insulin
+            </div>
+          </Link>
+          <Link href="/log-comments">
           <div className="px-3 py-1 rounded font-bold text-white bg-green-600">
             Comments
           </div>
+          </Link>
         </div>
 
         {/* Table */}

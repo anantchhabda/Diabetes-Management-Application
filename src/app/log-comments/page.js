@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 
 export default function CommentsPage() {
   const [date, setDate] = useState("Monday 18th August");
@@ -51,12 +52,16 @@ export default function CommentsPage() {
 
         {/* Labels */}
         <div className="flex justify-around mb-3">
+          <Link href={"/log-glucose"}>
           <div className="px-3 py-1 rounded font-bold text-white bg-sky-500">
             Glucose
           </div>
+          </Link>
+          <Link href={"/log-insulin"}>
           <div className="px-3 py-1 rounded font-bold text-white bg-emerald-700">
             Insulin
           </div>
+          </Link>
           <div className="px-3 py-1 rounded font-bold text-white bg-sky-400">
             Comments
           </div>
