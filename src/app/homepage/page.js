@@ -26,29 +26,24 @@ export default function HomePage() {
   }
 
   //immediately fetch and update the button text after the page loads
-if (typeof window !== "undefined") {
-  getUserName().then((name) => {
-    const btn = document.getElementById("userBtn");
-    if (btn) btn.textContent = `Hello ${name}`;
-  });
-}
+  if (typeof window !== "undefined") {
+    getUserName().then((name) => {
+      const btn = document.getElementById("userBtn");
+      if (btn) btn.textContent = `Hello ${name}`;
+    });
+  }
 
-return (
-  <div className="min-h-screen bg-[var(--color-background)]">
-    <Header />
-    <main className="flex flex-col justify-center items-center px-4 gap-8 pt-8">
-      <button
-        id="userBtn"
-        type="button"
-        className="w-full max-w-xs py-3 bg-[var(--color-tertiary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition"
-      >
-        Hello ...
-      </button>
-    </main>
-  </div>
-);
-
-
+  return (
+    <div className="min-h-screen bg-[var(--color-background)]">
+      <Header />
+      <main className="flex flex-col justify-center items-center px-4 gap-8 pt-8">
+        <button
+          id="userBtn"
+          type="button"
+          className="w-full max-w-xs py-3 bg-[var(--color-tertiary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition"
+        >
+          Hello ...
+        </button>
 
         <button
           type="button"
