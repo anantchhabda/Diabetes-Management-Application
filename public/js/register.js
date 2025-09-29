@@ -66,8 +66,14 @@
       //save token to localStorage
       localStorage.setItem('onboardingToken', data.token);
 
-      // redirecting to homepage if validation successful & **the role is patient
-      window.location.href = "/patient-onboarding";
+      // redirect based on role
+      if (role === 'Patient') {
+        window.location.href = "/patient-onboarding";
+      } else if (role === 'Doctor') {
+        window.location.href = "/doctor-onboarding";
+      } else if (role === 'Family Member') {
+        window.location.href = "/family-onboarding";
+      }
 
     } catch (err) {
       console.error('Error', err);

@@ -18,7 +18,6 @@
     [
       "fullName",
       "dateOfBirth",
-      "sex",
       "clinicAddress",
       "clinicName",
     ].forEach((f) => {
@@ -26,8 +25,6 @@
         errors[f] = "Required";
       }
     });
-
-
 
     // reset all previous error messages
     form

@@ -1,6 +1,7 @@
 export default function Page() {
   return (
-    <main className="flex flex-col justify-center items-center min-h-screen px-4 gap-8 bg-[rgba(58,211,249,1)]">
+    <main className="flex flex-col justify-center items-center min-h-screen px-4 gap-8" 
+          style={{background: 'var(--background)'}}>
       <form
         id="onboardingForm"
         className="flex flex-col gap-5 w-full max-w-md bg-white p-8 rounded-xl shadow-lg mx-4"
@@ -9,7 +10,8 @@ export default function Page() {
         <div>
           <label
             htmlFor="doctorId"
-            className="block text-lg font-semibold text-slate-800 mb-2"
+            className="block text-lg font-semibold mb-2"
+            style={{color: 'var(--color-secondary)'}}
           >
             Doctor ID
           </label>
@@ -19,7 +21,8 @@ export default function Page() {
             type="text"
             value="PDP-000123"
             readOnly
-            className="w-full h-10 rounded bg-[#0c6a70] border-0 text-white/95 px-3 shadow-sm"
+            className="w-full h-10 rounded border-0 px-3 shadow-sm text-white"
+            style={{backgroundColor: 'var(--color-secondary)'}}
           />
         </div>
 
@@ -27,7 +30,8 @@ export default function Page() {
         <div>
           <label
             htmlFor="phone"
-            className="block text-lg font-semibold text-slate-800 mb-2"
+            className="block text-lg font-semibold mb-2"
+            style={{color: 'var(--color-secondary)'}}
           >
             Phone Number
           </label>
@@ -37,50 +41,28 @@ export default function Page() {
             type="tel"
             value="0488665812"
             readOnly
-            className="w-full h-10 rounded bg-[#0c6a70] border-0 text-white/95 px-3 shadow-sm"
+            className="w-full h-10 rounded border-0 px-3 shadow-sm text-white"
+            style={{backgroundColor: 'var(--color-secondary)'}}
           />
-          <p id="error-phone" className="text-red-600 text-sm"></p>
+          <p id="error-phone" className="text-sm" style={{color: 'var(--color-error)'}}></p>
         </div>
 
         {/* Full Name */}
         <Field label="Full Name*" id="fullName" placeholder="Full Name" />
 
         {/* Error for Full Name */}
-        <p id="error-fullName" className="text-red-600 text-sm"></p>
+        <p id="error-fullName" className="text-sm" style={{color: 'var(--color-error)'}}></p>
 
         {/* Date of Birth */}
         <Field label="Date of Birth*" id="dateOfBirth" type="date" />
-        <p id="error-dateOfBirth" className="text-red-600 text-sm"></p>
-
-        {/* Sex */}
-        <div>
-          <label
-            htmlFor="sex"
-            className="block text-lg font-semibold text-slate-800 mb-2"
-          >
-            Sex*
-          </label>
-          <select
-            id="sex"
-            name="sex"
-            required
-            className="w-full h-10 rounded bg-white border border-gray-300 px-3 
-                       text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#00C896]"
-          >
-            <option value="">Select...</option>
-            <option>Male</option>
-            <option>Female</option>
-            <option>Intersex</option>
-            <option>Prefer not to say</option>
-          </select>
-          <p id="error-sex" className="text-red-600 text-sm"></p>
-        </div>
+        <p id="error-dateOfBirth" className="text-sm" style={{color: 'var(--color-error)'}}></p>
 
         {/* Clinic Address */}
         <div>
           <label
             htmlFor="clinicAddress"
-            className="block text-lg font-semibold text-slate-800 mb-2"
+            className="block text-lg font-semibold mb-2"
+            style={{color: 'var(--color-secondary)'}}
           >
             Clinic Address*
           </label>
@@ -89,23 +71,31 @@ export default function Page() {
             name="clinicAddress"
             rows={3}
             placeholder="Street, City, Country, Postcode"
-            className="w-full rounded bg-white border border-gray-300 px-3 
-                       text-gray-900 placeholder-gray-600 shadow-sm 
-                       focus:outline-none focus:ring-2 focus:ring-[#00C896]"
+            className="w-full rounded border px-3 shadow-sm 
+                       focus:outline-none focus:ring-2"
+            style={{
+              borderColor: 'var(--color-primary)',
+              color: 'var(--color-textBlack)',
+              focusRingColor: 'var(--color-tertiary)'
+            }}
           />
-          <p id="error-clinicAddress" className="text-red-600 text-sm"></p>
+          <p id="error-clinicAddress" className="text-sm" style={{color: 'var(--color-error)'}}></p>
         </div>
 
         {/* Clinic Name */}
         <Field label="Clinic Name*" id="clinicName" placeholder="Clinic Name" />
 
         {/* Saved message */}
-        <p id="savedMsg" className="text-green-600 text-sm mb-2"></p>
+        <p id="savedMsg" className="text-sm mb-2" style={{color: 'var(--color-accent)'}}></p>
 
         {/* Save Button */}
         <button
           type="submit"
-          className="w-full py-3 bg-[#004B5E] text-white text-lg rounded-md hover:opacity-90 transition"
+          className="w-full py-3 text-lg rounded-md hover:opacity-90 transition"
+          style={{
+            backgroundColor: 'var(--color-secondary)',
+            color: 'var(--color-textWhite)'
+          }}
         >
           Save
         </button>
@@ -122,7 +112,8 @@ function Field({ label, id, type = "text", placeholder }) {
     <div>
       <label
         htmlFor={id}
-        className="block text-lg font-semibold text-slate-800 mb-2"
+        className="block text-lg font-semibold mb-2"
+        style={{color: 'var(--color-secondary)'}}
       >
         {label}
       </label>
@@ -131,9 +122,12 @@ function Field({ label, id, type = "text", placeholder }) {
         name={id}
         type={type}
         placeholder={placeholder || ""}
-        className="w-full h-10 rounded bg-white border border-gray-300 px-3 
-                   text-gray-900 placeholder-gray-600 shadow-sm 
-                   focus:outline-none focus:ring-2 focus:ring-[#00C896]"
+        className="w-full h-10 rounded border px-3 shadow-sm 
+                   focus:outline-none focus:ring-2"
+        style={{
+          borderColor: 'var(--color-primary)',
+          color: 'var(--color-textBlack)'
+        }}
       />
     </div>
   );
