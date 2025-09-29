@@ -71,7 +71,7 @@
         window.location.href = "/patient-onboarding";
       } else if (role === 'Doctor') {
         window.location.href = "/doctor-onboarding";
-      } else if (role === 'Family') {
+      } else if (role === 'Family Member') {
         window.location.href = "/family-onboarding";
       }
 

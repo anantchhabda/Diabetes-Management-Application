@@ -57,7 +57,7 @@ export default function RegisterPage() {
         >
           <option>Patient</option>
           <option>Doctor</option>
-          <option>Family</option>
+          <option>Family Member</option>
         </select>
 
         {/* Error message */}
