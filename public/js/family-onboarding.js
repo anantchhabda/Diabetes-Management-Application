@@ -18,7 +18,6 @@
     [
       "fullName",
       "dateOfBirth",
-      "sex",
       "fullAddress",
     ].forEach((f) => {
       if (!data[f] || data[f].trim() === "") {
