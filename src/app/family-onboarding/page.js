@@ -52,30 +52,6 @@ export default function Page() {
         <Field label="Date of Birth*" id="dateOfBirth" type="date" />
         <p id="error-dateOfBirth" className="text-red-600 text-sm"></p>
 
-        {/* Sex */}
-        <div>
-          <label
-            htmlFor="sex"
-            className="block text-lg font-semibold text-slate-800 mb-2"
-          >
-            Sex*
-          </label>
-          <select
-            id="sex"
-            name="sex"
-            required
-            className="w-full h-10 rounded bg-white border border-gray-300 px-3 
-                       text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#00C896]"
-          >
-            <option value="">Select...</option>
-            <option>Male</option>
-            <option>Female</option>
-            <option>Intersex</option>
-            <option>Prefer not to say</option>
-          </select>
-          <p id="error-sex" className="text-red-600 text-sm"></p>
-        </div>
-
         {/* Full Address */}
         <div>
           <label
