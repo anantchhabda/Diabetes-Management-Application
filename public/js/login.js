@@ -73,8 +73,13 @@
        } else if (data.authToken) {
         //completed user
         localStorage.setItem('authToken', data.authToken);
-        //if (data.role == 'Patient')
-        window.location.href = '/homepage';
+        if (data.role == 'Patient') {
+          window.location.href = '/patient-homepage';
+        } else if (data.role == 'Doctor') {
+          window.location.href = '/doctor-homepage';
+        } else if (data.role == 'Family Member') {
+          window.location.href = '/family-homepage';
+        }
         return;
        }
        setError('Unexpected server response, please try again');

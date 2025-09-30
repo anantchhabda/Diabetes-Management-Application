@@ -41,6 +41,6 @@
     // stop if errors
     if (Object.keys(errors).length > 0) return;
 
-      window.location.href = "/homepage";
+      window.location.href = "/family-homepage";
   });
 })();
