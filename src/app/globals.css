@@ -8,6 +8,7 @@
   --color-tertiary: #04BF8A;
   --color-accent: #03A64A;
   --color-error: #532523;
+  --color-delete: #FF0000;
   --color-textWhite: #dfe2df;
   --color-textBlack: #464646;
 }
@@ -31,7 +32,7 @@ body {
 }
 
 .reminder-blur {
-  filter: blur(20px);
+  filter: blur(8px) brightness(0.7);
   pointer-events: none;
   user-select: none;
 }
