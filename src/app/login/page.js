@@ -7,7 +7,12 @@ export default function Page() {
         id="loginForm"
         className="flex flex-col gap-5 w-full max-w-xs bg-white p-6 rounded-xl shadow-lg"
       >
-        <h1 className="text-2xl font-bold text-center text-[#004B5E]">Login</h1>
+        <h1
+          className="text-2xl font-bold text-center text-[#004B5E]"
+          data-i18n="loginTitle"
+        >
+          Login
+        </h1>
 
         <input
           type="tel"
@@ -18,7 +23,8 @@ export default function Page() {
           inputMode="numeric"
           autoComplete="tel"
           pattern="[0-9]{7,15}"
-          title="Enter 7–15 digits"
+          data-i18n-placeholder="phone"
+          data-i18n-title="phoneTitle"
           className="w-full px-3 py-2 border border-[var(--color-gray-300)] rounded-md 
                      focus:outline-none focus:ring-2 focus:ring-[var(--color-tertiary)]
                      text-[var(--color-gray-900)] placeholder-[var(--color-gray-700)]"
@@ -32,6 +38,7 @@ export default function Page() {
             placeholder="Password"
             required
             autoComplete="current-password"
+            data-i18n-placeholder="password"
             className="w-full px-3 py-2 border border-gray-300 rounded-md 
                        focus:outline-none focus:ring-2 focus:ring-[var(--color-tertiary)]
                        text-gray-900 placeholder-gray-700"
@@ -39,6 +46,7 @@ export default function Page() {
           <button
             type="button"
             id="togglePassword"
+            data-i18n="show"
             className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-secondary)] font-semibold"
           >
             Show
@@ -54,6 +62,7 @@ export default function Page() {
 
         <button
           type="submit"
+          data-i18n="login"
           className="w-full py-3 bg-[var(--color-secondary)] text-[var(--color-textWhite)] text-lg rounded-md hover:opacity-90 transition"
         >
           Log In

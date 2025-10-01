@@ -1,0 +1,35 @@
+{
+  "loginTitle": "लगइन",
+  "login": "लगइन",
+  "register": "दर्ता",
+
+  "english": "अंग्रेजी",
+  "nepali": "नेपाली",
+  "language": "भाषा",
+
+  "phone": "फोन नम्बर",
+  "phoneTitle": "७–१५ अंक प्रविष्ट गर्नुहोस्",
+  "password": "पासवर्ड",
+  "show": "देखाउनुहोस्",
+  "hide": "लुकाउनुहोस्",
+  "error_required": "पासवर्ड खाली हुन सक्दैन।",
+
+  "registerTitle": "दर्ता",
+
+  "confirmPassword": "पासवर्ड पुष्टि",
+
+  "role_patient": "बिरामी",
+  "role_doctor": "डाक्टर",
+  "role_family": "परिवार",
+
+  "error_invalid_phone": "कृपया ७–१५ अंकको मान्य फोन नम्बर लेख्नुहोस्।",
+  "error_password_min": "पासवर्ड कम्तिमा ६ अक्षर हुनुपर्छ।",
+
+  
+  "error_required_password": "पासवर्ड खाली हुन सक्दैन।",
+  "error_password_mismatch": "पासवर्डहरू मिलेन।",
+  "error_generic": "केही गल्ती भयो",
+  "error_network": "त्रुटि भयो, कृपया फेरि प्रयास गर्नुहोस्"
+}
+
+

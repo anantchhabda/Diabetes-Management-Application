@@ -1,24 +1,24 @@
-'use client';
+"use client";
 
 export default function Page() {
-  if (typeof window !== 'undefined') {
-    //get registeration data from localStorage
-    const token = localStorage.getItem('onboardingToken');
-    
+  if (typeof window !== "undefined") {
+    //get register data from localStorage
+    const token = localStorage.getItem("onboardingToken");
+
     if (token) {
       try {
         //decode Jwt
-        const payloadBase64 = token.split('.')[1];
+        const payloadBase64 = token.split(".")[1];
         const payload = JSON.parse(atob(payloadBase64));
 
         const profileId = payload.profileId;
         const phone = payload.phoneNumber;
-        const patientInput = document.getElementById('patientId');
-        const phoneInput = document.getElementById('phone');
-        if (patientInput) patientInput.value = profileId || '';
-        if (phoneInput) phoneInput.value = phone || '';
+        const patientInput = document.getElementById("patientId");
+        const phoneInput = document.getElementById("phone");
+        if (patientInput) patientInput.value = profileId || "";
+        if (phoneInput) phoneInput.value = phone || "";
       } catch (err) {
-        console.error('Failed to get PatientId and phone number', err);
+        console.error("Failed to get PatientId and phone number", err);
       }
     }
   }
@@ -162,12 +162,15 @@ export default function Page() {
         </button>
       </form>
 
-      <script src="/js/patient-onboarding.js" defer></script>
+      <script
+        src="/js/patient-onboarding.js"
+        strategy="beforeInteractive"
+      ></script>
     </main>
   );
 }
 
-// Reusable input Field component
+// ?
 function Field({ label, id, type = "text", placeholder }) {
   return (
     <div>

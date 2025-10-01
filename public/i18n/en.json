@@ -1,0 +1,36 @@
+{
+  "loginTitle": "Login",
+  "login": "Log In",
+  "register": "Register",
+
+  "english": "English",
+  "nepali": "Nepali",
+  "language": "Language",
+
+  "phone": "Phone Number",
+  "phoneTitle": "Enter 7–15 digits",
+  "password": "Password",
+  "show": "Show",
+  "hide": "Hide",
+
+  "error_invalid_phone": "Please enter a valid phone number (7–15 digits).",
+  "error_required": "Password cannot be empty",
+
+  "registerTitle": "Register",
+  "confirmPassword": "Confirm Password",
+
+  "role_patient": "Patient",
+  "role_doctor": "Doctor",
+  "role_family": "Family",
+
+  "error_required_password": "Password cannot be empty",
+  "error_password_min": "Password must be at least 6 characters.",
+  "error_password_mismatch": "Passwords do not match.",
+
+
+  "error_generic": "Something went wrong",
+  "error_network": "Error, please try again"
+
+
+}
+

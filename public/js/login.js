@@ -7,24 +7,39 @@
 
   if (!form || !phoneInput || !passwordInput || !errorMsg || !toggleBtn) return;
 
-  // show error
+  function t(key, fallback) {
+    const dict = (window.__i18n && window.__i18n.dict) || {};
+    return dict[key] || fallback || key;
+  }
+
   function setError(msg) {
     errorMsg.textContent = msg || "";
   }
 
-  // handle form submition 
+  function setToggleLabel() {
+    const isPasswordHidden = passwordInput.type === "password";
+    toggleBtn.textContent = isPasswordHidden
+      ? t("show", "Show")
+      : t("hide", "Hide");
+  }
+
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     const phone = (phoneInput.value || "").trim();
     const password = passwordInput.value || "";
 
     if (!/^\d{7,15}$/.test(phone)) {
-      setError("Please enter a valid phone number (7–15 digits)");
+      setError(
+        t(
+          "error_invalid_phone",
+          "Please enter a valid phone number (7–15 digits)."
+        )
+      );
       return;
     }
 
     if (!password) {
-      setError("Password cannot be empty");
+      setError(t("error_required", "Password cannot be empty"));
       return;
     }
 
@@ -33,12 +48,12 @@
     window.location.href = "/homepage";
   });
 
-  // password hide unhide
+  // password hide/unhide
   toggleBtn.addEventListener("click", function (e) {
     e.preventDefault();
     const isPassword = passwordInput.type === "password";
     passwordInput.type = isPassword ? "text" : "password";
-    toggleBtn.textContent = isPassword ? "Hide" : "Show";
+    setToggleLabel();
   });
 
   // phone number digits only
@@ -46,6 +61,12 @@
     const start = phoneInput.selectionStart;
     const end = phoneInput.selectionEnd;
     phoneInput.value = phoneInput.value.replace(/\D/g, "");
-    phoneInput.setSelectionRange(start, end);
+    try {
+      phoneInput.setSelectionRange(start, end);
+    } catch (_) {}
   });
+
+  setToggleLabel();
+
+  window.addEventListener("i18n:change", setToggleLabel);
 })();

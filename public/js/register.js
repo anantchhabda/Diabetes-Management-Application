@@ -1,78 +1,122 @@
 (function () {
-  const form = document.getElementById("registerForm");
-  const phoneInput = document.getElementById("phone");
-  const passwordInput = document.getElementById("password");
-  const confirmInput = document.getElementById("confirmPassword");
-  const roleSelect = document.getElementById("role");
-  const errorMsg = document.getElementById("error");
-
-  if (!form || !phoneInput || !passwordInput || !confirmInput || !roleSelect || !errorMsg) return;
-
-  // show error
-  function setError(msg) {
-    errorMsg.textContent = msg || "";
+  // translation
+  function t(key, fallback) {
+    const d = window.__i18n && window.__i18n.dict;
+    const dict = typeof d === "function" ? d() : d || {};
+    return dict[key] ?? fallback ?? key;
   }
 
-  // phone number digits only
-  phoneInput.addEventListener("input", function () {
-    const start = phoneInput.selectionStart;
-    const end = phoneInput.selectionEnd;
-    phoneInput.value = phoneInput.value.replace(/\D/g, "");
-    phoneInput.setSelectionRange(start, end);
-  });
+  function setErrorOn(form, msg) {
+    const errorEl = form.querySelector("#error");
+    if (errorEl) errorEl.textContent = msg || "";
+  }
 
-  // handle form submission
-  form.addEventListener("submit", async function (e) {
-    e.preventDefault();
+  //password constraints validated
+  function isValidPassword(pw) {
+    const rules = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[\s\S]{8,256}$/;
+    return rules.test(pw);
+  }
 
-    const phone = (phoneInput.value || "").trim();
-    const password = passwordInput.value || "";
-    const confirmPassword = confirmInput.value || "";
-    const role = roleSelect.value;
-
-    if (!/^\d{7,15}$/.test(phone)) {
-      setError("Please enter a valid phone number (7–15 digits)");
-      return;
-    }
-
-    if (!password) {
-      setError("Password cannot be empty");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match!");
-      return;
-    }
-
-    setError("");
-
-    try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({phoneNumber:phone, password: password, role: role})
-      });
-      const data = await response.json();
-      
-      if (!response.ok) {
-        setError(data.error || data.message || 'Something went wrong');
-        return;
+  //phone input
+  document.addEventListener(
+    "input",
+    function (e) {
+      if (e.target && e.target.id === "phone") {
+        const input = e.target;
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+        input.value = (input.value || "").replace(/\D/g, "");
+        try {
+          input.setSelectionRange(start, end);
+        } catch (_) {}
       }
-      console.log('User registered:', data);
+    },
+    true
+  );
 
-      //save token to localStorage
-      localStorage.setItem('onboardingToken', data.token);
+  // submit handler
+  document.addEventListener(
+    "submit",
+    async function (e) {
+      const form = e.target.closest("#registerForm");
+      if (!form) return;
+      e.preventDefault();
 
-      // redirecting to homepage if validation successful & **the role is patient
-      window.location.href = "/patient-onboarding";
+      const phoneInput = form.querySelector("#phone");
+      const passwordInput = form.querySelector("#password");
+      const confirmInput = form.querySelector("#confirmPassword");
+      const roleSelect = form.querySelector("#role");
 
-    } catch (err) {
-      console.error('Error', err);
-      setError('Error, please try again');
-    }
+      const phone = (phoneInput?.value || "").trim();
+      const password = passwordInput?.value || "";
+      const confirmPassword = confirmInput?.value || "";
+      const role = roleSelect?.value || "";
 
-  });
+      if (!/^\d{8,15}$/.test(phone)) {
+        return setErrorOn(
+          form,
+          t(
+            "error_invalid_phone",
+            "Please enter a valid phone number (8–15 digits)."
+          )
+        );
+      }
+
+      if (!password) {
+        return setErrorOn(
+          form,
+          t("error_required_password", "Password cannot be empty")
+        );
+      }
+
+      //enforce password constraints
+      if (!isValidPassword(password)) {
+        return setErrorOn(
+          form,
+          t(
+            "error_password_rules",
+            "Password must be at least 8 characters long including 1 uppercase letter, 1 lowercase letter, and 1 digit."
+          )
+        );
+      }
+
+      if (password !== confirmPassword) {
+        return setErrorOn(
+          form,
+          t("error_password_mismatch", "Passwords do not match.")
+        );
+      }
+
+      setErrorOn(form, "");
+
+      try {
+        const res = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phoneNumber: phone, password, role }),
+        });
+
+        const ct = res.headers.get("content-type") || "";
+        const payload = ct.includes("application/json") ? await res.json() : {};
+
+        if (!res.ok) {
+          const msg =
+            payload.error ||
+            payload.message ||
+            t("error_generic", "Something went wrong");
+          return setErrorOn(form, msg);
+        }
+
+        if (payload.token) {
+          localStorage.setItem("onboardingToken", payload.token);
+        }
+
+        window.location.href = "/patient-onboarding";
+      } catch (err) {
+        console.error("Register fetch error:", err);
+        setErrorOn(form, t("error_network", "Error, please try again"));
+      }
+    },
+    true
+  );
 })();
