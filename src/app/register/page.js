@@ -61,10 +61,12 @@ export default function RegisterPage() {
           className="w-full px-3 py-2 border border-[var(--color-gray-300)] rounded-md 
                      focus:outline-none focus:ring-2 focus:ring-[var(--color-tertiary)]
                      text-[var(--color-gray-900)] placeholder-[var(--color-gray-600)]"
+          defaultValue="Patient"
         >
-          <option data-i18n="role_patient">Patient</option>
-          <option data-i18n="role_doctor">Doctor</option>
-          <option data-i18n="role_family">Family</option>
+          {/* Display text is translated via data-i18n; value stays stable for redirects */}
+          <option value="Patient" data-i18n="role_patient">Patient</option>
+          <option value="Doctor" data-i18n="role_doctor">Doctor</option>
+          <option value="Family Member" data-i18n="role_family">Family</option>
         </select>
 
         {/* Error */}

@@ -11,13 +11,13 @@
     if (errorEl) errorEl.textContent = msg || "";
   }
 
-  //password constraints validated
+  // password constraints validated
   function isValidPassword(pw) {
     const rules = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[\s\S]{8,256}$/;
     return rules.test(pw);
   }
 
-  //phone input
+  // phone input (digits only, caret-safe)
   document.addEventListener(
     "input",
     function (e) {
@@ -26,9 +26,7 @@
         const start = input.selectionStart;
         const end = input.selectionEnd;
         input.value = (input.value || "").replace(/\D/g, "");
-        try {
-          input.setSelectionRange(start, end);
-        } catch (_) {}
+        try { input.setSelectionRange(start, end); } catch (_) {}
       }
     },
     true
@@ -52,24 +50,19 @@
       const confirmPassword = confirmInput?.value || "";
       const role = roleSelect?.value || "";
 
+      // phone: 8–15 digits (matches login)
       if (!/^\d{8,15}$/.test(phone)) {
         return setErrorOn(
           form,
-          t(
-            "error_invalid_phone",
-            "Please enter a valid phone number (8–15 digits)."
-          )
+          t("error_invalid_phone", "Please enter a valid phone number (8–15 digits).")
         );
       }
 
       if (!password) {
-        return setErrorOn(
-          form,
-          t("error_required_password", "Password cannot be empty")
-        );
+        return setErrorOn(form, t("error_required_password", "Password cannot be empty"));
       }
 
-      //enforce password constraints
+      // enforce password constraints
       if (!isValidPassword(password)) {
         return setErrorOn(
           form,
@@ -81,12 +74,10 @@
       }
 
       if (password !== confirmPassword) {
-        return setErrorOn(
-          form,
-          t("error_password_mismatch", "Passwords do not match.")
-        );
+        return setErrorOn(form, t("error_password_mismatch", "Passwords do not match."));
       }
 
+      // clear any prior errors
       setErrorOn(form, "");
 
       try {
@@ -107,11 +98,18 @@
           return setErrorOn(form, msg);
         }
 
+        // save onboarding token
         if (payload.token) {
           localStorage.setItem("onboardingToken", payload.token);
         }
 
-        window.location.href = "/patient-onboarding";
+        // role based redirection 
+        const byRole = {
+          "Patient": "/patient-onboarding",
+          "Doctor": "/doctor-onboarding",
+          "Family Member": "/family-onboarding",
+        };
+        window.location.href = byRole[role] || "/patient-onboarding";
       } catch (err) {
         console.error("Register fetch error:", err);
         setErrorOn(form, t("error_network", "Error, please try again"));

@@ -23,7 +23,7 @@ export default function Page() {
   }
 
   return (
-    <main className="flex justify-center items-center min-h-screen px-4">
+    <main className="flex flex-col justify-center items-center min-h-screen px-4 gap-8 bg-[rgba(58,211,249,1)]">
       <form
         id="onboardingForm"
         className="flex flex-col gap-5 w-full max-w-md bg-white p-8 rounded-xl shadow-lg mx-4"
