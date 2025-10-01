@@ -126,8 +126,13 @@ export async function PATCH(req) {
             );
         }
 
+        const high_glucose_threshold = 10.0;
+        const flag = updated.glucoseLevel > high_glucose_threshold;
+        updated.flag = flag;
+        await updated.save();
+
         return NextResponse.json(
-            {message: 'Glucose log updated', log: updated}, 
+            {message: 'Glucose log updated', log: updated, alert: flag ? 'High glucose detected' : null}, 
             {status: 200}
         );
     } catch (err) {

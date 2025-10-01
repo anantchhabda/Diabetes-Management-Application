@@ -1,23 +1,19 @@
-// /public/js/log-glucose.js
 (function () {
   if (typeof document === "undefined") return;
   const $ = (id) => document.getElementById(id);
-  const dateInput   = $("glucoseDate");
-  const tableBody   = $("glucoseTable");
-  const modal       = $("glucoseModal");
-  const modalTitle  = $("glucoseModalTitle");
-  const modalInput  = $("glucoseModalInput");
-  const warning     = $("glucoseWarning");
-  const cancelBtn   = $("cancelGlucoseBtn");
-  const confirmBtn  = $("confirmGlucoseBtn");
-  const backBtn     = $("backGlucoseBtn");
+  const dateInput   = $("insulinDate");
+  const tableBody   = $("insulinTable");
+  const modal       = $("insulinModal");
+  const modalTitle  = $("insulinModalTitle");
+  const modalInput  = $("insulinModalInput");
+  const warning     = $("insulinWarning");
+  const cancelBtn   = $("cancelInsulinBtn");
+  const confirmBtn  = $("confirmInsulinBtn");
+  const backBtn     = $("backInsulinBtn");
   const rows = [
-    "Before Breakfast",
-    "After Breakfast",
-    "Before Lunch",
-    "After Lunch",
-    "Before Dinner",
-    "After Dinner",
+    "Breakfast",
+    "Lunch",
+    "Dinner",
   ];
 
   const data = {};
@@ -105,7 +101,7 @@
   }
 
   async function fetchPatientLog(date) {
-    const res = await fetch(`/api/patient/me/glucoselog?date=${date}`, {
+    const res = await fetch(`/api/patient/me/insulinlog?date=${date}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -150,14 +146,14 @@
     return fetchViewerLog(date, viewerPatientID);
   }
 
-  async function createLog(date, type, glucoseLevel) {
-    const res = await fetch(`/api/patient/me/glucoselog`, {
+  async function createLog(date, type, dose) {
+    const res = await fetch(`/api/patient/me/insulinlog`, {
       method: "POST",
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`
       },
-      body: JSON.stringify({ date, type, glucoseLevel }),
+      body: JSON.stringify({ date, type, dose }),
     });
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
@@ -168,14 +164,14 @@
     return res.json(); 
   }
 
-  async function updateOrDeleteLog(date, type, glucoseLevel) {
-    const res = await fetch(`/api/patient/me/glucoselog?date=${date}`, {
+  async function updateOrDeleteLog(date, type, dose) {
+    const res = await fetch(`/api/patient/me/insulinlog?date=${date}`, {
       method: "PATCH",
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`
       },
-      body: JSON.stringify({ type, glucoseLevel }),
+      body: JSON.stringify({ type, dose }),
     });
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
@@ -187,7 +183,7 @@
   }
 
   // --- Load & hydrate ---
-  async function loadGlucose(date) {
+  async function loadInsulin(date) {
     // show spinner-ish text while loading
     tableBody.innerHTML = `
       <tr class="border">
@@ -201,7 +197,7 @@
       logs.forEach((log) => {
         if (rows.includes(log.type)) {
           // keep as a string for display; backend stores Number
-          data[log.type] = (log.glucoseLevel ?? "").toString();
+          data[log.type] = (log.dose ?? "").toString();
         }
       });
       renderTable();
@@ -218,7 +214,7 @@
   }
 
   // --- Save ---
-  async function saveGlucose() {
+  async function saveInsulin() {
     if (!currentRow) return;
 
     if (!canEdit) {
@@ -253,7 +249,7 @@
       return;
     }
     if (val < 0) {
-      warning.textContent = "Glucose level cannot be negative.";
+      warning.textContent = "Insulin dose cannot be negative.";
       warning.classList.remove("hidden");
       modalInput.focus();
       return;
@@ -302,16 +298,16 @@
     }
 
     // Load table
-    await loadGlucose(dateInput.value);
+    await loadInsulin(dateInput.value);
 
-    dateInput.addEventListener("change", (e) => loadGlucose(e.target.value));
+    dateInput.addEventListener("change", (e) => loadInsulin(e.target.value));
     cancelBtn.addEventListener("click", closeModal);
-    confirmBtn.addEventListener("click", saveGlucose);
+    confirmBtn.addEventListener("click", saveInsulin);
     modal.addEventListener("click", (e) => {
       if (e.target === modal) closeModal();
     });
     backBtn.addEventListener("click", () => window.history.back());
 
-    console.log("[glucose] ready, role =)", role, "canEdit =", canEdit, "viewerPatientID =", viewerPatientID);
+    console.log("[insulin] ready, role =)", role, "canEdit =", canEdit, "viewerPatientID =", viewerPatientID);
   })();
 })();
