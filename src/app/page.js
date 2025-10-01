@@ -11,26 +11,6 @@ export default function Page() {
         className="block"
       />
 
-      {/* Language toggles */}
-      <div className="flex gap-2 -mt-2">
-        <button
-          type="button"
-          className="px-4 py-2 rounded-md border border-white/40 bg-white/10 text-white hover:bg-white/20 transition"
-          data-lang="en"
-          id="lang-en"
-        >
-          English
-        </button>
-        <button
-          type="button"
-          className="px-4 py-2 rounded-md border border-white/40 bg-white/10 text-white hover:bg-white/20 transition"
-          data-lang="ne"
-          id="lang-ne"
-        >
-          नेपाली
-        </button>
-      </div>
-
       {/* Login and register navigators*/}
       <div className="flex flex-col gap-4 w-full max-w-[250px]">
         <a

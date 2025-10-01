@@ -1,36 +1,42 @@
 {
-  "loginTitle": "Login",
-  "login": "Log In",
-  "register": "Register",
+  "save": "Save",
+  "saved_message": "Your details have been saved.",
 
-  "english": "English",
-  "nepali": "Nepali",
-  "language": "Language",
+  "patientId_label": "Patient ID",
+  "patientId_title": "Auto-filled from your registration",
+  "phone_label": "Phone Number",
+  "phone_title": "Auto-filled from your registration",
 
-  "phone": "Phone Number",
-  "phoneTitle": "Enter 7–15 digits",
-  "password": "Password",
-  "show": "Show",
-  "hide": "Hide",
+  "fullName_label": "Full Name*",
+  "fullName_placeholder": "Full Name",
 
-  "error_invalid_phone": "Please enter a valid phone number (7–15 digits).",
-  "error_required": "Password cannot be empty",
+  "dob_label": "Date of Birth*",
 
-  "registerTitle": "Register",
-  "confirmPassword": "Confirm Password",
+  "sex_label": "Sex*",
+  "select_placeholder": "Select...",
+  "sex_male": "Male",
+  "sex_female": "Female",
+  "sex_intersex": "Intersex",
+  "sex_prefer_not": "Prefer not to say",
 
-  "role_patient": "Patient",
-  "role_doctor": "Doctor",
-  "role_family": "Family",
+  "address_label": "Full Address*",
+  "address_placeholder": "Street, City, Country, Postcode",
 
-  "error_required_password": "Password cannot be empty",
-  "error_password_min": "Password must be at least 6 characters.",
-  "error_password_mismatch": "Passwords do not match.",
+  "yod_label": "Year of Diagnosis*",
+  "yod_placeholder": "Year of Diagnosis",
 
+  "diagnosisType_label": "Type of Diagnosis*",
+  "diag_type1": "Type 1",
+  "diag_type2": "Type 2",
+  "diag_gestational": "Gestational",
 
-  "error_generic": "Something went wrong",
-  "error_network": "Error, please try again"
+  "error_phone": "Invalid phone number.",
+  "error_fullName": "Full name is required.",
+  "error_dob": "Date of birth is required.",
+  "error_sex": "Please select a sex option.",
+  "error_address": "Full address is required.",
+  "error_yod": "Enter a valid year (e.g., 2018).",
+  "error_diagType": "Please select a diagnosis type.",
 
-
+  "error_password_rules": "Password must be 8–256 characters, include at least 1 uppercase letter, 1 lowercase letter, and 1 digit."
 }
-

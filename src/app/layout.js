@@ -1,7 +1,8 @@
-// /app/layout.js
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
+
+import Header from "./components/header";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({
@@ -21,9 +22,13 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* global header*/}
+        <Header />
+
+        {/* page content */}
         {children}
 
-        {/* load i18n after page hydrated*/}
+        {/* load i18n after page hydrated */}
         <Script src="/js/i18n.js" strategy="lazyOnload" />
       </body>
     </html>

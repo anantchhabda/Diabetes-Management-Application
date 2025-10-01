@@ -24,7 +24,7 @@ export default function Page() {
           autoComplete="tel"
           pattern="[0-9]{7,15}"
           data-i18n-placeholder="phone"
-          data-i18n-title="phoneTitle"
+          data-i18n-title="phone_title"
           className="w-full px-3 py-2 border border-[var(--color-gray-300)] rounded-md 
                      focus:outline-none focus:ring-2 focus:ring-[var(--color-tertiary)]
                      text-[var(--color-gray-900)] placeholder-[var(--color-gray-700)]"
