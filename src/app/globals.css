@@ -29,3 +29,9 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.reminder-blur {
+  filter: blur(20px);
+  pointer-events: none;
+  user-select: none;
+}
