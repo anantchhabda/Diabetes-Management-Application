@@ -90,23 +90,30 @@ export async function PATCH(req) {
         }
 
         const url = new URL(req.url);
-        const id = url.searchParams.get('id');
-        if (!id) {
-            return NextResponse.json({error: 'id is required'}, {status: 400});
+        const date = url.searchParams.get('date');
+        if (!date) {
+            return NextResponse.json({error: 'Date is required'}, {status: 400});
         }
 
-        const {dose, date} = await req.json();
-        if (dose == null && date == null) {
-            return NextResponse.json({error: 'Nothing to update'}, {status : 400});
-        }
+        const startDate = new Date(date);
+        const nextDate = new Date(startDate);
+        nextDate.setDate(nextDate.getDate()+1);
 
-        const update = {};
-        if (dose != null) update.dose = dose;
-        if (date != null) update.date = new Date(date);
+        const {type, dose} = await req.json();
+        if (!type) {
+            return NextResponse.json({error: 'Type is required'}, {status: 400});
+        }
+        if (dose == null || dose == "") {
+            await InsulinLog.deleteOne({
+                patient: patient.profileId, 
+                date: {$gte: startDate, $lt: nextDate}, type});
+            return NextResponse.json({message: 'Log cleared'}, {status : 200});
+        }
 
         const updated = await InsulinLog.findOneAndUpdate(
-            {_id: id, patient: patient.profileId},
-            {$set: update},
+            {patient: patient.profileId, type, 
+            date: {$gte: startDate, $lt: nextDate}},
+            {$set: {dose}},
             {new: true}
         );
 
@@ -123,44 +130,6 @@ export async function PATCH(req) {
     } catch (err) {
         return NextResponse.json(
             {error: 'Updating insulin log failed', details: err.message},
-            {status: 500}
-        );
-    }
-}
-
-export async function DELETE(req) {
-    await dbConnect();
-    const roleCheck = requireRole(req, ['Patient']);
-    if (roleCheck.error) return roleCheck.error;
-
-    try {
-        const patient = await Patient.findOne({user: roleCheck.payload.sub}).select('profileId');
-        if (!patient) {
-            return NextResponse.json(
-                {error: 'Patient profile not found'},
-                {status: 404}
-            );
-        }
-
-        const url = new URL(req.url);
-        const id = url.searchParams.get('id');
-        if (!id) {
-            return NextResponse.json(
-                {error: 'insulinlogID is required'},
-                {status: 400}
-            );
-        }
-
-        const result = await InsulinLog.deleteOne({_id: id, patient: patient.profileId});
-        if (result.deletedCount === 0) {
-            return NextResponse.json({error: 'Log not found'}, {status: 404});
-        }
-
-        return NextResponse.json({message: 'Insulin log deleted'}, {status: 200});
-    } catch (err) {
-        console.error(err);
-        return NextResponse.json(
-            {error: 'Deleting insulin log failed', details: err.message},
             {status: 500}
         );
     }
