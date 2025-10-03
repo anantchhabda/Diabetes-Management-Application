@@ -2,29 +2,24 @@
 
 import Link from "next/link";
 import Script from "next/script";
+import Header from "../components/header";
 
 export default function GlucosePage() {
   return (
     <div className="flex justify-center items-center min-h-screen px-2 sm:px-4 bg-[#049EDB]">
       <div className="flex flex-col gap-5 w-full max-w-md sm:max-w-lg md:max-w-xl bg-white p-6 sm:p-8 rounded-xl shadow-lg mx-2 sm:mx-4">
-        {/* Top bar */}
-        <div className="flex items-center justify-between bg-sky-500 p-3 text-white rounded-t-lg">
-          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-gray-200"></div>
-          <div className="text-xl sm:text-2xl cursor-pointer">Place-Holder logo💧+</div>
-          <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gray-300"></div>
+
+
+        {/* Date picker */}
+        <div className="flex flex-col items-center gap-2 sm:gap-4 p-4 sm:p-6">
+          <h2 className="text-md sm:text-lg font-bold text-center">Select a Date 📅</h2>
+          <input
+            id="glucoseDate"
+            type="date"
+            className="border px-2 sm:px-3 py-2 rounded shadow w-auto text-center font-bold text-sm sm:text-base"
+            style={{ minWidth: "9ch" }} // ensures minimum width
+          />
         </div>
-
-{/* Date picker */}
-<div className="flex flex-col items-center gap-2 sm:gap-4 p-4 sm:p-6">
-  <h2 className="text-md sm:text-lg font-bold text-center">Select a Date 📅</h2>
-  <input
-    id="glucoseDate"
-    type="date"
-    className="border px-2 sm:px-3 py-2 rounded shadow w-auto text-center font-bold text-sm sm:text-base"
-    style={{ minWidth: "9ch" }} // ensures minimum width
-  />
-</div>
-
 
         {/* Labels */}
         <div className="flex flex-wrap justify-around mb-3 gap-2 sm:gap-4">
@@ -68,7 +63,9 @@ export default function GlucosePage() {
           <h3 id="glucoseModalTitle" className="text-md sm:text-lg font-bold mb-2 text-center"></h3>
           <input
             id="glucoseModalInput"
-            type="text"
+            type="number"
+            inputMode="decimal"
+            step="any"
             className="border w-full px-2 sm:px-3 py-2 rounded mb-2 box-border text-sm sm:text-base"
             placeholder="Enter Glucose Level..."
           />
@@ -103,6 +100,7 @@ export default function GlucosePage() {
             const confirmBtn = document.getElementById("confirmGlucoseBtn");
             const dateInput = document.getElementById("glucoseDate");
             const backBtn = document.getElementById("backGlucoseBtn");
+            const warning = document.getElementById("glucoseWarning");
 
             const data = {};
             let currentRow = null;
@@ -131,6 +129,7 @@ export default function GlucosePage() {
                   currentRow = row;
                   modalTitle.textContent = row;
                   modalInput.value = data[row] || "";
+                  warning.classList.add("hidden");
                   modal.classList.remove("hidden");
                   modalInput.focus();
                 });
@@ -151,8 +150,14 @@ export default function GlucosePage() {
 
             function saveModal() {
               const val = modalInput.value.trim();
+              if (!/^\\d+(\\.\\d+)?$/.test(val)) {
+                warning.textContent = "Please enter a valid numeric glucose level (decimals allowed).";
+                warning.classList.remove("hidden");
+                return;
+              }
               data[currentRow] = val;
               document.getElementById(\`\${currentRow}-value\`).textContent = val;
+              warning.classList.add("hidden");
               closeModal();
             }
 

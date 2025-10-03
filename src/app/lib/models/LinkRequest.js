@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
 const LinkRequestSchema = new mongoose.Schema({
-    patientID: {
-        type: mongoose.Schema.Types.ObjectId,
+    patient: {
+        type: String,
         ref: 'Patient',
         required: true,
         index: true
@@ -12,8 +12,8 @@ const LinkRequestSchema = new mongoose.Schema({
         enum: ['Doctor', 'Family Member'],
         required: true
     },
-    requesterID: {
-        type: mongoose.Schema.Types.ObjectId,
+    requesterUser: {
+        type: String,
         ref: 'User',
         required: true,
         index: true

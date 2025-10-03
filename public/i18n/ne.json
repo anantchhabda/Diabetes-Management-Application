@@ -1,0 +1,71 @@
+{
+  "loginTitle": "लगइन",
+  "login": "लगइन",
+  "register": "दर्ता",
+
+  "english": "अंग्रेजी",
+  "nepali": "नेपाली",
+  "language": "भाषा",
+
+  "phone": "फोन नम्बर",
+  "phone_title": "७–१५ अंक प्रविष्ट गर्नुहोस्",
+  "password": "पासवर्ड",
+  "show": "देखाउनुहोस्",
+  "hide": "लुकाउनुहोस्",
+
+  "registerTitle": "दर्ता",
+  "confirmPassword": "पासवर्ड पुष्टि",
+
+  "role_patient": "बिरामी",
+  "role_doctor": "डाक्टर",
+  "role_family": "परिवार",
+
+  "error_invalid_phone": "कृपया ७–१५ अंकको मान्य फोन नम्बर लेख्नुहोस्।",
+  "error_required": "पासवर्ड खाली हुन सक्दैन।",
+  "error_required_password": "पासवर्ड खाली हुन सक्दैन।",
+  "error_password_min": "पासवर्ड कम्तिमा ८ अक्षर हुनुपर्छ।",
+  "error_password_mismatch": "पासवर्डहरू मिलेन।",
+  "error_password_rules": "पासवर्ड ८–२५६ अक्षरको हुनुपर्छ, कम्तिमा १ ठूलो अक्षर, १ सानो अक्षर, र १ अंक अनिवार्य हुन्छ।",
+
+  "error_generic": "केही गल्ती भयो",
+  "error_network": "त्रुटि भयो, कृपया फेरि प्रयास गर्नुहोस्",
+
+  "save": "सुरक्षित गर्नुहोस्",
+  "saved_message": "तपाईंको विवरण सुरक्षित गरिएको छ।",
+
+  "patientId_label": "बिरामी आईडी",
+  "patientId_title": "दर्ताबाट स्वचालित भरिन्छ",
+  "phone_label": "फोन नम्बर",
+  "phone_title": "दर्ताबाट स्वचालित भरिन्छ",
+
+  "fullName_label": "पूरा नाम*",
+  "fullName_placeholder": "पूरा नाम",
+
+  "dob_label": "जन्म मिति*",
+
+  "sex_label": "लिङ्ग*",
+  "select_placeholder": "छान्नुहोस्...",
+  "sex_male": "पुरुष",
+  "sex_female": "महिला",
+  "sex_intersex": "इन्टरसेक्स",
+  "sex_prefer_not": "भन्न चाहन्न",
+
+  "address_label": "पूरा ठेगाना*",
+  "address_placeholder": "मार्ग, शहर, देश, पिन कोड",
+
+  "yod_label": "निदान भएको वर्ष*",
+  "yod_placeholder": "निदान भएको वर्ष",
+
+  "diagnosisType_label": "निदानको प्रकार*",
+  "diag_type1": "टाइप १",
+  "diag_type2": "टाइप २",
+  "diag_gestational": "गर्भावस्थामा हुने",
+
+  "error_phone": "अवैध फोन नम्बर।",
+  "error_fullName": "पूरा नाम आवश्यक छ।",
+  "error_dob": "जन्म मिति आवश्यक छ।",
+  "error_sex": "कृपया लिङ्ग छान्नुहोस्।",
+  "error_address": "पूरा ठेगाना आवश्यक छ।",
+  "error_yod": "मान्य वर्ष प्रविष्ट गर्नुहोस् (जस्तै २०१८)।",
+  "error_diagType": "कृपया निदानको प्रकार छान्नुहोस्।"
+}

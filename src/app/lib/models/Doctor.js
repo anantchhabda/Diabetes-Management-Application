@@ -1,24 +1,27 @@
 import mongoose from 'mongoose';
 
 const DoctorSchema = new mongoose.Schema({
-    userID: {
+    profileId: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: true,
+        unique: true
     },
-    clinicName: {
-        type: String,
-        required: true
-    },
-    patients: [{
-        type: mongoose.Schema.Types.ObjectId
-    }],
     name: {
         type: String,
         required: true
     },
     dob: {
         type: Date,
+        required: true
+    },
+    clinicName: {
+        type: String,
         required: true
     },
     clinicAddress: {

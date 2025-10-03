@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
 const GlucoseLogSchema = new mongoose.Schema({
-    patients: {
-        type: mongoose.Schema.Types.ObjectId,
+    patient: {
+        type: String,
         ref: 'Patient',
         required: true
     },
@@ -18,8 +18,12 @@ const GlucoseLogSchema = new mongoose.Schema({
     flag: {
         type: Boolean,
         default: false
+    },
+    date: {
+        type: Date,
+        required: true
     }
-});
+}, { timestamps: true });
 
 //flag high glucose level
 GlucoseLogSchema.pre('save', function(next) {

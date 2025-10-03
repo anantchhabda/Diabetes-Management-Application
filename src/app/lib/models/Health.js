@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const HealthSchema = new mongoose.Schema({
     patients: {
-        type: mongoose.Schema.Types.ObjectId,
+        type:String,
         ref: 'Patient',
         required: true
     },

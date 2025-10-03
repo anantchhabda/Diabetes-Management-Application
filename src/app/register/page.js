@@ -10,7 +10,10 @@ export default function RegisterPage() {
         className="flex flex-col gap-5 w-full max-w-xs bg-white p-6 rounded-xl shadow-lg"
         noValidate
       >
-        <h1 className="text-2xl font-bold text-center text-[#004B5E]">
+        <h1
+          className="text-2xl font-bold text-center text-[var(--color-secondary)]"
+          data-i18n="registerTitle"
+        >
           Register
         </h1>
 
@@ -20,9 +23,10 @@ export default function RegisterPage() {
           id="phone"
           placeholder="Phone Number"
           inputMode="numeric"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md 
-                     focus:outline-none focus:ring-2 focus:ring-[#00C896]
-                     text-gray-900 placeholder-gray-600"
+          data-i18n-placeholder="phone"
+          className="w-full px-3 py-2 border border-[var(--color-gray-300)] rounded-md 
+                     focus:outline-none focus:ring-2 focus:ring-[var(--color-tertiary)]
+                     text-[var(--color-gray-900)] placeholder-[var(--color-gray-600)]"
           required
         />
 
@@ -32,9 +36,11 @@ export default function RegisterPage() {
           id="password"
           placeholder="Password"
           required
-          className="w-full px-3 py-2 border border-gray-300 rounded-md 
-                     focus:outline-none focus:ring-2 focus:ring-[#00C896]
-                     text-gray-900 placeholder-gray-600"
+          data-i18n-placeholder="password"
+          data-i18n-title="phoneTitle"
+          className="w-full px-3 py-2 border border-[var(--color-gray-300)] rounded-md 
+                     focus:outline-none focus:ring-2 focus:ring-[var(--color-tertiary)]
+                     text-[var(--color-gray-900)] placeholder-[var(--color-gray-600)]"
         />
 
         {/* Confirm Password */}
@@ -43,36 +49,40 @@ export default function RegisterPage() {
           id="confirmPassword"
           placeholder="Confirm Password"
           required
-          className="w-full px-3 py-2 border border-gray-300 rounded-md 
-                     focus:outline-none focus:ring-2 focus:ring-[#00C896]
-                     text-gray-900 placeholder-gray-600"
+          data-i18n-placeholder="confirmPassword"
+          className="w-full px-3 py-2 border border-[var(--color-gray-300)] rounded-md 
+                     focus:outline-none focus:ring-2 focus:ring-[var(--color-tertiary)]
+                     text-[var(--color-gray-900)] placeholder-[var(--color-gray-600)]"
         />
 
         {/* Role */}
         <select
           id="role"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md 
-                     focus:outline-none focus:ring-2 focus:ring-[#00C896]
-                     text-gray-900 placeholder-gray-600"
+          className="w-full px-3 py-2 border border-[var(--color-gray-300)] rounded-md 
+                     focus:outline-none focus:ring-2 focus:ring-[var(--color-tertiary)]
+                     text-[var(--color-gray-900)] placeholder-[var(--color-gray-600)]"
+          defaultValue="Patient"
         >
-          <option>Patient</option>
-          <option>Doctor</option>
-          <option>Family</option>
+          {/* Display text is translated via data-i18n; value stays stable for redirects */}
+          <option value="Patient" data-i18n="role_patient">Patient</option>
+          <option value="Doctor" data-i18n="role_doctor">Doctor</option>
+          <option value="Family Member" data-i18n="role_family">Family</option>
         </select>
 
-        {/* Error message */}
+        {/* Error */}
         <p id="error" className="text-red-600 text-sm"></p>
 
         {/* Submit button */}
         <button
           type="submit"
-          className="w-full py-3 bg-[#004B5E] text-white text-lg rounded-md text-center hover:opacity-90 transition"
+          className="w-full py-3 bg-[var(--color-secondary)] text-[var(--color-textWhite)] text-lg rounded-md text-center hover:opacity-90 transition"
+          data-i18n="register"
         >
           Register
         </button>
       </form>
 
-      {/* Attach external script */}
+      {/* external script */}
       <Script src="/js/register.js" strategy="afterInteractive" />
     </main>
   );
