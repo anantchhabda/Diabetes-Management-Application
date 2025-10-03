@@ -1,4 +1,27 @@
+"use client";
+
+import Script from "next/script";
+
 export default function Page() {
+  if (typeof window !== 'undefined') {
+    //get onboarding Token from local storage
+    const token = localStorage.getItem('onboardingToken');
+    if (token) {
+      try {
+        const payloadBase64 = token.split('.')[1];
+        const payload =JSON.parse(atob(payloadBase64));
+        const profileId = payload.profileId;
+        const phone = payload.phoneNumber;
+        //fill Family ID and Phone fields
+        const familyIdInput = document.getElementById('familyId');
+        const phoneInput = document.getElementById('phone');
+        if (familyIdInput) familyIdInput.value = profileId || '';
+        if (phoneInput) phoneInput.value = phone || '';
+      } catch (err) {
+        console.error('Failed to get FamilyID and phone number', err);
+      }
+    }
+  }
   return (
     <main className="flex flex-col justify-center items-center min-h-screen px-4 gap-8"
           style={{background: 'var(--background)'}}>
@@ -19,7 +42,6 @@ export default function Page() {
             id="familyId"
             name="familyId"
             type="text"
-            value="PDP-000123"
             readOnly
             className="w-full h-10 rounded border-0 px-3 shadow-sm text-white"
             style={{backgroundColor: 'var(--color-secondary)'}}
@@ -39,7 +61,6 @@ export default function Page() {
             id="phone"
             name="phone"
             type="tel"
-            value="0488665812"
             readOnly
             className="w-full h-10 rounded border-0 px-3 shadow-sm text-white"
             style={{backgroundColor: 'var(--color-secondary)'}}
@@ -97,7 +118,8 @@ export default function Page() {
         </button>
       </form>
 
-      <script src="/js/family-onboarding.js" defer></script>
+      {/* load your onboarding script */}
+      <Script src="/js/family-onboarding.js" strategy='afterInteractive' />
     </main>
   );
 }

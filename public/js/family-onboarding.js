@@ -90,7 +90,7 @@
       if (authToken) localStorage.setItem('authToken', authToken);
       if (savedMsg)
         savedMsg.textContent = 'Onboarding successful! Redirecting to hompage';
-      window.location.href = "/homepage";
+      window.location.href = "/family-homepage";
     } catch (err) {
         console.error('Onboarding fetch error:', err);
         if (savedMsg) savedMsg.textContent = 'Error, please try again';
