@@ -1,6 +1,6 @@
 "use client";
 import Header from "../components/header";
-
+import Link from "next/link";
 export default function HomePage() {
   //fetch user data
   async function getUserName() {
@@ -44,13 +44,15 @@ export default function HomePage() {
           Hello ...
         </button>
 
-        <button
-          type="button"
-          className="w-full max-w-xs py-3 bg-[var(--color-secondary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition"
-        >
-          Log Data
-        </button>
-
+        <Link href="/log-glucose" className="w-full max-w-xs">
+          <button
+            type="button"
+            className="w-full max-w-xs py-3 bg-[var(--color-secondary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition"
+          >
+            Log Data
+          </button>
+        </Link>
+        
         <button
           type="button"
           className="w-full max-w-xs py-3 bg-[var(--color-tertiary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition"

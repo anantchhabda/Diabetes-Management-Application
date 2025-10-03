@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { requireRole } from '../../../../lib/auth';
 import Doctor from '../../../../lib/models/Doctor';
 import Patient from '../../../../lib/models/Patient';
+import LinkRequest from '../../../../lib/models/LinkRequest';
 
 export async function GET(req) {
   await dbConnect();
@@ -14,8 +15,14 @@ export async function GET(req) {
     return NextResponse.json({ error: 'Doctor profile not found' }, { status: 404 });
   }
 
+  // Fetch patients linked to this doctor
   const patients = await Patient.find({ doctorID: doctor.profileId })
     .select('profileId name dob sex yearOfDiag typeOfDiag');
+    
+  // Fetch link requests sent by this doctor
+  const requests = await LinkRequest
+    .find({requesterUser: doctor.profileId})
+    .select('_id patient patientName status');
 
-  return NextResponse.json({ patients }, { status: 200 });
+  return NextResponse.json({ patients, requests }, { status: 200 });
 }

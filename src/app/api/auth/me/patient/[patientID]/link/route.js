@@ -62,6 +62,7 @@ export async function POST(req, {params}) {
 
         const newRequest = await LinkRequest.create({
             patient: patient.profileId,
+            patientName: patient.name,
             requesterUser: requester.profileId,
             requesterRole: roleCheck.payload.role,
             requesterName: requester.name,
