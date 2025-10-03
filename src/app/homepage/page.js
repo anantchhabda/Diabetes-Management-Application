@@ -1,27 +1,26 @@
 "use client";
-import Header from '../components/header';
+import Header from "../components/header";
 
 export default function HomePage() {
-  
   //fetch user data
   async function getUserName() {
     try {
-      const res = await fetch('/api/auth/me', {
-        method: 'GET',
+      const res = await fetch("/api/auth/me", {
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        }
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
       });
       if (!res.ok) {
-        console.error('Failed to fetch user', res.status);
-        return 'Guest';
+        console.error("Failed to fetch user", res.status);
+        return "Guest";
       }
       const data = await res.json();
-      return data?.profile?.name || 'Guest';
+      return data?.profile?.name || "Guest";
     } catch (err) {
-      console.error('Error fetching user', err);
-      return 'Guest';
+      console.error("Error fetching user", err);
+      return "Guest";
     }
   }
 
