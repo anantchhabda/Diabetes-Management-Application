@@ -29,7 +29,7 @@ export default function HomePage() {
   if (typeof window !== "undefined") {
     getUserName().then((name) => {
       const btn = document.getElementById("userBtn");
-      if (btn) btn.textContent = `Hello ${name}`;
+      if (btn) btn.textContent = `Hello, Dr. ${name}`;
     });
   }
 

@@ -110,7 +110,7 @@
       if (savedMsg)
         savedMsg.textContent = "Onboarding successful! Redirecting to homepage";
 
-      window.location.href = "/homepage";
+      window.location.href = "/patient-homepage";
     } catch (err) {
       console.error("Onboarding fetch error:", err);
       if (savedMsg) savedMsg.textContent = "Error, please try again";
