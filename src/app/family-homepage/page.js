@@ -50,9 +50,10 @@ export default function HomePage() {
           type="button"
           className="w-full max-w-xs py-3 bg-[var(--color-secondary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition"
         >
-          Log Data
+          View Patients
         </button>
 
+<<<<<<< HEAD:src/app/homepage/page.js
         <button
           type="button"
           className="w-full max-w-xs py-3 bg-[var(--color-tertiary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition"
@@ -61,6 +62,8 @@ export default function HomePage() {
           Set Reminders
         </button>
         <Script src="/js/homepage.js" strategy="afterInteractive" />
+=======
+>>>>>>> origin:src/app/family-homepage/page.js
       </main>
     </div>
   );
