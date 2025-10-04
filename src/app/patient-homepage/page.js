@@ -1,5 +1,7 @@
 "use client";
+import Link from "next/link";
 import Header from "../components/header";
+
 
 export default function HomePage() {
   //fetch user data
@@ -44,12 +46,16 @@ export default function HomePage() {
           Hello ...
         </button>
 
-        <button
-          type="button"
-          className="w-full max-w-xs py-3 bg-[var(--color-secondary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition"
-        >
-          Log Data
-        </button>
+
+        <Link href="/log-insulin" className="w-full max-w-xs">
+          <button
+            type="button"
+            className="w-full py-3 bg-[var(--color-secondary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition"
+          >
+            Log Data
+          </button>
+        </Link>
+
 
         <button
           type="button"
