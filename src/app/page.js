@@ -1,13 +1,15 @@
+import Image from 'next/image';
+
 export default function Page() {
   return (
     <main className="flex flex-col justify-center items-center min-h-screen px-5 bg-[var(--color-background)] gap-6">
       {/* Logo */}
-      <img
+      <Image
         src="/logos/DMA-logo-green.png"
         alt="Diabetes Management Logo"
-        width="300"
-        height="300"
-        loading="eager"
+        width={300}
+        height={300}
+        priority
         className="block"
       />
 

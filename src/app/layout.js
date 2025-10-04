@@ -25,6 +25,8 @@ export default function RootLayout({ children }) {
         {/* global header*/}
         <Header />
 
+        <div className="pb-5"></div>
+
         {/* page content */}
         {children}
 
