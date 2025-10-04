@@ -53,17 +53,6 @@ export default function HomePage() {
           View Patients
         </button>
 
-<<<<<<< HEAD:src/app/homepage/page.js
-        <button
-          type="button"
-          className="w-full max-w-xs py-3 bg-[var(--color-tertiary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition"
-          id="setRemindersBtn"
-        >
-          Set Reminders
-        </button>
-        <Script src="/js/homepage.js" strategy="afterInteractive" />
-=======
->>>>>>> origin:src/app/family-homepage/page.js
       </main>
     </div>
   );

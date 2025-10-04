@@ -1,4 +1,5 @@
 "use client";
+import Script from "next/script";
 import Header from "../components/header";
 
 export default function HomePage() {
@@ -53,10 +54,12 @@ export default function HomePage() {
 
         <button
           type="button"
+          id="setRemindersBtn"
           className="w-full max-w-xs py-3 bg-[var(--color-tertiary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition"
         >
           Set Reminders
         </button>
+        <Script src="/js/patient-homepage.js" strategy="afterInteractive" />
       </main>
     </div>
   );
