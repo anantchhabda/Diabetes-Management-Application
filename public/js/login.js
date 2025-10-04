@@ -62,14 +62,13 @@
         if (data.role === "Patient")      { window.location.href = "/patient-onboarding"; return; }
         if (data.role === "Doctor")       { window.location.href = "/doctor-onboarding";  return; }
         if (data.role === "Family Member"){ window.location.href = "/family-onboarding";  return; }
-        // fallback if token but unknown role:
-        window.location.href = "/homepage"; return;
       }
 
       if (data.authToken) {
         localStorage.setItem("authToken", data.authToken);
-        window.location.href = "/homepage";
-        return;
+        if (data.role === "Patient")      { window.location.href = "/patient-homepage"; return; }
+        if (data.role === "Doctor")       { window.location.href = "/doctor-homepage";  return; }
+        if (data.role === "Family Member"){ window.location.href = "/family-homepage";  return; }
       }
 
       setError(t("error_generic", "Unexpected server response, please try again"));

@@ -5,7 +5,24 @@
 
   if (!form) return;
 
-  form.addEventListener("submit", function (e) {
+  async function readResponseSafe(response) {
+    const ct =
+      (response.headers &&
+        response.headers.get &&
+        response.headers.get("content-type")) ||
+      "";
+    if (ct.includes("application/json")) {
+      try {
+        return { data: await response.json(), text: null };
+      } catch (_) {}
+    }
+    try {
+      return { data: null, text: await response.text() };
+    } catch (_) {}
+    return { data: null, text: null };
+  }
+
+  form.addEventListener("submit", async function (e) {
     e.preventDefault();
 
     // clear previous saved message
@@ -41,6 +58,42 @@
     // stop if errors
     if (Object.keys(errors).length > 0) return;
 
-      window.location.href = "/homepage";
+    try {
+      const token = localStorage.getItem('onboardingToken');
+      if (!token) {
+        if (savedMsg)
+          savedMsg.textContent = 'Session expired, please register again';
+        return;
+      }
+      const res = await fetch('/api/auth/onboarding', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: data.fullName,
+          dob: data.dateOfBirth,
+          address: data.fullAddress,
+        }),
+      });
+      const {data: result, text} = await readResponseSafe(res);
+      if (!res.ok) {
+        const msg =
+          (result && (result.error || result.message)) ||
+          (text && text.trim()) ||
+          'Onboarding failed';
+        if (savedMsg) savedMsg.textContent = msg;
+        return;
+      }
+      const authToken = result && (result.authToken || result.token);
+      if (authToken) localStorage.setItem('authToken', authToken);
+      if (savedMsg)
+        savedMsg.textContent = 'Onboarding successful! Redirecting to hompage';
+      window.location.href = "/family-homepage";
+    } catch (err) {
+        console.error('Onboarding fetch error:', err);
+        if (savedMsg) savedMsg.textContent = 'Error, please try again';
+    }
   });
 })();
