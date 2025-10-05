@@ -2,9 +2,26 @@
 
 import Script from "next/script";
 
+// reusable Tailwind classes
+const inputBase =
+  "w-full h-10 rounded bg-white border border-gray-300 px-3 " +
+  "text-gray-900 placeholder-gray-600 shadow-sm " +
+  "focus:outline-none focus:ring-2 focus:ring-[#00C896] [color-scheme:light]";
+
+const selectBase =
+  "w-full h-10 rounded bg-white border border-gray-300 px-3 " +
+  "text-gray-900 shadow-sm " +
+  "focus:outline-none focus:ring-2 focus:ring-[var(--color-tertiary)] [color-scheme:light]";
+
+const textAreaBase =
+  "w-full rounded bg-white border border-gray-300 px-3 " +
+  "text-gray-900 placeholder-gray-600 shadow-sm " +
+  "focus:outline-none focus:ring-2 focus:ring-[#00C896] [color-scheme:light]";
+
 export default function Page() {
   return (
     <main
+      suppressHydrationWarning={true}
       className="flex flex-col justify-start items-center min-h-screen px-4 gap-8"
       style={{ background: "var(--background)" }}
     >
@@ -80,13 +97,7 @@ export default function Page() {
           >
             Sex*
           </label>
-          <select
-            id="sex"
-            name="sex"
-            required
-            className="w-full h-10 rounded bg-white border border-[var(--color-gray-300)] px-3 
-                       text-[var(--color-gray-900)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-tertiary)]"
-          >
+          <select id="sex" name="sex" required className={selectBase}>
             <option value="" data-i18n="select_placeholder">
               Select...
             </option>
@@ -120,9 +131,7 @@ export default function Page() {
             name="fullAddress"
             rows={3}
             placeholder="Street, City, Country, Postcode"
-            className="w-full rounded bg-white border border-[var(--color-gray-300)] px-3 
-                       text-gray-900 placeholder-gray-600 shadow-sm 
-                       focus:outline-none focus:ring-2 focus:ring-[#00C896]"
+            className={textAreaBase}
             data-i18n-placeholder="address_placeholder"
           />
           <p id="error-fullAddress" className="hidden text-red-600 text-sm"></p>
@@ -155,8 +164,7 @@ export default function Page() {
             id="diagnosisType"
             name="diagnosisType"
             required
-            className="w-full h-10 rounded bg-white border border-[var(--color-gray-300)] px-3 
-                       text-[var(--color-gray-900)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-tertiary)]"
+            className={selectBase}
           >
             <option value="" data-i18n="select_placeholder">
               Select...
@@ -195,7 +203,7 @@ export default function Page() {
   );
 }
 
-/** wrapper for i18n input */
+/** Wrapper for i18l */
 function Field({
   labelKey,
   labelFallback,
@@ -218,9 +226,7 @@ function Field({
         name={id}
         type={type}
         placeholder={placeholderFallback || ""}
-        className="w-full h-10 rounded bg-white border border-[var(--color-gray-300)] px-3 
-                   text-[var(--color-gray-900)] placeholder-gray-600 shadow-sm 
-                   focus:outline-none focus:ring-2 focus:ring-[#00C896]"
+        className={inputBase}
         {...(placeholderKey ? { "data-i18n-placeholder": placeholderKey } : {})}
       />
     </div>

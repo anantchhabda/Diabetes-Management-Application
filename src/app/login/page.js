@@ -27,7 +27,7 @@ export default function Page() {
           data-i18n-title="phone_title"
           className="w-full px-3 py-2 border border-[var(--color-gray-300)] rounded-md 
                      focus:outline-none focus:ring-2 focus:ring-[var(--color-tertiary)]
-                     text-[var(--color-gray-900)] placeholder-[var(--color-gray-700)]"
+                     text-gray-900 placeholder-gray-700"
         />
 
         <div className="relative w-full">
