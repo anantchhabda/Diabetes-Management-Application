@@ -54,6 +54,7 @@ export default function HomePage() {
           type="button"
           id="setRemindersBtn"
           className="w-full max-w-xs py-3 bg-[var(--color-tertiary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition"
+          id="setRemindersBtn"
         >
           Set Reminders
         </button>
