@@ -8,6 +8,7 @@
   --color-tertiary: #04BF8A;
   --color-accent: #03A64A;
   --color-error: #532523;
+  --color-delete: #FF0000;
   --color-textWhite: #dfe2df;
   --color-textBlack: #464646;
 }
@@ -30,42 +31,8 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Layout */
-body { font-family: sans-serif; background: #f0f4f8; margin: 0; }
-.container { max-width: 500px; margin: auto; padding: 1rem; background: #fff; border-radius: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
-.top-bar { display: flex; justify-content: space-between; align-items: center; background: var(--sky-500); padding: 0.5rem; color: white; }
-.logo-placeholder, .profile-placeholder { width: 28px; height: 28px; background: #ccc; border-radius: 50%; }
-.date-selector { text-align: center; margin: 1rem 0; }
-.labels { display: flex; justify-content: space-around; margin-bottom: 1rem; }
-
-/* Table */
-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
-td { border: 1px solid #ddd; padding: 0.5rem; }
-.row-label { background: var(--sky-950); color: white; font-weight: bold; width: 30%; }
-.row-value { font-weight: 500; }
-.unit { font-size: 0.8rem; color: gray; }
-
-/* Buttons - colors linked to globals */
-.btn { padding: 0.5rem 1rem; border-radius: 6px; color: white; border: none; cursor: pointer; font-weight: bold; text-align: center; text-decoration: none; }
-.glucose { background: var(--sky-500); }
-.insulin { background: var(--blue-600); }
-.comments { background: var(--emerald-600); }
-.edit-btn { background: var(--emerald-600); }
-.save { background: var(--emerald-600); }
-.cancel { background: var(--gray-400); }
-
-/* Modal */
-.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; }
-.modal.hidden { display: none; }
-.modal-content { background: white; padding: 1rem; border-radius: 8px; width: 90%; max-width: 400px; }
-.modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem; }
-.warning { color: red; font-size: 0.9rem; margin: 0.5rem 0; }
-
-/* Color variables (replace with your Tailwind globals) */
-:root {
-  --sky-500: #0ea5e9;
-  --sky-950: #0c4a6e;
-  --blue-600: #2563eb;
-  --emerald-600: #059669;
-  --gray-400: #9ca3af;
+.reminder-blur {
+  filter: blur(8px) brightness(0.7);
+  pointer-events: none;
+  user-select: none;
 }

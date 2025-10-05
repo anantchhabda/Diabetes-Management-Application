@@ -1,15 +1,9 @@
 import mongoose from 'mongoose';
 
 const ReminderSchema = new mongoose.Schema({
-    patients: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Patient',
-        required: true
-    },
-    type: {
+    patientID: {
         type: String,
-        enum: ['Take Medication', 'Report Glucose', 'Report Insulin'],
-        required: true
+        ref: 'Patient'
     },
     name: {
         type: String,
@@ -20,36 +14,41 @@ const ReminderSchema = new mongoose.Schema({
             enum: ['Daily', 'Weekly', 'Monthly'],
             required: true
     },
-    daysOfWeek: [{
+    dayOfWeek: {
         type: String,
-        enum: ['Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat', 'Sun']
-    }],
-    daysOfMonth: {
+        enum: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    },
+    dayOfMonth: {
         type: Number,
         min: 1,
         max:31
     },
-    time: [{
-        type: Date,
+    startDate: {
+        type: String,
         required: true
-    }],
-    active: {
-        type: Boolean, 
-        default: true
+    },
+    time: {
+        type: String,
+        required: true
     }
 });
 
 //enforce interval-specific rules
+
 ReminderSchema.pre('validate', function(next) {
-    if (this.interval=='Daily') {
-        this.daysOfWeek = undefined;
-        this.daysOfMonth = undefined;
-    } else if (this.interval == 'Weekly') {
-        this.daysOfMonth = undefined;
-    } else if (this.interval == 'Monthly') {
-        this.daysOfWeek = undefined;
+    let dateObj;
+    if (typeof this.startDate === 'string') {
+        const [year, month, day] = this.startDate.split('-').map(Number);
+        dateObj = new Date(year, month - 1, day); // js months are 0-indexed
+    } else {
+        dateObj = this.startDate;
     }
-    next()
+    if (this.interval === 'Weekly') {
+        const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        this.dayOfWeek = dayNames[dateObj.getDay()];
+    }
+
+    next();
 });
 
 export default mongoose.models.Reminder || mongoose.model('Reminder', ReminderSchema);
