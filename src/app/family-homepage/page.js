@@ -1,5 +1,5 @@
 "use client";
-import Header from '../components/header';
+import Script from "next/script";
 
 export default function HomePage() {
   
@@ -35,7 +35,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-background)]">
-      <Header />
       <main className="flex flex-col justify-center items-center px-4 gap-8 pt-8">
         <button
           id="userBtn"

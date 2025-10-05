@@ -2,28 +2,24 @@
 
 import Link from "next/link";
 import Script from "next/script";
+import Header from "../components/header";
 
 export default function InsulinPage() {
   return (
     <div className="flex justify-center items-center min-h-screen px-4 sm:px-2 bg-[#049EDB]">
       <div className="flex flex-col gap-5 w-full max-w-md sm:max-w-lg md:max-w-xl bg-white p-6 sm:p-8 rounded-xl shadow-lg mx-2 sm:mx-4">
-        {/* Top bar */}
-        <div className="flex items-center justify-between bg-sky-500 p-3 text-white rounded-t-lg">
-          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-gray-200"></div>
-          <div className="text-xl sm:text-2xl cursor-pointer">Place-Holder logo💧+</div>
-          <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gray-300"></div>
-        </div>
 
-{/* Date picker */}
-<div className="flex flex-col items-center gap-2 sm:gap-4 p-4 sm:p-6">
-  <h2 className="text-md sm:text-lg font-bold text-center">Select a Date 📅</h2>
-  <input
-    id="insulinDate"
-    type="date"
-    className="border px-2 sm:px-3 py-2 rounded shadow w-auto text-center font-bold text-sm sm:text-base"
-    style={{ minWidth: "9ch" }} // ensures minimum width
-  />
-</div>
+
+        {/* Date picker */}
+        <div className="flex flex-col items-center gap-2 sm:gap-4 p-4 sm:p-6">
+          <h2 className="text-md sm:text-lg font-bold text-center">Select a Date 📅</h2>
+          <input
+            id="insulinDate"
+            type="date"
+            className="border px-2 sm:px-3 py-2 rounded shadow w-auto text-center font-bold text-sm sm:text-base"
+            style={{ minWidth: "12.5ch" }} // ensures minimum width
+          />
+        </div>
 
 
         {/* Labels */}

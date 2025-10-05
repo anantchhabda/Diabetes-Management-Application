@@ -1,17 +1,12 @@
 "use client";
 
 import Script from "next/script";
+import Header from "../components/header";
 
 export default function CommentsPage() {
   return (
     <div className="flex justify-center items-center min-h-screen px-2 sm:px-4 bg-[#049EDB]">
       <div className="flex flex-col gap-4 sm:gap-5 w-full max-w-md sm:max-w-lg md:max-w-xl bg-white p-4 sm:p-8 rounded-xl shadow-lg mx-2 sm:mx-4">
-        {/* Top bar */}
-        <div className="flex items-center justify-between bg-sky-500 p-3 text-white rounded-t-lg">
-          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-gray-200"></div>
-          <div className="text-xl sm:text-2xl cursor-pointer">Place-Holder Logo💧+</div>
-          <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gray-300"></div>
-        </div>
 
 {/* Date picker */}
 <div className="flex flex-col items-center gap-2 sm:gap-4 p-4 sm:p-6">
@@ -95,8 +90,9 @@ export default function CommentsPage() {
           </div>
         </div>
       </div>
-
+      
       <Script src="/js/log-comments.js" strategy="afterInteractive" />
     </div>
   );
 }
+
