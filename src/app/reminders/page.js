@@ -1,10 +1,9 @@
 import Script from "next/script";
-import Header from '../components/header';
 
 export default function RemindersPage() {
   return (
     <div className="min-h-screen bg-[var(--color-background)]">
-      <Header />
+
       <div id="remindersApp">
         <main className="flex flex-col justify-center items-center px-4 gap-8 pt-8">
           <h1 className="text-2xl font-bold">Current Reminders</h1>
