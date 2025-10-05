@@ -13,7 +13,7 @@
     const currentYear = new Date().getFullYear();
     if (!form) return;
 
-    // Pre-fill readonly fields from onboarding token (after DOM is ready)
+    // pre-fill fields after dom ready
     try {
       const token = localStorage.getItem("onboardingToken");
       if (token) {
@@ -30,9 +30,10 @@
       console.error("Failed to read onboarding token", err);
     }
 
-    // Utility: safe JSON/text read
+    // utility
     async function readResponseSafe(response) {
-      const ct = (response.headers && response.headers.get("content-type")) || "";
+      const ct =
+        (response.headers && response.headers.get("content-type")) || "";
       if (ct.includes("application/json")) {
         try {
           return { data: await response.json(), text: null };
@@ -44,7 +45,7 @@
       return { data: null, text: null };
     }
 
-    // Clear & hide all error <p> helpers
+    // hide errors
     function resetErrors() {
       form.querySelectorAll("p[id^='error-']").forEach((p) => {
         p.textContent = "";
@@ -52,7 +53,7 @@
       });
     }
 
-    // Show one field error
+    // show one field error
     function showError(field, msg) {
       const el = document.getElementById(`error-${field}`);
       if (el) {
@@ -61,7 +62,7 @@
       }
     }
 
-    // Optional: inline clearing as user types/selects
+    // listen to input
     form.addEventListener("input", (e) => {
       const id = e.target && e.target.id;
       if (!id) return;
@@ -81,13 +82,18 @@
       const errors = {};
 
       // Required fields (skip readonly fields)
-      ["fullName", "dateOfBirth", "sex", "fullAddress", "yearOfDiagnosis", "diagnosisType"].forEach(
-        (f) => {
-          if (!data[f] || String(data[f]).trim() === "") {
-            errors[f] = "Required";
-          }
+      [
+        "fullName",
+        "dateOfBirth",
+        "sex",
+        "fullAddress",
+        "yearOfDiagnosis",
+        "diagnosisType",
+      ].forEach((f) => {
+        if (!data[f] || String(data[f]).trim() === "") {
+          errors[f] = "Required";
         }
-      );
+      });
 
       // Year validation
       if (data.yearOfDiagnosis) {
@@ -128,7 +134,7 @@
 
         const { data: result, text } = await readResponseSafe(res);
 
-        // Handle special “already completed” response (409)
+        // handle 409
         if (res.status === 409) {
           if (savedMsg) savedMsg.textContent = "Onboarding already completed";
           // proceed to homepage anyway

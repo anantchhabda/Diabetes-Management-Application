@@ -190,13 +190,12 @@ export default function Page() {
         </button>
       </form>
 
-      {/* keep this filename exactly as you said */}
       <Script src="/js/patient-onboarding.js" strategy="afterInteractive" />
     </main>
   );
 }
 
-/** Minimal wrapper for inputs with i18n-friendly props, no React logic */
+/** wrapper for i18n input */
 function Field({
   labelKey,
   labelFallback,
