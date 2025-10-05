@@ -59,7 +59,7 @@ export default function HomePage() {
         >
           Set Reminders
         </button>
-        <Script src="/js/homepage.js" strategy="afterInteractive" />
+        <Script src="/js/patient-homepage.js" strategy="afterInteractive" />
       </main>
     </div>
   );
