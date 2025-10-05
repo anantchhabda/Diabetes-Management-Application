@@ -21,8 +21,10 @@ export async function GET(req) {
     .select('profileId name dob sex yearOfDiag typeOfDiag');
 
   // Fetch link requests sent by this doctor
-  const requests = await LinkRequest
-    .find({requesterUser: family.profileId})
+  const requests = await LinkRequest.find({
+    requesterUser: family.profileId,
+    status: 'Pending'
+  })
     .select('_id patient patientName status');
 
   return NextResponse.json({ patients, requests }, { status: 200 });

@@ -13,7 +13,7 @@ export async function POST(req, {params}) {
 
     try {
         const {patientID} = await params;     //Patient._id
-        const patient = await Patient.findOne({profileId: patientID}).select('profileId');
+        const patient = await Patient.findOne({profileId: patientID}).select('profileId name');
         if (!patient) {
             return NextResponse.json(
             {message: 'Patient not found'}, {status: 404}

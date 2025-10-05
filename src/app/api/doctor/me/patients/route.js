@@ -14,15 +14,18 @@ export async function GET(req) {
   if (!doctor) {
     return NextResponse.json({ error: 'Doctor profile not found' }, { status: 404 });
   }
-
+2
   // Fetch patients linked to this doctor
   const patients = await Patient.find({ doctorID: doctor.profileId })
     .select('profileId name dob sex yearOfDiag typeOfDiag');
     
   // Fetch link requests sent by this doctor
-  const requests = await LinkRequest
-    .find({requesterUser: doctor.profileId})
+  const requests = await LinkRequest.find({
+      requesterUser: doctor.profileId,
+      status: 'Pending'
+    })
     .select('_id patient patientName status');
 
   return NextResponse.json({ patients, requests }, { status: 200 });
 }
+  
