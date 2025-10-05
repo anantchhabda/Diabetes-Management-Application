@@ -3,33 +3,17 @@
 import Script from "next/script";
 
 export default function Page() {
-  if (typeof window !== "undefined") {
-    // get register data from localStorage
-    const token = localStorage.getItem("onboardingToken");
-    if (token) {
-      try {
-        const payloadBase64 = token.split(".")[1];
-        const payload = JSON.parse(atob(payloadBase64));
-        const profileId = payload.profileId;
-        const phone = payload.phoneNumber;
-        const patientInput = document.getElementById("patientId");
-        const phoneInput = document.getElementById("phone");
-        if (patientInput) patientInput.value = profileId || "";
-        if (phoneInput) phoneInput.value = phone || "";
-      } catch (err) {
-        console.error("Failed to get PatientId and phone number", err);
-      }
-    }
-  }
-
   return (
-    <main className="flex flex-col justify-start items-center min-h-screen px-4 gap-8"
-        style={{background: 'var(--background)'}}>
+    <main
+      className="flex flex-col justify-start items-center min-h-screen px-4 gap-8"
+      style={{ background: "var(--background)" }}
+    >
       <form
         id="onboardingForm"
+        noValidate
         className="flex flex-col gap-5 w-full max-w-md bg-white p-8 rounded-xl shadow-lg mx-4"
       >
-        {/* Patient ID */}
+        {/* Patient ID (readonly) */}
         <div>
           <label
             htmlFor="patientId"
@@ -48,7 +32,7 @@ export default function Page() {
           />
         </div>
 
-        {/* Phone Number */}
+        {/* Phone Number (readonly) */}
         <div>
           <label
             htmlFor="phone"
@@ -65,11 +49,7 @@ export default function Page() {
             className="w-full h-10 rounded bg-[var(--color-secondary)] border-0 text-[var(--color-textWhite)] px-3 shadow-sm"
             data-i18n-title="phone_title"
           />
-          <p
-            id="error-phone"
-            className="text-red-600 text-sm"
-            data-i18n="error_phone"
-          ></p>
+          <p id="error-phone" className="hidden text-red-600 text-sm"></p>
         </div>
 
         {/* Full Name */}
@@ -80,11 +60,7 @@ export default function Page() {
           placeholderKey="fullName_placeholder"
           placeholderFallback="Full Name"
         />
-        <p
-          id="error-fullName"
-          className="text-red-600 text-sm"
-          data-i18n="error_fullName"
-        ></p>
+        <p id="error-fullName" className="hidden text-red-600 text-sm"></p>
 
         {/* Date of Birth */}
         <Field
@@ -93,11 +69,7 @@ export default function Page() {
           id="dateOfBirth"
           type="date"
         />
-        <p
-          id="error-dateOfBirth"
-          className="text-red-600 text-sm"
-          data-i18n="error_dob"
-        ></p>
+        <p id="error-dateOfBirth" className="hidden text-red-600 text-sm"></p>
 
         {/* Sex */}
         <div>
@@ -118,16 +90,20 @@ export default function Page() {
             <option value="" data-i18n="select_placeholder">
               Select...
             </option>
-            <option data-i18n="sex_male">Male</option>
-            <option data-i18n="sex_female">Female</option>
-            <option data-i18n="sex_intersex">Intersex</option>
-            <option data-i18n="sex_prefer_not">Prefer not to say</option>
+            <option value="Male" data-i18n="sex_male">
+              Male
+            </option>
+            <option value="Female" data-i18n="sex_female">
+              Female
+            </option>
+            <option value="Intersex" data-i18n="sex_intersex">
+              Intersex
+            </option>
+            <option value="Prefer not to say" data-i18n="sex_prefer_not">
+              Prefer not to say
+            </option>
           </select>
-          <p
-            id="error-sex"
-            className="text-red-600 text-sm"
-            data-i18n="error_sex"
-          ></p>
+          <p id="error-sex" className="hidden text-red-600 text-sm"></p>
         </div>
 
         {/* Full Address */}
@@ -149,11 +125,7 @@ export default function Page() {
                        focus:outline-none focus:ring-2 focus:ring-[#00C896]"
             data-i18n-placeholder="address_placeholder"
           />
-          <p
-            id="error-fullAddress"
-            className="text-red-600 text-sm"
-            data-i18n="error_address"
-          ></p>
+          <p id="error-fullAddress" className="hidden text-red-600 text-sm"></p>
         </div>
 
         {/* Year of Diagnosis */}
@@ -167,8 +139,7 @@ export default function Page() {
         />
         <p
           id="error-yearOfDiagnosis"
-          className="text-red-600 text-sm"
-          data-i18n="error_yod"
+          className="hidden text-red-600 text-sm"
         ></p>
 
         {/* Diagnosis Type */}
@@ -190,23 +161,24 @@ export default function Page() {
             <option value="" data-i18n="select_placeholder">
               Select...
             </option>
-            <option data-i18n="diag_type1">Type 1</option>
-            <option data-i18n="diag_type2">Type 2</option>
-            <option data-i18n="diag_gestational">Gestational</option>
+            <option value="Type 1" data-i18n="diag_type1">
+              Type 1
+            </option>
+            <option value="Type 2" data-i18n="diag_type2">
+              Type 2
+            </option>
+            <option value="Gestational" data-i18n="diag_gestational">
+              Gestational
+            </option>
           </select>
           <p
             id="error-diagnosisType"
-            className="text-red-600 text-sm"
-            data-i18n="error_diagType"
+            className="hidden text-red-600 text-sm"
           ></p>
         </div>
 
         {/* Saved message */}
-        <p
-          id="savedMsg"
-          className="text-green-600 text-sm mb-2"
-          data-i18n="saved_message"
-        ></p>
+        <p id="savedMsg" className="text-green-600 text-sm mb-2"></p>
 
         {/* Save Button */}
         <button
@@ -218,14 +190,13 @@ export default function Page() {
         </button>
       </form>
 
-      {/* external scripts */}
-      {/* Your layout already loads /js/i18n.js lazily; this page just needs its own page script */}
+      {/* keep this filename exactly as you said */}
       <Script src="/js/patient-onboarding.js" strategy="afterInteractive" />
     </main>
   );
 }
 
-/** Wrapped Field with i18n-friendly props */
+/** Minimal wrapper for inputs with i18n-friendly props, no React logic */
 function Field({
   labelKey,
   labelFallback,
