@@ -9,6 +9,7 @@
     "start": "NEXT_DISABLE_LIGHTNINGCSS=1 next start"
   },
   "dependencies": {
+    "autoprefixer": "^10.4.21",
     "axios": "^1.11.0",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
