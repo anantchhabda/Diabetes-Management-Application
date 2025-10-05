@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
+    "preinstall": "npm config set legacy-peer-deps true",
+    "dev": "NEXT_DISABLE_LIGHTNINGCSS=1 next dev",
+    "build": "NEXT_DISABLE_LIGHTNINGCSS=1 next build",
+    "start": "NEXT_DISABLE_LIGHTNINGCSS=1 next start"
   },
   "dependencies": {
     "axios": "^1.11.0",

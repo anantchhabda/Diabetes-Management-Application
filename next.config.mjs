@@ -1,10 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Disable LightningCSS (it breaks Vercel Linux builds)
-  compiler: {
-    lightningcss: false,
-  },
   experimental: {
     optimizeCss: false,
   },
