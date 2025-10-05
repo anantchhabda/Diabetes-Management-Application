@@ -45,7 +45,7 @@ async function navigateToHomepage() {
       window.location.href = "/family-homepage";
       break;
     default:
-      window.location.href = "/login";
+      window.location.href = "/";
   }
 }
 
