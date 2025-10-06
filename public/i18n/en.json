@@ -1,11 +1,41 @@
 {
+  "loginTitle": "Log In",
+  "login": "Log In",
+  "register": "Register",
+
+  "english": "English",
+  "nepali": "Nepali",
+  "language": "Language",
+
+  "phone": "Phone Number",
+  "phone_title": "Enter 7–15 digits",
+  "password": "Password",
+  "show": "Show",
+  "hide": "Hide",
+
+  "registerTitle": "Register",
+  "confirmPassword": "Confirm Password",
+
+  "role_patient": "Patient",
+  "role_doctor": "Doctor",
+  "role_family": "Family",
+
+  "error_invalid_phone": "Please enter a valid 7–15 digit phone number.",
+  "error_required": "This field is required.",
+  "error_required_password": "Password cannot be empty.",
+  "error_password_min": "Password must be at least 8 characters.",
+  "error_password_mismatch": "Passwords do not match.",
+  "error_password_rules": "Password must be 8–256 characters, include at least 1 uppercase letter, 1 lowercase letter, and 1 digit.",
+  "error_generic": "Something went wrong.",
+  "error_network": "Network error, please try again.",
+
   "save": "Save",
   "saved_message": "Your details have been saved.",
 
   "patientId_label": "Patient ID",
   "patientId_title": "Auto-filled from your registration",
   "phone_label": "Phone Number",
-  "phone_title": "Auto-filled from your registration",
+  "phone_title_registration": "Auto-filled from your registration",
 
   "fullName_label": "Full Name*",
   "fullName_placeholder": "Full Name",
@@ -36,7 +66,5 @@
   "error_sex": "Please select a sex option.",
   "error_address": "Full address is required.",
   "error_yod": "Enter a valid year (e.g., 2018).",
-  "error_diagType": "Please select a diagnosis type.",
-
-  "error_password_rules": "Password must be 8–256 characters, include at least 1 uppercase letter, 1 lowercase letter, and 1 digit."
+  "error_diagType": "Please select a diagnosis type."
 }
