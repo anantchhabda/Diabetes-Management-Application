@@ -1,6 +1,7 @@
+
 "use client";
 
-import Header from "../components/header";
+import Script from "next/script";
 
 export default function PatientConnections() {
   const currentConnections = [
@@ -16,21 +17,18 @@ export default function PatientConnections() {
 
   return (
     <div className="min-h-screen bg-[var(--color-background)]">
-      {/* ✅ Only one Header is used */}
-      <Header />
-
       <main className="flex flex-col items-center p-6">
         <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6 mt-6 text-center">
-          {/* Current Connections */}
-          <h2 className="text-2xl font-semibold mb-4 text-[var(--color-textBlack)]">
+
+          {/* --- Current Connections --- */}
+          <h2 className="text-2xl font-semibold mb-4 mt-6 text-[var(--color-textBlack)]">
             Current Connections
           </h2>
-
           <div className="space-y-2">
             {currentConnections.map((c, idx) => (
               <div
                 key={idx}
-                className="grid grid-cols-[100px_1fr_auto] border border-black"
+                className="grid grid-cols-[100px_1fr_auto_auto] border border-black"
               >
                 <div className="bg-[var(--color-secondary)] text-white font-semibold flex items-center justify-center px-2 py-2">
                   {c.role}
@@ -45,11 +43,11 @@ export default function PatientConnections() {
             ))}
           </div>
 
-          {/* Connection Requests */}
-          <h2 className="text-2xl font-semibold mt-10 mb-4 text-[var(--color-textBlack)]">
-            Connection Requests
-          </h2>
 
+          {/* --- Outgoing Requests --- */}
+          <h2 className="text-2xl font-semibold mt-10 mb-4 text-[var(--color-textBlack)]">
+            Outgoing Requests
+          </h2>
           <div className="space-y-2">
             {connectionRequests.map((r, idx) => (
               <div
@@ -73,6 +71,11 @@ export default function PatientConnections() {
           </div>
         </div>
       </main>
+
+
+
+      {/* --- Load external JS --- */}
+      <Script src="/js/patient-connection.js" strategy="afterInteractive" />
     </div>
   );
 }
