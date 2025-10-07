@@ -6,7 +6,7 @@ The aim of this project is to design and prototype a mobile health (mHealth) app
 This project requires a `.env` file to run the backend locally. Before running the project, create a `.env` file in the root directory and add the following variables:
 
 <pre> ```env
-MONGO_URI = mongodb+srv://user12345:team24dma@cluster0.eadmv9n.mongodb.net/?retryWrites = true&w=majority&appName=Cluster0
+MONGO_URI = mongodb+srv://user12345:team24dma@cluster0.eadmv9n.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
 PORT = 3000
 JWT_SECRET = yourjwtsecret``` <\pre>
 
