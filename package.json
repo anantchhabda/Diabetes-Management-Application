@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "preinstall": "npm config set legacy-peer-deps true",
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
@@ -17,17 +18,17 @@
     "next": "^15.5.2",
     "next-pwa": "^5.6.0",
     "nodemon": "^3.1.10",
-    "postcss": "^8.5.6",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4.1.12",
     "@types/minimatch": "^6.0.0",
+    "autoprefixer": "^10.4.21",
     "eslint": "^9",
     "eslint-config-next": "15.5.0",
-    "tailwindcss": "^4.1.12"
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.18"
   },
   "description": "The aim of this project is to design and prototype a mobile health (mHealth) application to support individuals with type 2 diabetes, particularly in low- and middle-income countries (LMICs). The app will focus on improving blood sugar control, medication adherence, and digital literacy, especially for middle-aged users with limited experience using mobile technology. The system will be multilingual, lightweight, and capable of functioning offline.",
   "main": "app.js",

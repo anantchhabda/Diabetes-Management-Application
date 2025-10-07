@@ -8,14 +8,17 @@ import { requireAuth, signJwt } from "../../../lib/auth";
 
 export async function POST(req) {
   await dbConnect();
+
+  // Auth
   const { payload, error } = requireAuth(req);
   if (error) return error;
 
   const user = await User.findById(payload.sub);
-  if (!user)
+  if (!user) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
 
-  // 1) If already completed, short-circuit with 409 (your intended behavior)
+  // Already finished onboarding
   if (user.onboardingComplete) {
     return NextResponse.json(
       {
@@ -31,11 +34,12 @@ export async function POST(req) {
     payload.scope === "onboarding" ||
     (payload.scope === "auth" && !user.onboardingComplete);
 
-  if (!isAllowed)
+  if (!isAllowed) {
     return NextResponse.json(
       { message: "Unauthorized or access expired" },
       { status: 401 }
     );
+  }
 
   if (!user.profileId) {
     return NextResponse.json({ error: "Invalid profileId" }, { status: 400 });
@@ -43,16 +47,26 @@ export async function POST(req) {
 
   try {
     const body = await req.json();
-    let created; //Capture the created profile doc
 
-    if (user.role == "Patient") {
-      const { name, dob, sex, address, yearOfDiag, typeOfDiag } = body;
+    // Small helpers
+    const s = (v) => (typeof v === "string" ? v.trim() : v);
+    let created;
+
+    if (user.role === "Patient") {
+      const name = s(body.name);
+      const dob = s(body.dob);
+      const sex = s(body.sex);
+      const address = s(body.address);
+      const yearOfDiag = Number(body.yearOfDiag);
+      const typeOfDiag = s(body.typeOfDiag);
+
       if (!name || !dob || !sex || !address || !yearOfDiag || !typeOfDiag) {
         return NextResponse.json(
           { error: "All fields are required" },
           { status: 400 }
         );
       }
+
       created = await Patient.create({
         profileId: user.profileId,
         user: user._id,
@@ -63,14 +77,19 @@ export async function POST(req) {
         yearOfDiag,
         typeOfDiag,
       });
-    } else if (user.role == "Doctor") {
-      const { name, dob, clinicName, clinicAddress } = body;
+    } else if (user.role === "Doctor") {
+      const name = s(body.name);
+      const dob = s(body.dob);
+      const clinicName = s(body.clinicName);
+      const clinicAddress = s(body.clinicAddress);
+
       if (!name || !dob || !clinicName || !clinicAddress) {
         return NextResponse.json(
           { error: "All fields are required" },
           { status: 400 }
         );
       }
+
       created = await Doctor.create({
         profileId: user.profileId,
         user: user._id,
@@ -79,14 +98,18 @@ export async function POST(req) {
         clinicName,
         clinicAddress,
       });
-    } else if (user.role == "Family Member") {
-      const { name, dob, address } = body;
+    } else if (user.role === "Family Member") {
+      const name = s(body.name);
+      const dob = s(body.dob);
+      const address = s(body.address);
+
       if (!name || !dob || !address) {
         return NextResponse.json(
           { error: "All fields are required" },
           { status: 400 }
         );
       }
+
       created = await FamilyMember.create({
         profileId: user.profileId,
         user: user._id,
@@ -94,9 +117,10 @@ export async function POST(req) {
         dob: new Date(dob),
         address,
       });
+    } else {
+      return NextResponse.json({ error: "Unsupported role" }, { status: 400 });
     }
 
-    // Only flip the flag if the profile was actually created
     if (!created?.profileId) {
       return NextResponse.json(
         { error: "Profile creation failed" },

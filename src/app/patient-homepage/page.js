@@ -1,7 +1,5 @@
 "use client";
-import Link from "next/link";
-import Header from "../components/header";
-
+import Script from "next/script";
 
 export default function HomePage() {
   //fetch user data
@@ -36,7 +34,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-background)]">
-      <Header />
       <main className="flex flex-col justify-center items-center px-4 gap-8 pt-8">
         <button
           id="userBtn"
@@ -46,23 +43,21 @@ export default function HomePage() {
           Hello ...
         </button>
 
-
-        <Link href="/log-insulin" className="w-full max-w-xs">
-          <button
-            type="button"
-            className="w-full py-3 bg-[var(--color-secondary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition"
-          >
-            Log Data
-          </button>
-        </Link>
-
+        <button
+          type="button"
+          className="w-full max-w-xs py-3 bg-[var(--color-secondary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition"
+        >
+          Log Data
+        </button>
 
         <button
           type="button"
+          id="setRemindersBtn"
           className="w-full max-w-xs py-3 bg-[var(--color-tertiary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition"
         >
           Set Reminders
         </button>
+        <Script src="/js/patient-homepage.js" strategy="afterInteractive" />
       </main>
     </div>
   );

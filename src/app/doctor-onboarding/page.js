@@ -23,7 +23,7 @@ export default function Page() {
     }
   }
   return (
-    <main className="flex flex-col justify-center items-center min-h-screen px-4 gap-8" 
+    <main className="flex flex-col justify-start items-center min-h-screen px-4 gap-8" 
           style={{background: 'var(--background)'}}>
       <form
         id="onboardingForm"
