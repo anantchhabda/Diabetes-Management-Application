@@ -1,32 +1,14 @@
 "use client";
 
 import Script from "next/script";
+import { useEffect } from "react";
 
 export default function Page() {
-  if (typeof window !== "undefined") {
-    // get register data from localStorage
-    const token = localStorage.getItem("onboardingToken");
-    if (token) {
-      try {
-        const payloadBase64 = token.split(".")[1];
-        const payload = JSON.parse(atob(payloadBase64));
-        const profileId = payload.profileId;
-        const phone = payload.phoneNumber;
-        const patientInput = document.getElementById("patientId");
-        const phoneInput = document.getElementById("phone");
-        if (patientInput) patientInput.value = profileId || "";
-        if (phoneInput) phoneInput.value = phone || "";
-      } catch (err) {
-        console.error("Failed to get PatientId and phone number", err);
-      }
-    }
-  }
-
   return (
     <main className="flex flex-col justify-start items-center min-h-screen px-4 gap-8"
         style={{background: 'var(--background)'}}>
       <form
-        id="onboardingForm"
+        id="settingsForm"
         className="flex flex-col gap-5 w-full max-w-md bg-white p-8 rounded-xl shadow-lg mx-4"
       >
         {/* Patient ID */}
@@ -118,10 +100,10 @@ export default function Page() {
             <option value="" data-i18n="select_placeholder">
               Select...
             </option>
-            <option data-i18n="sex_male">Male</option>
-            <option data-i18n="sex_female">Female</option>
-            <option data-i18n="sex_intersex">Intersex</option>
-            <option data-i18n="sex_prefer_not">Prefer not to say</option>
+            <option value="male" data-i18n="sex_male">Male</option>
+            <option value="female" data-i18n="sex_female">Female</option>
+            <option value="intersex" data-i18n="sex_intersex">Intersex</option>
+            <option value="prefer_not" data-i18n="sex_prefer_not">Prefer not to say</option>
           </select>
           <p
             id="error-sex"
@@ -144,7 +126,7 @@ export default function Page() {
             name="fullAddress"
             rows={3}
             placeholder="Street, City, Country, Postcode"
-            className="w-full rounded bg-white border border-[var(--color-gray-300)] px-3 
+            className="w-full rounded bg-white border border-[var(--color-gray-300)] px-3 py-2
                        text-gray-900 placeholder-gray-600 shadow-sm 
                        focus:outline-none focus:ring-2 focus:ring-[#00C896]"
             data-i18n-placeholder="address_placeholder"
@@ -190,9 +172,9 @@ export default function Page() {
             <option value="" data-i18n="select_placeholder">
               Select...
             </option>
-            <option data-i18n="diag_type1">Type 1</option>
-            <option data-i18n="diag_type2">Type 2</option>
-            <option data-i18n="diag_gestational">Gestational</option>
+            <option value="type1" data-i18n="diag_type1">Type 1</option>
+            <option value="type2" data-i18n="diag_type2">Type 2</option>
+            <option value="gestational" data-i18n="diag_gestational">Gestational</option>
           </select>
           <p
             id="error-diagnosisType"
@@ -208,19 +190,27 @@ export default function Page() {
           data-i18n="saved_message"
         ></p>
 
-        {/* Save Button */}
-        <button
-          type="submit"
-          className="w-full py-3 bg-[var(--color-secondary)] text-[var(--color-textWhite)] text-lg rounded-md hover:opacity-90 transition"
-          data-i18n="save"
-        >
-          Save
-        </button>
+        {/* Action Buttons */}
+        <div className="flex gap-4">
+          <button
+            type="button"
+            id="cancelBtn"
+            className="flex-1 py-3 bg-gray-500 text-white text-lg rounded-md hover:opacity-90 transition"
+            data-i18n="cancel"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="flex-1 py-3 bg-[var(--color-secondary)] text-[var(--color-textWhite)] text-lg rounded-md hover:opacity-90 transition"
+            data-i18n="save"
+          >
+            Save
+          </button>
+        </div>
       </form>
 
-      {/* external scripts */}
-      {/* Your layout already loads /js/i18n.js lazily; this page just needs its own page script */}
-      <Script src="/js/patient-onboarding.js" strategy="afterInteractive" />
+      <Script src="/js/patient-settings.js" strategy="afterInteractive" />
     </main>
   );
 }

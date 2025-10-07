@@ -54,16 +54,16 @@ async function navigateToSettings() {
   
   switch (role) {
     case "Patient":
-      window.location.href = "/patient-onboarding"; 
+      window.location.href = "/patient-settings"; 
       break;
     case "Doctor":
-      window.location.href = "/doctor-onboarding"; 
+      window.location.href = "/doctor-settings"; 
       break;
     case "Family Member":
-      window.location.href = "/family-onboarding"; 
+      window.location.href = "/family-settings"; 
       break;
     default:
-      window.location.href = "/login";
+      window.location.href = "/";
   }
 }
 
