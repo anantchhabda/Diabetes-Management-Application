@@ -1,45 +1,47 @@
 "use client";
-import { useEffect } from "react";
-import Link from "next/link";
+ 
 import Script from "next/script";
-
+import Link from "next/link";
+ 
 export default function HomePage() {
-  // Fetch and update the username safely
-  useEffect(() => {
-    async function getUserName() {
+  // Fetch and update the username right after the page loads
+  if (typeof window !== "undefined") {
+    (async () => {
       try {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          document.getElementById("userBtn").textContent = "Hello Guest";
+          return;
+        }
+ 
         const res = await fetch("/api/auth/me", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            Authorization: `Bearer ${token}`,
           },
         });
-
+ 
         if (!res.ok) {
           console.error("Failed to fetch user", res.status);
-          return "Guest";
+          document.getElementById("userBtn").textContent = "Hello Guest";
+          return;
         }
-
+ 
         const data = await res.json();
-        return data?.profile?.name || "Guest";
+        const name = data?.profile?.name || "Guest";
+        document.getElementById("userBtn").textContent = `Hello ${name}`;
       } catch (err) {
         console.error("Error fetching user", err);
-        return "Guest";
+        document.getElementById("userBtn").textContent = "Hello Guest";
       }
-    }
-
-    // Update button text after fetching user
-    getUserName().then((name) => {
-      const btn = document.getElementById("userBtn");
-      if (btn) btn.textContent = `Hello ${name}`;
-    });
-  }, []);
-
+    })();
+  }
+ 
   return (
     <div className="min-h-screen bg-[var(--color-background)]">
       <main className="flex flex-col justify-center items-center px-4 gap-8 pt-8">
-        {/* Greeting button */}
+        {/* User greeting */}
         <button
           id="userBtn"
           type="button"
@@ -47,16 +49,16 @@ export default function HomePage() {
         >
           Hello ...
         </button>
-
-        {/* ✅ Use Link with an <a>, not <button> */}
-        <Link
-          href="/log-insulin"
-          className="w-full max-w-xs py-3 bg-[var(--color-secondary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition block text-center"
+ 
+        {/* Log Data */}
+        <button
+          type="button"
+          className="w-full max-w-xs py-3 bg-[var(--color-secondary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition"
         >
           Log Data
-        </Link>
-
-        {/* Set Reminders button */}
+        </button>
+ 
+        {/* Set Reminders */}
         <button
           type="button"
           id="setRemindersBtn"
@@ -64,8 +66,16 @@ export default function HomePage() {
         >
           Set Reminders
         </button>
-
-        {/* Optional external script */}
+ 
+        {/* ✅ Link to Patient Connections page */}
+        <Link
+          href="/patient-connection"
+          className="w-full max-w-xs py-3 bg-[var(--color-secondary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition"
+        >
+          View Connections
+        </Link>
+ 
+        {/* Optional: custom JS file */}
         <Script src="/js/patient-homepage.js" strategy="afterInteractive" />
       </main>
     </div>
