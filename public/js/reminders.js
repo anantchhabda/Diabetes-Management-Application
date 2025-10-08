@@ -43,7 +43,8 @@
     const res = await fetch('/api/patient/me/reminder', {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
+        'Cache-Control': 'no-cache'
       }
     });
     const {data} = await readResponseSafe(res);
@@ -60,7 +61,8 @@
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
+        'Cache-Control': 'no-cache'
       },
       body: JSON.stringify(updateData)
     });
@@ -121,21 +123,21 @@
     popup.className = 'fixed inset-0 flex items-center justify-center z-50';
 
     popup.innerHTML = `
-      <div class="bg-[var(--color-secondary)] rounded-lg p-6 w-80 relative shadow-lg text-[var(--color-textWhite)]">
+      <div class="bg-[var(--color-secondary)] rounded-lg p-6 w-80 relative shadow-lg">
         <h2 class="text-xl font-bold mb-4 text-[var(--color-textWhite)]">${!reminderID ? 'New Reminder' : 'Edit Reminder'}</h2>
         <form id="reminderForm" class="flex flex-col gap-3">
-          <input type="text" name="name" placeholder="Name..." required class="rounded px-2 py-1 bg-transparent border border-[var(--color-textWhite)] text-[var(--color-textWhite)] placeholder-[var(--color-textWhite)]" value="${reminder.name || ''}">
-          <input type="date" name="date" class="rounded px-2 py-1 bg-transparent border border-[var(--color-textWhite)] text-[var(--color-textWhite)] placeholder-[var(--color-textWhite)]" value="${reminder.startDate || ''}">
-          <input type="time" name="time" class="rounded px-2 py-1 bg-transparent border border-[var(--color-textWhite)] text-[var(--color-textWhite)] placeholder-[var(--color-textWhite)]" value="${reminder.time || ''}">
-          <select name="interval" required class="rounded px-2 py-1 bg-transparent border border-[var(--color-textWhite)] text-[var(--color-textWhite)]">
-            <option value="" class="text-[var(--color-textWhite)]">Interval/Repeat</option>
+          <input type="text" name="name" placeholder="Name..." required class="rounded px-2 py-1 bg-transparent border border-[var(--color-textWhite)] !text-[var(--color-textBlack)] placeholder-[var(--color-textWhite)]" value="${reminder.name || ''}">
+          <input type="date" name="date" class="rounded px-2 py-1 bg-transparent border border-[var(--color-textWhite)] !text-[var(--color-textBlack)] placeholder-[var(--color-textWhite)]" value="${reminder.startDate || ''}">
+          <input type="time" name="time" class="rounded px-2 py-1 bg-transparent border border-[var(--color-textWhite)] !text-[var(--color-textBlack)] placeholder-[var(--color-textWhite)]" value="${reminder.time || ''}">
+          <select name="interval" required class="rounded px-2 py-1 bg-transparent border border-[var(--color-textWhite)] !text-[var(--color-textBlack)]">
+            <option value="" class="text-[var(--color-textBlack)]">Interval/Repeat</option>
             <option value="Daily" ${reminder.interval === 'Daily' ? 'selected' : ''}>Daily</option>
             <option value="Weekly" ${reminder.interval === 'Weekly' ? 'selected' : ''}>Weekly</option>
             <option value="Monthly" ${reminder.interval === 'Monthly' ? 'selected' : ''}>Monthly</option>
           </select>
           <div class="flex gap-2 mt-4">
-            <button type="button" id="cancelReminderBtn" class="flex-1 bg-gray-300 text-[var(--color-textBlack)] rounded py-1 font-semibold">Cancel</button>
-            <button type="submit" class="flex-1 bg-[var(--color-tertiary)] text-[var(--color-textWhite)] rounded py-1 font-semibold">Save</button>
+            <button type="button" id="cancelReminderBtn" class="flex-1 bg-gray-300 !text-[var(--color-textBlack)] rounded py-1 font-semibold">Cancel</button>
+            <button type="submit" class="flex-1 bg-[var(--color-tertiary)] !text-[var(--color-textWhite)] rounded py-1 font-semibold">Save</button>
           </div>
         </form>
       </div>
@@ -179,11 +181,11 @@
     popup.className = 'fixed inset-0 flex items-center justify-center z-50';
 
     popup.innerHTML = `
-      <div class="bg-[var(--color-secondary)] rounded-lg p-6 w-80 relative shadow-lg text-[var(--color-textWhite)]">
+      <div class="bg-[var(--color-secondary)] rounded-lg p-6 w-80 relative shadow-lg">
         <h2 class="text-xl font-bold mb-4 text-[var(--color-textWhite)]">Delete Reminder</h2>
         <p class="mb-6 text-[var(--color-textWhite)]">Are you sure you want to delete this reminder?</p>
         <div class="flex gap-2">
-          <button type="button" id="cancelDeleteBtn" class="flex-1 bg-gray-300 text-[var(--color-textBlack)] rounded py-1 font-semibold">Cancel</button>
+          <button type="button" id="cancelDeleteBtn" class="flex-1 bg-gray-300 !text-[var(--color-textBlack)] rounded py-1 font-semibold">Cancel</button>
           <button type="button" id="confirmDeleteBtn" class="flex-1 bg-[var(--color-delete)] text-[var(--color-textWhite)] rounded py-1 font-semibold">Delete</button>
         </div>
       </div>
@@ -226,6 +228,7 @@
 
   window.addEventListener('DOMContentLoaded', renderReminders);
 })();
+
 
 
 
