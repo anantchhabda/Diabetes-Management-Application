@@ -11,7 +11,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Move theme color to viewport (stops the Next.js warning)
 export const viewport = {
   themeColor: "#04BF8A",
 };
@@ -26,11 +25,9 @@ export default function RootLayout({ children }) {
     // suppress hydration warnings
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* PWA essentials */}
+        {/* pwa incorporation*/}
         <link rel="manifest" href="/manifest.webmanifest" />
         <meta name="mobile-web-app-capable" content="yes" />
-        {/* (Optional) iOS legacy meta; safe to omit if you prefer */}
-        {/* <meta name="apple-mobile-web-app-capable" content="yes" /> */}
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         <link rel="icon" href="/favicon.ico" />
@@ -50,21 +47,21 @@ export default function RootLayout({ children }) {
         {/* load i18n after page hydrated */}
         <Script src="/js/i18n.js" strategy="lazyOnload" />
 
-        {/* INLINE service worker registrar (makes console log unmissable) */}
+        {/* service worker register*/}
         <Script id="sw-register" strategy="afterInteractive">
           {`
             (function () {
               if (typeof window === "undefined") return;
               if (!("serviceWorker" in navigator)) {
-                console.log("❌ Service Worker not supported");
+                console.log("Service Worker not supported");
                 return;
               }
               navigator.serviceWorker.register("/sw.js", { scope: "/" })
                 .then(reg => {
-                  console.log("✅ Service Worker registered:", reg.scope);
+                  console.log(" Service Worker registered:", reg.scope);
                   if (reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
                 })
-                .catch(err => console.error("❌ Service Worker registration FAILED:", err));
+                .catch(err => console.error("Service Worker registration FAILED:", err));
             })();
           `}
         </Script>

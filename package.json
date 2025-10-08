@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "preinstall": "npm config set legacy-peer-deps true",
-    "dev": "NEXT_DISABLE_LIGHTNINGCSS=1 next dev",
-    "build": "NEXT_DISABLE_LIGHTNINGCSS=1 next build",
-    "start": "NEXT_DISABLE_LIGHTNINGCSS=1 next start"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   },
   "dependencies": {
     "axios": "^1.11.0",
