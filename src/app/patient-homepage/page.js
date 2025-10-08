@@ -83,30 +83,22 @@
 // }
 
 
-
 "use client";
-
 import Link from "next/link";
 import Script from "next/script";
 import { useEffect, useState } from "react";
 
 export default function HomePage() {
-  const [username, setUsername] = useState("...");
+  const [username, setUsername] = useState("..."); // initialize state
 
   useEffect(() => {
-    const fetchUser = async () => {
+    async function getUserName() {
       try {
-        const token = localStorage.getItem("authToken");
-        if (!token) {
-          setUsername("Guest");
-          return;
-        }
-
         const res = await fetch("/api/auth/me", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         });
 
@@ -117,37 +109,37 @@ export default function HomePage() {
         }
 
         const data = await res.json();
-        const name = data?.profile?.name || "Guest";
-        setUsername(name);
+        setUsername(data?.profile?.name || "Guest");
       } catch (err) {
         console.error("Error fetching user", err);
         setUsername("Guest");
       }
-    };
+    }
 
-    fetchUser();
+    getUserName();
   }, []);
 
   return (
     <div className="min-h-screen bg-[var(--color-background)]">
       <main className="flex flex-col justify-center items-center px-4 gap-8 pt-8">
-        {/* User greeting */}
+        {/* Greeting button */}
         <button
           type="button"
+          id="userBtn"
           className="w-full max-w-xs py-3 bg-[var(--color-tertiary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition"
         >
           Hello {username}
         </button>
 
-        {/* Log Data */}
-        <button
-          type="button"
-          className="w-full max-w-xs py-3 bg-[var(--color-secondary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition"
+        {/* Link to log-insulin page */}
+        <Link
+          href="/log-insulin"
+          className="w-full max-w-xs py-3 bg-[var(--color-secondary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition block text-center"
         >
           Log Data
-        </button>
+        </Link>
 
-        {/* Set Reminders */}
+        {/* Set Reminders button */}
         <button
           type="button"
           id="setRemindersBtn"
@@ -156,15 +148,7 @@ export default function HomePage() {
           Set Reminders
         </button>
 
-        {/* ✅ Link to Patient Connections page */}
-        <Link
-          href="/patient-connection"
-          className="w-full max-w-xs py-3 bg-[var(--color-secondary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition"
-        >
-          View Connections
-        </Link>
-
-        {/* Optional: custom JS file */}
+        {/* Optional external script */}
         <Script src="/js/patient-homepage.js" strategy="afterInteractive" />
       </main>
     </div>
