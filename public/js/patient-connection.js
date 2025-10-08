@@ -1,109 +1,61 @@
-// public/js/patient-connection.js
+"use client";
 
-document.addEventListener("DOMContentLoaded", () => {
-  // ===== Containers =====
-  const currentContainer = document.getElementById("currentConnections");
-  const outgoingContainer = document.getElementById("outgoingRequests");
+export default function PatientConnections({ currentConnections, connectionRequests }) {
+    return (
+        <div className="min-h-screen bg-[var(--color-background)]">
+            <main className="flex flex-col items-center p-6">
+                <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6 mt-6 text-center">
 
-  // ===== Data =====
-  let currentConnections = [
-    { role: "Doctor", name: "John Smith" },
-    { role: "Doctor", name: "Jane Smith" },
-    { role: "Family Member", name: "Jane Doe" },
-  ];
+                    {/* --- Current Connections --- */}
+                    <h2 className="text-2xl font-semibold mb-4 mt-6 text-[var(--color-textBlack)]">
+                        Current Connections
+                    </h2>
+                    <div className="space-y-2">
+                        {currentConnections.map((c, idx) => (
+                            <div
+                                key={idx}
+                                className="grid grid-cols-[100px_1fr_auto_auto] border border-black"
+                            >
+                                <div className="bg-[var(--color-secondary)] text-white font-semibold flex items-center justify-center px-2 py-2">
+                                    {c.role}
+                                </div>
+                                <div className="bg-gray-200 text-[var(--color-textBlack)] flex items-center px-3 font-semibold justify-start">
+                                    {c.name}
+                                </div>
+                                <button className="bg-red-600 text-white font-bold px-3 py-1 m-1 rounded hover:opacity-90">
+                                    Remove
+                                </button>
+                            </div>
+                        ))}
+                    </div>
 
-  let outgoingRequests = [
-    { role: "Doctor", name: "Doctor Eggman" },
-    { role: "Family Member", name: "Julia Doe" },
-  ];
-
-  // ===== Helpers =====
-  function clearChildren(node) {
-    while (node.firstChild) node.removeChild(node.firstChild);
-  }
-
-  function renderConnections() {
-    // --- Current Connections ---
-    clearChildren(currentContainer);
-
-    if (!currentConnections.length) {
-      const p = document.createElement("p");
-      p.className = "text-gray-500";
-      p.textContent = "No current connections";
-      currentContainer.appendChild(p);
-    } else {
-      currentConnections.forEach((c, idx) => {
-        const div = document.createElement("div");
-        div.className = "grid grid-cols-[100px_1fr_auto] border border-black";
-
-        div.innerHTML = `
-          <div class="bg-[var(--color-secondary)] text-white font-semibold flex items-center justify-center px-2 py-2">
-            ${c.role}
-          </div>
-          <div class="bg-gray-200 text-[var(--color-textBlack)] flex items-center px-3 font-semibold justify-start">
-            ${c.name}
-          </div>
-          <button class="bg-red-600 text-white font-bold px-3 py-1 m-1 rounded hover:opacity-90">
-            Remove
-          </button>
-        `;
-
-        const removeBtn = div.querySelector("button");
-        removeBtn.addEventListener("click", () => {
-          currentConnections.splice(idx, 1);
-          renderConnections();
-        });
-
-        currentContainer.appendChild(div);
-      });
-    }
-
-    // --- Outgoing Requests ---
-    clearChildren(outgoingContainer);
-
-    if (!outgoingRequests.length) {
-      const p = document.createElement("p");
-      p.className = "text-gray-500";
-      p.textContent = "No outgoing requests";
-      outgoingContainer.appendChild(p);
-    } else {
-      outgoingRequests.forEach((r, idx) => {
-        const div = document.createElement("div");
-        div.className = "grid grid-cols-[100px_1fr_auto_auto] border border-black";
-
-        div.innerHTML = `
-          <div class="bg-[var(--color-secondary)] text-white font-semibold flex items-center justify-center px-2 py-2">
-            ${r.role}
-          </div>
-          <div class="bg-gray-200 text-[var(--color-textBlack)] flex items-center px-3 font-semibold justify-start">
-            ${r.name}
-          </div>
-          <button class="bg-[var(--color-tertiary)] text-white font-bold px-3 py-1 m-1 rounded hover:opacity-90">
-            Add
-          </button>
-          <button class="bg-red-600 text-white font-bold px-3 py-1 m-1 rounded hover:opacity-90">
-            Remove
-          </button>
-        `;
-
-        const [addBtn, removeBtn] = div.querySelectorAll("button");
-
-        addBtn.addEventListener("click", () => {
-          currentConnections.push({ role: r.role, name: r.name });
-          outgoingRequests.splice(idx, 1);
-          renderConnections();
-        });
-
-        removeBtn.addEventListener("click", () => {
-          outgoingRequests.splice(idx, 1);
-          renderConnections();
-        });
-
-        outgoingContainer.appendChild(div);
-      });
-    }
-  }
-
-  // ===== Initial render =====
-  renderConnections();
-});
+                    {/* --- Outgoing Requests --- */}
+                    <h2 className="text-2xl font-semibold mt-10 mb-4 text-[var(--color-textBlack)]">
+                        Outgoing Requests
+                    </h2>
+                    <div className="space-y-2">
+                        {connectionRequests.map((r, idx) => (
+                            <div
+                                key={idx}
+                                className="grid grid-cols-[100px_1fr_auto_auto] border border-black"
+                            >
+                                <div className="bg-[var(--color-secondary)] text-white font-semibold flex items-center justify-center px-2 py-2">
+                                    {r.role}
+                                </div>
+                                <div className="bg-gray-200 text-[var(--color-textBlack)] flex items-center px-3 font-semibold justify-start">
+                                    {r.name}
+                                </div>
+                                <button className="bg-[var(--color-tertiary)] text-white font-bold px-3 py-1 m-1 rounded hover:opacity-90">
+                                    Add
+                                </button>
+                                <button className="bg-red-600 text-white font-bold px-3 py-1 m-1 rounded hover:opacity-90">
+                                    Remove
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </main>
+        </div>
+    );
+}

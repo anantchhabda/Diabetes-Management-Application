@@ -1,5 +1,6 @@
 "use client";
 import Script from "next/script";
+import Link from "next/link";
 
 export default function HomePage() {
   
@@ -44,12 +45,13 @@ export default function HomePage() {
           Hello ...
         </button>
 
-        <button
-          type="button"
+        {/*links to family Connections page */}
+        <Link
+          href="/family-connection"
           className="w-full max-w-xs py-3 bg-[var(--color-secondary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition"
         >
           View Patients
-        </button>
+        </Link>
 
       </main>
     </div>
