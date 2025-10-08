@@ -1,10 +1,10 @@
 (function () {
   const form = document.getElementById("settingsForm");
   const savedMsg = document.getElementById("savedMsg");
-  const currentYear = new Date().getFullYear();
 
   if (!form) return;
 
+  // Load existing family member data when page loads
   async function loadUserData() {
     try {
       const token = localStorage.getItem("authToken");
@@ -26,18 +26,15 @@
         return;
       }
 
-      const userData = await response.json();
+      const result = await response.json();
+      const userData = result.profile;
       
       // Populate form fields with existing data
       const fields = {
-        patientId: userData.profileId,
-        phone: userData.phoneNumber,
+        familyId: userData.profileId,
         fullName: userData.name,
         dateOfBirth: userData.dob,
-        sex: userData.sex,
-        fullAddress: userData.address,
-        yearOfDiagnosis: userData.yearOfDiag,
-        diagnosisType: userData.typeOfDiag
+        fullAddress: userData.address
       };
 
       Object.entries(fields).forEach(([fieldId, value]) => {
@@ -79,27 +76,16 @@
     const data = Object.fromEntries(new FormData(form));
     const errors = {};
 
-    // required fields, skipping readonly fields
+    // required fields, skipping readonly fields 
     [
       "fullName",
       "dateOfBirth",
-      "sex",
       "fullAddress",
-      "yearOfDiagnosis",
-      "diagnosisType",
     ].forEach((f) => {
       if (!data[f] || data[f].trim() === "") {
         errors[f] = "Required";
       }
     });
-
-    // year validation
-    if (data.yearOfDiagnosis) {
-      const y = Number(data.yearOfDiagnosis);
-      if (!Number.isInteger(y) || y < 1900 || y > currentYear) {
-        errors.yearOfDiagnosis = `Enter a year between 1900 and ${currentYear}`;
-      }
-    }
 
     form
       .querySelectorAll("p[id^='error-']")
@@ -112,7 +98,7 @@
 
     if (Object.keys(errors).length > 0) return;
 
-    console.log("Submitting settings form...");
+    console.log("Submitting family settings form...");
     console.log("Form data:", data);
 
     try {
@@ -123,7 +109,7 @@
         return;
       }
 
-      const res = await fetch("/api/patient/me/profile", {
+      const res = await fetch("/api/family/me/profile", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -132,10 +118,7 @@
         body: JSON.stringify({
           name: data.fullName,
           dob: data.dateOfBirth,
-          sex: data.sex,
           address: data.fullAddress,
-          yearOfDiag: data.yearOfDiagnosis,
-          typeOfDiag: data.diagnosisType,
         }),
       });
 
@@ -152,11 +135,13 @@
         return;
       }
 
-      if (savedMsg)
+      if (savedMsg) {
         savedMsg.textContent = "Settings updated successfully!";
+        window.location.href = "/family-homepage";
+      }
 
     } catch (err) {
-      console.error("Settings update error:", err);
+      console.error("Family settings update error:", err);
       if (savedMsg) savedMsg.textContent = "Error, please try again";
     }
   });

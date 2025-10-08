@@ -138,9 +138,10 @@
         return;
       }
 
-      if (savedMsg)
+      if (savedMsg) {
         savedMsg.textContent = "Settings updated successfully!";
-
+        window.location.href = "/doctor-homepage";
+      }
     } catch (err) {
       console.error("Doctor settings update error:", err);
       if (savedMsg) savedMsg.textContent = "Error, please try again";

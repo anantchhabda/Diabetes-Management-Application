@@ -135,8 +135,10 @@
         return;
       }
 
-      if (savedMsg)
+      if (savedMsg) {
         savedMsg.textContent = "Settings updated successfully!";
+        window.location.href = "/family-homepage";
+      }
 
     } catch (err) {
       console.error("Family settings update error:", err);
