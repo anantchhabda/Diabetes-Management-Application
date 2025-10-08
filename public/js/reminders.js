@@ -92,25 +92,25 @@
   }
   async function renderReminders() {
     let container = document.getElementById('remindersList');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'remindersList';
-    container.className = 'w-full max-w-2xl';
-    app.insertAdjacentElement('afterend', container);
-  }
-  const reminders = await fetchReminders();
-  container.innerHTML = reminders.map(r => `
-    <div class="flex border mb-2 rounded overflow-hidden w-full">
-      <div class="bg-[var(--color-secondary)] text-[var(--color-textWhite)] flex items-center justify-center px-4 min-w-[180px] text-base font-bold text-center">${r.name}</div>
-      <div class="flex-1 flex items-center justify-between px-4 py-2" style="background: #1b7fa6;">
-          <span class="text-[var(--color-textWhite)] text-base">${getScheduleText(r)}</span>
-          <div class="flex gap-2">
-            <button class="bg-[var(--color-tertiary)] text-[var(--color-textWhite)] px-3 py-1 rounded font-semibold text-base editReminderBtn" data-id="${r._id}">Edit</button>
-            <button class="bg-[var(--color-delete)] text-[var(--color-textWhite)] px-3 py-1 rounded font-semibold text-base removeReminderBtn" data-id="${r._id}">Remove</button>
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'remindersList';
+      container.className = 'w-full max-w-md mx-auto'; // Changed from max-w-2xl to max-w-md
+      app.insertAdjacentElement('afterend', container);
+    }
+    const reminders = await fetchReminders();
+    container.innerHTML = reminders.map(r => `
+      <div class="flex border mb-2 rounded overflow-hidden w-full max-w-sm mx-auto"> 
+        <div class="bg-color-secondary text-color-textWhite flex items-center justify-center px-4 min-w-[120px] text-sm font-bold text-center">${r.name}</div> 
+        <div class="flex-1 flex flex-col px-3 py-2" style="background: #1b7fa6;"> 
+            <span class="text-color-textWhite text-sm mb-2">${getScheduleText(r)}</span> 
+            <div class="flex gap-1"> 
+              <button class="bg-color-tertiary text-color-textWhite px-2 py-1 rounded font-semibold text-xs editReminderBtn" data-id="${r._id}">Edit</button> 
+              <button class="bg-color-delete text-color-textWhite px-2 py-1 rounded font-semibold text-xs removeReminderBtn" data-id="${r._id}">Remove</button> 
+            </div>
           </div>
         </div>
-      </div>
-    `).join('');
+      `).join('');
   }
   function showReminderPopup(reminder = {}, reminderID = null) {
     document.getElementById('reminderPopup')?.remove();
@@ -121,21 +121,21 @@
     popup.className = 'fixed inset-0 flex items-center justify-center z-50';
 
     popup.innerHTML = `
-      <div class="bg-[var(--color-secondary)] rounded-lg p-6 w-80 relative shadow-lg text-[var(--color-textWhite)]">
-        <h2 class="text-xl font-bold mb-4 text-[var(--color-textWhite)]">${!reminderID ? 'New Reminder' : 'Edit Reminder'}</h2>
+      <div class="bg-color-secondary rounded-lg p-6 w-80 relative shadow-lg text-color-textBlack">
+        <h2 class="text-xl font-bold mb-6 text-color-textWhite">${!reminderID ? 'New Reminder' : 'Edit Reminder'}</h2>
         <form id="reminderForm" class="flex flex-col gap-3">
-          <input type="text" name="name" placeholder="Name..." required class="rounded px-2 py-1 bg-transparent border border-[var(--color-textWhite)] text-[var(--color-textWhite)] placeholder-[var(--color-textWhite)]" value="${reminder.name || ''}">
-          <input type="date" name="date" class="rounded px-2 py-1 bg-transparent border border-[var(--color-textWhite)] text-[var(--color-textWhite)] placeholder-[var(--color-textWhite)]" value="${reminder.startDate || ''}">
-          <input type="time" name="time" class="rounded px-2 py-1 bg-transparent border border-[var(--color-textWhite)] text-[var(--color-textWhite)] placeholder-[var(--color-textWhite)]" value="${reminder.time || ''}">
-          <select name="interval" required class="rounded px-2 py-1 bg-transparent border border-[var(--color-textWhite)] text-[var(--color-textWhite)]">
-            <option value="" class="text-[var(--color-textWhite)]">Interval/Repeat</option>
+          <input type="text" name="name" placeholder="Name..." required class="rounded px-2 py-1 bg-transparent border border-[var(--color-textBlack)] text-[var(--color-textBlack)] placeholder-[var(--color-textBlack)]" value="${reminder.name || ''}">
+          <input type="date" name="date" class="rounded px-2 py-1 bg-transparent border border-[var(--color-textBlack)] text-[var(--color-textBlack)] placeholder-[var(--color-textBlack)]" value="${reminder.startDate || ''}">
+          <input type="time" name="time" class="rounded px-2 py-1 bg-transparent border border-[var(--color-textBlack)] text-[var(--color-textBlack)] placeholder-[var(--color-textBlack)]" value="${reminder.time || ''}">
+          <select name="interval" required class="rounded px-2 py-1 bg-transparent border border-[var(--color-textBlack)] text-[var(--color-textBlack)]">
+            <option value="" class="text-[var(--color-textBlack)]">Interval/Repeat</option>
             <option value="Daily" ${reminder.interval === 'Daily' ? 'selected' : ''}>Daily</option>
             <option value="Weekly" ${reminder.interval === 'Weekly' ? 'selected' : ''}>Weekly</option>
             <option value="Monthly" ${reminder.interval === 'Monthly' ? 'selected' : ''}>Monthly</option>
           </select>
           <div class="flex gap-2 mt-4">
             <button type="button" id="cancelReminderBtn" class="flex-1 bg-gray-300 text-[var(--color-textBlack)] rounded py-1 font-semibold">Cancel</button>
-            <button type="submit" class="flex-1 bg-[var(--color-tertiary)] text-[var(--color-textWhite)] rounded py-1 font-semibold">Save</button>
+            <button type="submit" class="flex-1 bg-[var(--color-tertiary)] text-[var(--color-textBlack)] rounded py-1 font-semibold">Save</button>
           </div>
         </form>
       </div>
@@ -181,7 +181,7 @@
     popup.innerHTML = `
       <div class="bg-[var(--color-secondary)] rounded-lg p-6 w-80 relative shadow-lg text-[var(--color-textWhite)]">
         <h2 class="text-xl font-bold mb-4 text-[var(--color-textWhite)]">Delete Reminder</h2>
-        <p class="mb-6 text-[var(--color-textWhite)]">Are you sure you want to delete this reminder?</p>
+        <p class="mb-10 text-[var(--color-textWhite)]">Are you sure you want to delete this reminder?</p>
         <div class="flex gap-2">
           <button type="button" id="cancelDeleteBtn" class="flex-1 bg-gray-300 text-[var(--color-textBlack)] rounded py-1 font-semibold">Cancel</button>
           <button type="button" id="confirmDeleteBtn" class="flex-1 bg-[var(--color-delete)] text-[var(--color-textWhite)] rounded py-1 font-semibold">Delete</button>
