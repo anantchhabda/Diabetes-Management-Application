@@ -1,8 +1,7 @@
-// /public/js/patient-homepage.js
 (function () {
   if (typeof document === "undefined") return;
 
-  // Init once DOM is ready (Next's afterInteractive already runs post-hydration)
+  // once dom is ready
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
   } else {

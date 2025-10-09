@@ -4,7 +4,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[var(--color-background)]">
       <main className="flex flex-col justify-center items-center px-4 gap-8 pt-8">
-        {/* Greeting (text only updated later by JS) */}
+        {/* greeting */}
         <button
           id="userBtn"
           type="button"
@@ -13,7 +13,7 @@ export default function HomePage() {
           Hello ...
         </button>
 
-        {/* Log Data (button; JS navigates) */}
+        {/* log data button */}
         <button
           id="logDataBtn"
           type="button"
@@ -22,7 +22,7 @@ export default function HomePage() {
           Log Data
         </button>
 
-        {/* Set Reminders (button; JS navigates) */}
+        {/* set reminders */}
         <button
           id="setRemindersBtn"
           type="button"
@@ -31,7 +31,7 @@ export default function HomePage() {
           Set Reminders
         </button>
 
-        {/* View Connections (button; JS navigates) */}
+        {/* view connections */}
         <button
           id="viewConnectionsBtn"
           type="button"
@@ -40,7 +40,7 @@ export default function HomePage() {
           View Connections
         </button>
 
-        {/* After hydration: greeting + nav wiring (no DOM reshaping) */}
+        {/* external js */}
         <Script src="/js/patient-homepage.js" strategy="afterInteractive" />
       </main>
     </div>
