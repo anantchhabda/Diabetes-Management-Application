@@ -51,12 +51,12 @@ export default function HomePage() {
         </button>
  
         {/* Log Data */}
-        <button
-          type="button"
+        <Link
+          href="/log-glucose"
           className="w-full max-w-xs py-3 bg-[var(--color-secondary)] text-[var(--color-textWhite)] text-lg rounded-md text-center font-semibold hover:opacity-90 transition"
         >
           Log Data
-        </button>
+        </Link>
  
         {/* Set Reminders */}
         <button
