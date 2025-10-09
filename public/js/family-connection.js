@@ -5,6 +5,22 @@
   const show = (el) => el && el.classList.remove("hidden");
   const hide = (el) => el && el.classList.add("hidden");
 
+  function ensureEmptyMessage(containerId, emptyId, msg) {
+    const container = $(containerId);
+    if (!container) return;
+    if (!container.children.length) {
+      const empty = document.createElement("div");
+      empty.id = emptyId;
+      empty.className = "text-sm text-gray-600 italic";
+      empty.textContent = msg;
+      container.appendChild(empty);
+    }
+  }
+  function removeEmptyMessage(id) {
+    const el = $(id);
+    if (el) el.remove();
+  }
+
   function renderOutgoingRequestRow(patient) {
     const container = $("outgoingRequestsContainer");
     const empty = $("noOutgoingRequests");
@@ -41,7 +57,55 @@
     container.appendChild(row);
   }
 
-  // Fake patient support
+  // render a new connection
+  function renderCurrentConnection({ name, id }) {
+    const container = $("currentConnectionsContainer");
+    if (!container) return;
+
+    removeEmptyMessage("noCurrentConnections");
+
+    const row = document.createElement("div");
+    row.className = "grid grid-cols-[100px_1fr_auto_auto] border border-black";
+
+    row.innerHTML = `
+      <div class="bg-[var(--color-secondary)] text-white font-semibold flex items-center justify-center px-2 py-2">
+        Patient
+      </div>
+      <div class="bg-gray-200 text-[var(--color-textBlack)] flex items-center px-3 font-semibold justify-start">
+        ${name}
+      </div>
+      <button class="view-btn bg-green-600 text-white font-bold px-3 py-1 m-1 rounded hover:opacity-90">
+        View
+      </button>
+      <button class="remove-btn bg-red-600 text-white font-bold px-3 py-1 m-1 rounded hover:opacity-90">
+        Remove
+      </button>
+    `;
+
+    const viewBtn = row.querySelector(".view-btn");
+    const removeBtn = row.querySelector(".remove-btn");
+
+    viewBtn.addEventListener("click", () => {
+      // adam to route this
+      const target = `/patient-overview?id=${encodeURIComponent(id || "")}`;
+      window.location.assign(target);
+    });
+
+    removeBtn.addEventListener("click", () => {
+      container.removeChild(row);
+      if (!container.children.length) {
+        ensureEmptyMessage(
+          "currentConnectionsContainer",
+          "noCurrentConnections",
+          "No current connections yet."
+        );
+      }
+    });
+
+    container.appendChild(row);
+  }
+
+  // fake patient support
   function tryLocalFakePatient(patientId) {
     if (patientId.toUpperCase() === "123456A") {
       return { id: "123456A", name: "Azz" };
@@ -50,11 +114,10 @@
   }
 
   async function lookupPatientById(patientId) {
-    // fake local
     const local = tryLocalFakePatient(patientId);
     if (local) return local;
 
-    // khanh/janet can put backend logic for look up here
+    // backend to look up patient ID
     const token = localStorage.getItem("authToken") || "";
     const res = await fetch("/api/connections/lookup", {
       method: "POST",
@@ -87,6 +150,16 @@
     } catch (_) {}
   }
 
+  //public hook should be called when patient accepts request
+  window.addCurrentConnection = function addCurrentConnection(conn) {
+    try {
+      if (!conn || !conn.name) return;
+      renderCurrentConnection({ name: conn.name, id: conn.id });
+    } catch (e) {
+      console.error("[family-connection] addCurrentConnection error:", e);
+    }
+  };
+
   function init() {
     const openSearchBtn = $("openSearchBtn");
     const searchPopup = $("searchPopup");
@@ -115,12 +188,12 @@
       setTimeout(() => patientIdInput.focus(), 0);
     });
 
-    // cancel in search view
+    // cancel
     cancelSearchBtn.addEventListener("click", () => {
       hide(searchPopup);
     });
 
-    // look up
+    // lookup
     confirmSearchBtn.addEventListener("click", async () => {
       const id = patientIdInput.value.trim();
       if (!id) {
@@ -149,7 +222,7 @@
       }
     });
 
-    // back to search if cancelled
+    // back
     backToSearchBtn.addEventListener("click", () => {
       currentPatient = null;
       patientIdInput.value = "";
@@ -158,7 +231,7 @@
       patientIdInput.focus();
     });
 
-    // send request then renders under outgoing requests
+    // send renders in outgoing request
     sendRequestBtn.addEventListener("click", async () => {
       if (!currentPatient) return;
       renderOutgoingRequestRow(currentPatient);
