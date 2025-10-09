@@ -1,3 +1,4 @@
+// src/app/api/push/dispatch/route.js
 import { NextResponse } from "next/server";
 import dbConnect from "../../../lib/db";
 import Reminder from "../../../lib/models/Reminder";
@@ -44,7 +45,7 @@ function isDueNow(rem) {
       }
 
       default: {
-        // mactch calender date
+        // match specific calendar date
         const start = String(rem.startDate || "").slice(0, 10);
         return start && start === ymd;
       }
@@ -55,8 +56,25 @@ function isDueNow(rem) {
   }
 }
 
-export async function GET() {
+export async function GET(req) {
   try {
+    // Secure CRON secret check
+    const url = new URL(req.url);
+    const qsSecret = url.searchParams.get("cron_secret");
+    const headerAuth = req.headers.get("authorization");
+    const CRON_SECRET = process.env.CRON_SECRET;
+
+    if (
+      CRON_SECRET &&
+      !(qsSecret === CRON_SECRET || headerAuth === `Bearer ${CRON_SECRET}`)
+    ) {
+      return NextResponse.json(
+        { ok: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+    //
+
     await dbConnect();
 
     const reminders = await Reminder.find({});
