@@ -1,4 +1,3 @@
-"use client";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "../styles/header.module.css";
@@ -8,7 +7,7 @@ export default function Header() {
     <>
       <header className={`${styles.header} px-3 py-2`}>
         <div className="flex items-center justify-between w-full">
-          {/* language buttons on left */}
+          {/* language buttons */}
           <div className="w-1/3 min-w-0 flex flex-wrap items-center justify-start gap-1 sm:gap-2">
             <button
               type="button"
@@ -28,7 +27,7 @@ export default function Header() {
             </button>
           </div>
 
-          {/* logo centred */}
+          {/* logo */}
           <div className="w-1/3 flex justify-center">
             <Link href="/homepage" className={styles.logoLink}>
               <Image
@@ -41,7 +40,7 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* settings on right side*/}
+          {/* settings */}
           <div className="w-1/3 flex items-center justify-end">
             <Link
               href="/settings"
@@ -64,43 +63,39 @@ export default function Header() {
         </div>
       </header>
 
-      {/* back button */}
+      {/* back button, stays hidden until page has nicely hydrated */}
       <button
         id="backButton"
+        suppressHydrationWarning
+        style={{ display: "none" }}
         className="fixed bottom-5 left-5 z-50 bg-[var(--color-secondary)] text-[var(--color-textWhite)] px-4 py-2 rounded-full shadow-lg font-semibold hover:bg-[var(--color-tertiary)] transition"
       >
         ← Back
       </button>
 
-      {/* back button functionality */}
       <script
         dangerouslySetInnerHTML={{
           __html: `
-            document.addEventListener('DOMContentLoaded', function() {
-              const backBtn = document.getElementById('backButton');
+            // Reveal only after full load, via inline style (avoids className mismatch)
+            window.addEventListener('load', function () {
+              var backBtn = document.getElementById('backButton');
               if (!backBtn) return;
 
-              const path = window.location.pathname;
-              // hide on homepage or root page
-              if (path === '/homepage' || path === '/') {
-                backBtn.style.display = 'none';
-                return;
+              var path = window.location.pathname;
+              var shouldShow = !(path === '/homepage' || path === '/') && (window.history.length > 1);
+
+              if (shouldShow) {
+                backBtn.style.display = ''; // unhide
               }
 
-              // hide if theres no page history
-              if (window.history.length <= 1) {
-                backBtn.style.display = 'none';
-              }
-
-              // click event for button 
-              backBtn.addEventListener('click', function() {
+              backBtn.addEventListener('click', function () {
                 if (window.history.length > 1) {
                   window.history.back();
                 } else {
                   window.location.href = '/homepage';
                 }
               });
-            });
+            }, { once: true });
           `,
         }}
       />
