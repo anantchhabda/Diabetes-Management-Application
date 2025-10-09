@@ -39,7 +39,6 @@ body {
   user-select: none;
 }
 
-/* Add these custom classes for your CSS variables */
 .bg-color-delete {
   background-color: var(--color-delete) !important;
 }
