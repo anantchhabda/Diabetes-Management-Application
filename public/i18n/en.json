@@ -66,5 +66,91 @@
   "error_sex": "Please select a sex option.",
   "error_address": "Full address is required.",
   "error_yod": "Enter a valid year (e.g., 2018).",
-  "error_diagType": "Please select a diagnosis type."
+  "error_diagType": "Please select a diagnosis type.",
+
+  
+  "helloUser": "Hello, {name}",
+  "helloGuest": "Hello, Guest",
+  "guest": "Guest",
+  "logData": "Log Data",
+  "setReminders": "Set Reminders",
+  "viewConnections": "View Connections",
+
+  "title_log_data": "Log Data",
+  "select_date": "Select a Date 📅",
+  "choose_date": "Choose date",
+  "date_warning_select_date": "Please select a date before saving.",
+  "tab_glucose": "Glucose",
+  "tab_insulin": "Insulin",
+  "tab_comments": "Comments",
+  "edit": "Edit",
+  "comments_placeholder": "Type your comment here...",
+  "save": "Save",
+  "saved_successfully": "Saved successfully",
+  "enter_value": "Enter value...",
+  "cancel": "Cancel",
+  "ok": "OK",
+  "warn_numbers_only": "⚠️ Please enter numbers only",
+  "warn_valid_numeric": "Please enter a valid numeric value (decimals allowed).",
+  "unit_mgdl": "mg/dL",
+
+  "row_before_breakfast": "Before Breakfast",
+  "row_after_breakfast": "After Breakfast",
+  "row_before_lunch": "Before Lunch",
+  "row_after_lunch": "After Lunch",
+  "row_before_dinner": "Before Dinner",
+  "row_after_dinner": "After Dinner",
+
+  "row_breakfast": "Breakfast",
+  "row_lunch": "Lunch",
+  "row_dinner": "Dinner",
+
+  "current_reminders": "Current Reminders",
+  "add_reminder": "Add Reminder",
+  "new_reminder": "New Reminder",
+  "edit_reminder": "Edit Reminder",
+  "delete_reminder": "Delete Reminder",
+  "delete_confirm_text": "Are you sure you want to delete this reminder?",
+  "delete": "Delete",
+  "remove": "Remove",
+  "edit": "Edit",
+  "save": "Save",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+
+  "reminder_name_ph": "Name...",
+  "interval_placeholder": "Interval/Repeat",
+  "interval_daily": "Daily",
+  "interval_weekly": "Weekly",
+  "interval_monthly": "Monthly",
+
+  "tp_select_time": "Select time...",
+  "tp_hour": "Hour",
+  "tp_minute": "Minute",
+
+  "time_am": "AM",
+  "time_pm": "PM",
+
+  "schedule_daily": "Daily {time}",
+  "schedule_weekly": "Weekly {weekday} {time}",
+  "schedule_monthly": "Monthly {day} {time}",
+  "schedule_onetime": "{date} {time}",
+
+    "current_connections": "Current Connections",
+  "connection_requests": "Connection Requests",
+  "no_current_connections": "No current connections yet.",
+  "no_connection_requests": "No connection requests yet.",
+  "accept": "Accept",
+  "decline": "Decline",
+  "remove": "Remove",
+
+  "role_patient": "Patient",
+  "role_doctor": "Doctor",
+  "role_family": "Family",
+
+    "back": "Back",
+  "settings": "Settings"
+
+
+
 }
