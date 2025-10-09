@@ -1,0 +1,3032 @@
+===== origin/1-english-language-file =====
+* 4b0e743 (origin/1-english-language-file) change a lot of file directories [doesn't work]
+* 3e2af55 add [lang] to directory for intl8 dependency
+* 52cd22d added internationalisation library, added language files
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/11-home-page =====
+* f63cc3e (origin/11-home-page) finalise design for home page, apply css properly
+* 3ba7180 add styles
+* 1bffce5 add home page route to login page, edit css files
+* 7e078d2 create home page
+* 93e7dd3 add logos, create header and home page
+* ab4e94d add stylesheet for consistent styling across different pages and components
+* 32ed5a8 combined registration, fixed conflicts, fixed background color
+*   99f2484 Merge remote-tracking branch 'origin/registration' into issue-3-login-page
+|\  
+| * c95a50e (origin/registration) pulled features from main branch to my own and implemented the registration pop-up page
+| *   0e8b8f9 Merge branch 'main' of https://github.com/anantchhabda/Diabetes-Management-Application into registration
+| |\  
+| * | 0e9f020 updated version of the home page and the registration popup screen
+| * | 533519d updated registration and login page, mainly used to test the registration pop-up
+| * | 1997de4 current app test design phase
+* | | 3956002 Added register page from registration branch
+* | | b64f0d7 fixed file structure
+* | | 29f9560 fixed some code for backend to work (in progress still)
+* | |   ca89631 Merge remote-tracking branch 'origin/new-backend' into issue-3-login-page
+|\ \ \  
+| * \ \   b428edc Merge branch 'backend-nextjs' with remote changes
+| |\ \ \  
+| | * | | 6230ff6 Update db.js
+| | * | | cb2dda3 Update db.js
+| | * | | 7ff0078 Update auth.js
+| | * | | b7f8a82 Update FamilyMember.js
+| | * | | 0a0f36d Update GeneralLog.js
+| | * | | 33a4957 Update Health.js
+| | * | | 593ca81 Update Patient.js
+| | * | | 9aed99a Update User.js
+| | * | | 4140864 Update LinkRequest.js
+| * | | | 6fb8c63 Patient view all requests and accept requests
+| * | | | 7c6ef8f Patient view all requests and accept requests
+| |/ / /  
+| * | | fba6fc7 Doctor and Family Member sends request to patient
+| * | | c15d198 Add onboarding api
+| * | | b262b91 Finalise register and login api with jwt
+| * | | e12318c Update README with environment setup instructions
+| * | | 49dad33 Add register and login api
+| * | | 3e324ad Delete app.js
+| * | | 20977aa Backend folder structure and models in Nextjs
+| | |/  
+| |/|   
+* | | c4badda added phone input
+* | | cc22443 Tailwind CSS added
+|/ /  
+* | 82f2977 Added Responsiveness
+* | b20f881 Homepage Draft
+* | f4f4e01 Initial commit
+* | 9b2afaa Initial commit from Create Next App
+|/  
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/13-header =====
+* c7412ec (origin/13-header) update logos, make text bigger
+* a93c4c1 change css to use ones listed in global css
+* abe63e9 add css file, add homepage
+* c32d429 rename file, add logos
+* b7e8a4d Issue 3 (Welcome homepage to user homepage functional) (#12)
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/14-language-switch-to-nepalese =====
+*   ed9b4bb (origin/14-language-switch-to-nepalese) Merge branch 'main' into 14-language-switch-to-nepalese
+|\  
+| *   ec6ad8b Merge pull request #29 from anantchhabda/issue-28-login-linking
+| |\  
+| | * e06d41c (origin/issue-28-login-linking) Login connect front & back (issue28)
+| |/  
+| *   732f253 Merge pull request #27 from anantchhabda/25-homepage-wont-appear
+| |\  
+| | * 375d167 (origin/25-homepage-wont-appear) fix css to use themes
+| | * d3de4e6 remove sex from javascript
+| | * 0de3bac remove sex from frontend
+| | * 8f3982c fix routing to family onboarding page
+| | * b453eaa route pages to appropriate role
+| | * ac11e85 fix homepage bug
+| |/  
+| * d59f738 family onboarding design (#20)
+| * ca19ced doctor onboarding design (#19)
+* | 0c606db (14-language-switch-to-nepalese) Header added language buttons consistent accross pages, logo centered, language switch working
+* | 9d32708 Language switch added to nepalese, password validation added, hydration issues fixed
+|/  
+*   78fd758 Merge pull request #21 from anantchhabda/main-test
+|\  
+| *   f09e99c Merge branch 'main' into main-test
+| |\  
+| |/  
+|/|   
+* |   ce7b98b Merge pull request #15 from anantchhabda/13-header
+|\ \  
+| * | c7412ec (origin/13-header) update logos, make text bigger
+| * | a93c4c1 change css to use ones listed in global css
+| * | abe63e9 add css file, add homepage
+| * | c32d429 rename file, add logos
+|/ /  
+| *   61c4f66 Merge branch 'main-test' of https://github.com/anantchhabda/Diabetes-Management-Application into main-test
+| |\  
+| | * c43d4d3 Update route.js
+| | * f03f025 Update route.js
+| | * ac16fd8 Update route.js
+| * | a7d1c75 Update package to include jwtoken for testing
+| |/  
+| * 37832e7 Save remaining changes
+| *   6cc807e Merge remote main into main-test
+| |\  
+| |/  
+|/|   
+* | b7e8a4d Issue 3 (Welcome homepage to user homepage functional) (#12)
+| * dacfaab Save local changes before pulling
+| * a041e5f Update route.js
+| * dfd4f70 Update route.js
+| * 59415a1 Update route.js
+| * ccf7a95 Add preprofileId to register api
+| * 0beb287 Update route.js
+| * 1b5e472 Update route.js
+| * 134a8e0 Update LinkRequest.js
+| * 515a7be Update route.js
+| * bfd0730 Update route.js
+| * c29083d Create route.js
+| * c4ab9c2 Create route.js
+| * c2fb664 Update route.js
+| * fd24451 Update route.js
+| * 202a26f Update route.js
+| * 8990c20 Update route.js
+| * 15eba7a Create route.js
+| * 4856bb5 Create route.js
+| * bdf423d Create route.js
+| * 38a34a0 Update route.js
+| * 0b6bedd Update route.js
+| * 30bc512 Update route.js
+| * 9a3bc5c Update route.js
+| * d549cda Update route.js
+| * 219ec76 Update route.js
+| * c83cd49 Update route.js
+| * bdf5f1c Update route.js
+| * d5c87fe Update route.js
+| * 81f82e5 Update route.js
+| * 07cdafa Update route.js
+| * 6a2bfcd Update Patient.js
+| * c4e8ee3 Update LinkRequest.js
+| * 59168c2 Update InsulinLog.js
+| * 34ec7ea Update GlucoseLog.js
+| * d93fab3 Update GeneralLog.js
+| * f4533d5 Update FamilyMember.js
+| * ff9453c Update Doctor.js
+| * 0e34d9b Add files via upload
+|/  
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/23-create-reminders-page =====
+* da92a53 (origin/23-create-reminders-page) adjusted welcome page, fixed reminder time picking
+* d9c5bd0 fix page layout on onboarding pages
+* 965adf6 remove headers as headers are now applied globally
+* d738eb7 adapt to main by changing to patient-homepage
+*   3d909a4 Merge remote-tracking branch 'origin' into 23-create-reminders-page
+|\  
+| *   ead7224 Merge pull request #41 from anantchhabda/issue-40-connection-doc-fam-onboarding
+| |\  
+| | *   8d7c824 (origin/issue-40-connection-doc-fam-onboarding) Registeration + Onboarding + Redirecting to homepage done for all roles
+| | |\  
+| | |/  
+| |/|   
+| * |   9fef9fb Merge pull request #32 from anantchhabda/doctor-and-family-homepage
+| |\ \  
+| | * \   cb17d76 (origin/doctor-and-family-homepage) Merge branch 'main' into doctor-and-family-homepage
+| | |\ \  
+| | |/ /  
+| |/| |   
+| | * | ca2c0d9 doctor and family homepage created
+| | | * da961fe Onboarding Doctor
+| | |/  
+| |/|   
+| * |   0b336c1 Merge pull request #37 from anantchhabda/14-language-switch-to-nepalese
+| |\ \  
+| | |/  
+| |/|   
+| | *   ed9b4bb (origin/14-language-switch-to-nepalese) Merge branch 'main' into 14-language-switch-to-nepalese
+| | |\  
+| | |/  
+| |/|   
+| | * 0c606db (14-language-switch-to-nepalese) Header added language buttons consistent accross pages, logo centered, language switch working
+| | * 9d32708 Language switch added to nepalese, password validation added, hydration issues fixed
+* | | 5328ea6 change requirements, add delete button
+* | | e981a44 add reminders popup
+* | | 1e41aa7 start template code for reminders page
+|/ /  
+* |   ec6ad8b Merge pull request #29 from anantchhabda/issue-28-login-linking
+|\ \  
+| * | e06d41c (origin/issue-28-login-linking) Login connect front & back (issue28)
+|/ /  
+* |   732f253 Merge pull request #27 from anantchhabda/25-homepage-wont-appear
+|\ \  
+| * | 375d167 (origin/25-homepage-wont-appear) fix css to use themes
+| * | d3de4e6 remove sex from javascript
+| * | 0de3bac remove sex from frontend
+| * | 8f3982c fix routing to family onboarding page
+| * | b453eaa route pages to appropriate role
+| * | ac11e85 fix homepage bug
+|/ /  
+* | d59f738 family onboarding design (#20)
+* | ca19ced doctor onboarding design (#19)
+|/  
+*   78fd758 Merge pull request #21 from anantchhabda/main-test
+|\  
+| *   f09e99c Merge branch 'main' into main-test
+| |\  
+| |/  
+|/|   
+* |   ce7b98b Merge pull request #15 from anantchhabda/13-header
+|\ \  
+| * | c7412ec (origin/13-header) update logos, make text bigger
+| * | a93c4c1 change css to use ones listed in global css
+| * | abe63e9 add css file, add homepage
+| * | c32d429 rename file, add logos
+|/ /  
+| *   61c4f66 Merge branch 'main-test' of https://github.com/anantchhabda/Diabetes-Management-Application into main-test
+| |\  
+| | * c43d4d3 Update route.js
+| | * f03f025 Update route.js
+| | * ac16fd8 Update route.js
+| * | a7d1c75 Update package to include jwtoken for testing
+| |/  
+| * 37832e7 Save remaining changes
+| *   6cc807e Merge remote main into main-test
+| |\  
+| |/  
+|/|   
+* | b7e8a4d Issue 3 (Welcome homepage to user homepage functional) (#12)
+| * dacfaab Save local changes before pulling
+| * a041e5f Update route.js
+| * dfd4f70 Update route.js
+| * 59415a1 Update route.js
+| * ccf7a95 Add preprofileId to register api
+| * 0beb287 Update route.js
+| * 1b5e472 Update route.js
+| * 134a8e0 Update LinkRequest.js
+| * 515a7be Update route.js
+| * bfd0730 Update route.js
+| * c29083d Create route.js
+| * c4ab9c2 Create route.js
+| * c2fb664 Update route.js
+| * fd24451 Update route.js
+| * 202a26f Update route.js
+| * 8990c20 Update route.js
+| * 15eba7a Create route.js
+| * 4856bb5 Create route.js
+| * bdf423d Create route.js
+| * 38a34a0 Update route.js
+| * 0b6bedd Update route.js
+| * 30bc512 Update route.js
+| * 9a3bc5c Update route.js
+| * d549cda Update route.js
+| * 219ec76 Update route.js
+| * c83cd49 Update route.js
+| * bdf5f1c Update route.js
+| * d5c87fe Update route.js
+| * 81f82e5 Update route.js
+| * 07cdafa Update route.js
+| * 6a2bfcd Update Patient.js
+| * c4e8ee3 Update LinkRequest.js
+| * 59168c2 Update InsulinLog.js
+| * 34ec7ea Update GlucoseLog.js
+| * d93fab3 Update GeneralLog.js
+| * f4533d5 Update FamilyMember.js
+| * ff9453c Update Doctor.js
+| * 0e34d9b Add files via upload
+|/  
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/25-homepage-wont-appear =====
+* 375d167 (origin/25-homepage-wont-appear) fix css to use themes
+* d3de4e6 remove sex from javascript
+* 0de3bac remove sex from frontend
+* 8f3982c fix routing to family onboarding page
+* b453eaa route pages to appropriate role
+* ac11e85 fix homepage bug
+* d59f738 family onboarding design (#20)
+* ca19ced doctor onboarding design (#19)
+*   78fd758 Merge pull request #21 from anantchhabda/main-test
+|\  
+| *   f09e99c Merge branch 'main' into main-test
+| |\  
+| |/  
+|/|   
+* |   ce7b98b Merge pull request #15 from anantchhabda/13-header
+|\ \  
+| * | c7412ec (origin/13-header) update logos, make text bigger
+| * | a93c4c1 change css to use ones listed in global css
+| * | abe63e9 add css file, add homepage
+| * | c32d429 rename file, add logos
+|/ /  
+| *   61c4f66 Merge branch 'main-test' of https://github.com/anantchhabda/Diabetes-Management-Application into main-test
+| |\  
+| | * c43d4d3 Update route.js
+| | * f03f025 Update route.js
+| | * ac16fd8 Update route.js
+| * | a7d1c75 Update package to include jwtoken for testing
+| |/  
+| * 37832e7 Save remaining changes
+| *   6cc807e Merge remote main into main-test
+| |\  
+| |/  
+|/|   
+* | b7e8a4d Issue 3 (Welcome homepage to user homepage functional) (#12)
+| * dacfaab Save local changes before pulling
+| * a041e5f Update route.js
+| * dfd4f70 Update route.js
+| * 59415a1 Update route.js
+| * ccf7a95 Add preprofileId to register api
+| * 0beb287 Update route.js
+| * 1b5e472 Update route.js
+| * 134a8e0 Update LinkRequest.js
+| * 515a7be Update route.js
+| * bfd0730 Update route.js
+| * c29083d Create route.js
+| * c4ab9c2 Create route.js
+| * c2fb664 Update route.js
+| * fd24451 Update route.js
+| * 202a26f Update route.js
+| * 8990c20 Update route.js
+| * 15eba7a Create route.js
+| * 4856bb5 Create route.js
+| * bdf423d Create route.js
+| * 38a34a0 Update route.js
+| * 0b6bedd Update route.js
+| * 30bc512 Update route.js
+| * 9a3bc5c Update route.js
+| * d549cda Update route.js
+| * 219ec76 Update route.js
+| * c83cd49 Update route.js
+| * bdf5f1c Update route.js
+| * d5c87fe Update route.js
+| * 81f82e5 Update route.js
+| * 07cdafa Update route.js
+| * 6a2bfcd Update Patient.js
+| * c4e8ee3 Update LinkRequest.js
+| * 59168c2 Update InsulinLog.js
+| * 34ec7ea Update GlucoseLog.js
+| * d93fab3 Update GeneralLog.js
+| * f4533d5 Update FamilyMember.js
+| * ff9453c Update Doctor.js
+| * 0e34d9b Add files via upload
+|/  
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/34-logging-data-linking =====
+* 7dd277e (origin/34-logging-data-linking) Fix API for linking Patient
+*   4103366 Merge main to branch 34 and delete public/js/comments(glucose/insulin).js since duplicated js files log-comments(glucose/insulin)
+|\  
+| *   8e58a2c Merge pull request #22 from anantchhabda/log-data
+| |\  
+| | *   c374e7e changes
+| | |\  
+| | |/  
+| |/|   
+| * | 4554e25 removed duplicated postcss file
+| * | 41981a9 removed tailwind v4
+| * | d406237 Rename postcss config to .cjs for ESM
+| * | 198dafb force postcss fallback for vercel
+| * | 9b667fc disable lightningCSS globally for vercel build
+| * | da071b4 Vercel Error fixed
+| | *   a5ba66a updated the branches based on the changes
+| | |\  
+| | |/  
+| |/|   
+| * |   73fdeba Merge pull request #49 from anantchhabda/47-making-it-into-a-pwa
+| |\ \  
+| | * | af386d4 (origin/47-making-it-into-a-pwa, 47-making-it-into-a-pwa) PWA functionality added, favicon added, service worked added
+| |/ /  
+| * | 8e406f5 comments added
+| * |   8b179a8 (45-fixing-errors-in-main) Merge pull request #46 from anantchhabda/45-fixing-errors-in-main
+| |\ \  
+| | * | 1933087 (origin/45-fixing-errors-in-main) Fixed errors + headers doubling
+| |/ /  
+| * |   c3fe195 Merge pull request #44 from anantchhabda/issue-42-connect-reminder
+| |\ \  
+| | * \   837d19c (origin/issue-42-connect-reminder) Merge branch 'main' into issue-42-connect-reminder
+| | |\ \  
+| | |/ /  
+| |/| |   
+| * | | 390a7f8 23 create reminders page (#39)
+| | * | bb23750 rename the folder homepage to patient-homepage
+| | * | 90f04f1 Connection for Reminder
+| | * |   5bf87d2 Merge branch 'issue-33-reminder-backend' of https://github.com/anantchhabda/Diabetes-Management-Application into issue-42-connect-reminder
+| | |\ \  
+| | | * | cebfb51 (origin/issue-33-reminder-backend) Reminder API
+| | * | | 1c936f0 resolve conflicts
+| |/| | | 
+| | * | | 5328ea6 change requirements, add delete button
+| | * | | e981a44 add reminders popup
+| | * | | 1e41aa7 start template code for reminders page
+| | |/ /  
+| | | * 2aa8d08 made minor changes to the log pages
+| | | *   cef5ea6 Merge branch 'main' of https://github.com/anantchhabda/Diabetes-Management-Application into log-data
+| | | |\  
+| | |_|/  
+| |/| |   
+| | | *   b4b176a updated the log pages
+| | | |\  
+| | | * | 32a5f47 removed all unecessary old comments and codes
+| | | * | c2f2fbd change from react to react-free
+| | | * | 6ac73c4 interactable glucose, insulin, comments button
+| | | * | 98c4215 all current logging of data
+* | | | | f1098cd Update and add API for D/F link/view/delete link requests/linked P
+* | | | |   e681dd5 API for Doctor and Family view their link requests
+|\ \ \ \ \  
+| * | | | | 211e4f0 Delete .vscode/extensions.json
+| * | | | | c31f498 Update globals.css
+* | | | | |   cc9d6bb Merge remote-tracking branch 'origin/main' into 34-logging-data-linking
+|\ \ \ \ \ \  
+| | |/ / / /  
+| |/| | | |   
+| * | | | |   ead7224 Merge pull request #41 from anantchhabda/issue-40-connection-doc-fam-onboarding
+| |\ \ \ \ \  
+| | * \ \ \ \   8d7c824 (origin/issue-40-connection-doc-fam-onboarding) Registeration + Onboarding + Redirecting to homepage done for all roles
+| | |\ \ \ \ \  
+| | |/ / / / /  
+| |/| | | | |   
+| * | | | | |   9fef9fb Merge pull request #32 from anantchhabda/doctor-and-family-homepage
+| |\ \ \ \ \ \  
+| | |_|_|_|_|/  
+| |/| | | | |   
+| | * | | | |   cb17d76 (origin/doctor-and-family-homepage) Merge branch 'main' into doctor-and-family-homepage
+| | |\ \ \ \ \  
+| | |/ / / / /  
+| |/| | | | |   
+| | * | | | | ca2c0d9 doctor and family homepage created
+| | | |_|/ /  
+| | |/| | |   
+| | | * | | da961fe Onboarding Doctor
+| | |/ / /  
+| |/| | |   
+| * | | |   0b336c1 Merge pull request #37 from anantchhabda/14-language-switch-to-nepalese
+| |\ \ \ \  
+| | |/ / /  
+| |/| | |   
+| | * | |   ed9b4bb (origin/14-language-switch-to-nepalese) Merge branch 'main' into 14-language-switch-to-nepalese
+| | |\ \ \  
+| | |/ / /  
+| |/| | |   
+| | * | | 0c606db (14-language-switch-to-nepalese) Header added language buttons consistent accross pages, logo centered, language switch working
+| | * | | 9d32708 Language switch added to nepalese, password validation added, hydration issues fixed
+* | | | | 32c04b4 Delete unecessary file and update global.css
+| |_|/ /  
+|/| | |   
+* | | | 1304dfa Linking logging data back and front end
+* | | | befbc63 Link log-comments and log-glucose
+* | | | 1fff089 Update route.js
+* | | | aa73c91 Update route.js
+* | | | b3f1287 Update route.js
+|/ / /  
+* | |   ec6ad8b Merge pull request #29 from anantchhabda/issue-28-login-linking
+|\ \ \  
+| * | | e06d41c (origin/issue-28-login-linking) Login connect front & back (issue28)
+|/ / /  
+* | |   732f253 Merge pull request #27 from anantchhabda/25-homepage-wont-appear
+|\ \ \  
+| * | | 375d167 (origin/25-homepage-wont-appear) fix css to use themes
+| * | | d3de4e6 remove sex from javascript
+| * | | 0de3bac remove sex from frontend
+| * | | 8f3982c fix routing to family onboarding page
+| * | | b453eaa route pages to appropriate role
+| * | | ac11e85 fix homepage bug
+|/ / /  
+* | | d59f738 family onboarding design (#20)
+* | | ca19ced doctor onboarding design (#19)
+|/ /  
+* |   78fd758 Merge pull request #21 from anantchhabda/main-test
+|\ \  
+| * \   f09e99c Merge branch 'main' into main-test
+| |\ \  
+| |/ /  
+|/| |   
+* | |   ce7b98b Merge pull request #15 from anantchhabda/13-header
+|\ \ \  
+| |_|/  
+|/| |   
+| * | c7412ec (origin/13-header) update logos, make text bigger
+| * | a93c4c1 change css to use ones listed in global css
+| * | abe63e9 add css file, add homepage
+| * | c32d429 rename file, add logos
+|/ /  
+| *   61c4f66 Merge branch 'main-test' of https://github.com/anantchhabda/Diabetes-Management-Application into main-test
+| |\  
+| | * c43d4d3 Update route.js
+| | * f03f025 Update route.js
+| | * ac16fd8 Update route.js
+| * | a7d1c75 Update package to include jwtoken for testing
+| |/  
+| * 37832e7 Save remaining changes
+| *   6cc807e Merge remote main into main-test
+| |\  
+| |/  
+|/|   
+* | b7e8a4d Issue 3 (Welcome homepage to user homepage functional) (#12)
+| * dacfaab Save local changes before pulling
+| * a041e5f Update route.js
+| * dfd4f70 Update route.js
+| * 59415a1 Update route.js
+| * ccf7a95 Add preprofileId to register api
+| * 0beb287 Update route.js
+| * 1b5e472 Update route.js
+| * 134a8e0 Update LinkRequest.js
+| * 515a7be Update route.js
+| * bfd0730 Update route.js
+| * c29083d Create route.js
+| * c4ab9c2 Create route.js
+| * c2fb664 Update route.js
+| * fd24451 Update route.js
+| * 202a26f Update route.js
+| * 8990c20 Update route.js
+| * 15eba7a Create route.js
+| * 4856bb5 Create route.js
+| * bdf423d Create route.js
+| * 38a34a0 Update route.js
+| * 0b6bedd Update route.js
+| * 30bc512 Update route.js
+| * 9a3bc5c Update route.js
+| * d549cda Update route.js
+| * 219ec76 Update route.js
+| * c83cd49 Update route.js
+| * bdf5f1c Update route.js
+| * d5c87fe Update route.js
+| * 81f82e5 Update route.js
+| * 07cdafa Update route.js
+| * 6a2bfcd Update Patient.js
+| * c4e8ee3 Update LinkRequest.js
+| * 59168c2 Update InsulinLog.js
+| * 34ec7ea Update GlucoseLog.js
+| * d93fab3 Update GeneralLog.js
+| * f4533d5 Update FamilyMember.js
+| * ff9453c Update Doctor.js
+| * 0e34d9b Add files via upload
+|/  
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/43-settings-page =====
+* a45f4b7 (origin/43-settings-page) update redirection to homepage from settings using save button
+* d8dab24 template code for settings page
+* e434696 remove spaces from readme
+* 9ba1134 add settings page
+* 4057a31 add routing from header into home page
+* 390a7f8 23 create reminders page (#39)
+*   ead7224 Merge pull request #41 from anantchhabda/issue-40-connection-doc-fam-onboarding
+|\  
+| *   8d7c824 (origin/issue-40-connection-doc-fam-onboarding) Registeration + Onboarding + Redirecting to homepage done for all roles
+| |\  
+| |/  
+|/|   
+* |   9fef9fb Merge pull request #32 from anantchhabda/doctor-and-family-homepage
+|\ \  
+| * \   cb17d76 (origin/doctor-and-family-homepage) Merge branch 'main' into doctor-and-family-homepage
+| |\ \  
+| |/ /  
+|/| |   
+| * | ca2c0d9 doctor and family homepage created
+| | * da961fe Onboarding Doctor
+| |/  
+|/|   
+* |   0b336c1 Merge pull request #37 from anantchhabda/14-language-switch-to-nepalese
+|\ \  
+| |/  
+|/|   
+| *   ed9b4bb (origin/14-language-switch-to-nepalese) Merge branch 'main' into 14-language-switch-to-nepalese
+| |\  
+| |/  
+|/|   
+* |   ec6ad8b Merge pull request #29 from anantchhabda/issue-28-login-linking
+|\ \  
+| * | e06d41c (origin/issue-28-login-linking) Login connect front & back (issue28)
+|/ /  
+* |   732f253 Merge pull request #27 from anantchhabda/25-homepage-wont-appear
+|\ \  
+| * | 375d167 (origin/25-homepage-wont-appear) fix css to use themes
+| * | d3de4e6 remove sex from javascript
+| * | 0de3bac remove sex from frontend
+| * | 8f3982c fix routing to family onboarding page
+| * | b453eaa route pages to appropriate role
+| * | ac11e85 fix homepage bug
+|/ /  
+* | d59f738 family onboarding design (#20)
+* | ca19ced doctor onboarding design (#19)
+| * 0c606db (14-language-switch-to-nepalese) Header added language buttons consistent accross pages, logo centered, language switch working
+| * 9d32708 Language switch added to nepalese, password validation added, hydration issues fixed
+|/  
+*   78fd758 Merge pull request #21 from anantchhabda/main-test
+|\  
+| *   f09e99c Merge branch 'main' into main-test
+| |\  
+| |/  
+|/|   
+* |   ce7b98b Merge pull request #15 from anantchhabda/13-header
+|\ \  
+| * | c7412ec (origin/13-header) update logos, make text bigger
+| * | a93c4c1 change css to use ones listed in global css
+| * | abe63e9 add css file, add homepage
+| * | c32d429 rename file, add logos
+|/ /  
+| *   61c4f66 Merge branch 'main-test' of https://github.com/anantchhabda/Diabetes-Management-Application into main-test
+| |\  
+| | * c43d4d3 Update route.js
+| | * f03f025 Update route.js
+| | * ac16fd8 Update route.js
+| * | a7d1c75 Update package to include jwtoken for testing
+| |/  
+| * 37832e7 Save remaining changes
+| *   6cc807e Merge remote main into main-test
+| |\  
+| |/  
+|/|   
+* | b7e8a4d Issue 3 (Welcome homepage to user homepage functional) (#12)
+| * dacfaab Save local changes before pulling
+| * a041e5f Update route.js
+| * dfd4f70 Update route.js
+| * 59415a1 Update route.js
+| * ccf7a95 Add preprofileId to register api
+| * 0beb287 Update route.js
+| * 1b5e472 Update route.js
+| * 134a8e0 Update LinkRequest.js
+| * 515a7be Update route.js
+| * bfd0730 Update route.js
+| * c29083d Create route.js
+| * c4ab9c2 Create route.js
+| * c2fb664 Update route.js
+| * fd24451 Update route.js
+| * 202a26f Update route.js
+| * 8990c20 Update route.js
+| * 15eba7a Create route.js
+| * 4856bb5 Create route.js
+| * bdf423d Create route.js
+| * 38a34a0 Update route.js
+| * 0b6bedd Update route.js
+| * 30bc512 Update route.js
+| * 9a3bc5c Update route.js
+| * d549cda Update route.js
+| * 219ec76 Update route.js
+| * c83cd49 Update route.js
+| * bdf5f1c Update route.js
+| * d5c87fe Update route.js
+| * 81f82e5 Update route.js
+| * 07cdafa Update route.js
+| * 6a2bfcd Update Patient.js
+| * c4e8ee3 Update LinkRequest.js
+| * 59168c2 Update InsulinLog.js
+| * 34ec7ea Update GlucoseLog.js
+| * d93fab3 Update GeneralLog.js
+| * f4533d5 Update FamilyMember.js
+| * ff9453c Update Doctor.js
+| * 0e34d9b Add files via upload
+|/  
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/45-fixing-errors-in-main =====
+* 1933087 (origin/45-fixing-errors-in-main) Fixed errors + headers doubling
+*   c3fe195 Merge pull request #44 from anantchhabda/issue-42-connect-reminder
+|\  
+| *   837d19c (origin/issue-42-connect-reminder) Merge branch 'main' into issue-42-connect-reminder
+| |\  
+| |/  
+|/|   
+* | 390a7f8 23 create reminders page (#39)
+| * bb23750 rename the folder homepage to patient-homepage
+| * 90f04f1 Connection for Reminder
+| *   5bf87d2 Merge branch 'issue-33-reminder-backend' of https://github.com/anantchhabda/Diabetes-Management-Application into issue-42-connect-reminder
+| |\  
+| | * cebfb51 (origin/issue-33-reminder-backend) Reminder API
+| * | 1c936f0 resolve conflicts
+|/| | 
+| * | 5328ea6 change requirements, add delete button
+| * | e981a44 add reminders popup
+| * | 1e41aa7 start template code for reminders page
+| |/  
+* |   ead7224 Merge pull request #41 from anantchhabda/issue-40-connection-doc-fam-onboarding
+|\ \  
+| * \   8d7c824 (origin/issue-40-connection-doc-fam-onboarding) Registeration + Onboarding + Redirecting to homepage done for all roles
+| |\ \  
+| |/ /  
+|/| |   
+* | |   9fef9fb Merge pull request #32 from anantchhabda/doctor-and-family-homepage
+|\ \ \  
+| * \ \   cb17d76 (origin/doctor-and-family-homepage) Merge branch 'main' into doctor-and-family-homepage
+| |\ \ \  
+| |/ / /  
+|/| | |   
+| * | | ca2c0d9 doctor and family homepage created
+| | |/  
+| |/|   
+| | * da961fe Onboarding Doctor
+| |/  
+|/|   
+* |   0b336c1 Merge pull request #37 from anantchhabda/14-language-switch-to-nepalese
+|\ \  
+| |/  
+|/|   
+| *   ed9b4bb (origin/14-language-switch-to-nepalese) Merge branch 'main' into 14-language-switch-to-nepalese
+| |\  
+| |/  
+|/|   
+* |   ec6ad8b Merge pull request #29 from anantchhabda/issue-28-login-linking
+|\ \  
+| * | e06d41c (origin/issue-28-login-linking) Login connect front & back (issue28)
+|/ /  
+* |   732f253 Merge pull request #27 from anantchhabda/25-homepage-wont-appear
+|\ \  
+| * | 375d167 (origin/25-homepage-wont-appear) fix css to use themes
+| * | d3de4e6 remove sex from javascript
+| * | 0de3bac remove sex from frontend
+| * | 8f3982c fix routing to family onboarding page
+| * | b453eaa route pages to appropriate role
+| * | ac11e85 fix homepage bug
+|/ /  
+* | d59f738 family onboarding design (#20)
+* | ca19ced doctor onboarding design (#19)
+| * 0c606db (14-language-switch-to-nepalese) Header added language buttons consistent accross pages, logo centered, language switch working
+| * 9d32708 Language switch added to nepalese, password validation added, hydration issues fixed
+|/  
+*   78fd758 Merge pull request #21 from anantchhabda/main-test
+|\  
+| *   f09e99c Merge branch 'main' into main-test
+| |\  
+| |/  
+|/|   
+* |   ce7b98b Merge pull request #15 from anantchhabda/13-header
+|\ \  
+| * | c7412ec (origin/13-header) update logos, make text bigger
+| * | a93c4c1 change css to use ones listed in global css
+| * | abe63e9 add css file, add homepage
+| * | c32d429 rename file, add logos
+|/ /  
+| *   61c4f66 Merge branch 'main-test' of https://github.com/anantchhabda/Diabetes-Management-Application into main-test
+| |\  
+| | * c43d4d3 Update route.js
+| | * f03f025 Update route.js
+| | * ac16fd8 Update route.js
+| * | a7d1c75 Update package to include jwtoken for testing
+| |/  
+| * 37832e7 Save remaining changes
+| *   6cc807e Merge remote main into main-test
+| |\  
+| |/  
+|/|   
+* | b7e8a4d Issue 3 (Welcome homepage to user homepage functional) (#12)
+| * dacfaab Save local changes before pulling
+| * a041e5f Update route.js
+| * dfd4f70 Update route.js
+| * 59415a1 Update route.js
+| * ccf7a95 Add preprofileId to register api
+| * 0beb287 Update route.js
+| * 1b5e472 Update route.js
+| * 134a8e0 Update LinkRequest.js
+| * 515a7be Update route.js
+| * bfd0730 Update route.js
+| * c29083d Create route.js
+| * c4ab9c2 Create route.js
+| * c2fb664 Update route.js
+| * fd24451 Update route.js
+| * 202a26f Update route.js
+| * 8990c20 Update route.js
+| * 15eba7a Create route.js
+| * 4856bb5 Create route.js
+| * bdf423d Create route.js
+| * 38a34a0 Update route.js
+| * 0b6bedd Update route.js
+| * 30bc512 Update route.js
+| * 9a3bc5c Update route.js
+| * d549cda Update route.js
+| * 219ec76 Update route.js
+| * c83cd49 Update route.js
+| * bdf5f1c Update route.js
+| * d5c87fe Update route.js
+| * 81f82e5 Update route.js
+| * 07cdafa Update route.js
+| * 6a2bfcd Update Patient.js
+| * c4e8ee3 Update LinkRequest.js
+| * 59168c2 Update InsulinLog.js
+| * 34ec7ea Update GlucoseLog.js
+| * d93fab3 Update GeneralLog.js
+| * f4533d5 Update FamilyMember.js
+| * ff9453c Update Doctor.js
+| * 0e34d9b Add files via upload
+|/  
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/47-making-it-into-a-pwa =====
+* af386d4 (origin/47-making-it-into-a-pwa, 47-making-it-into-a-pwa) PWA functionality added, favicon added, service worked added
+* 8e406f5 comments added
+*   8b179a8 (45-fixing-errors-in-main) Merge pull request #46 from anantchhabda/45-fixing-errors-in-main
+|\  
+| * 1933087 (origin/45-fixing-errors-in-main) Fixed errors + headers doubling
+|/  
+*   c3fe195 Merge pull request #44 from anantchhabda/issue-42-connect-reminder
+|\  
+| *   837d19c (origin/issue-42-connect-reminder) Merge branch 'main' into issue-42-connect-reminder
+| |\  
+| |/  
+|/|   
+* | 390a7f8 23 create reminders page (#39)
+| * bb23750 rename the folder homepage to patient-homepage
+| * 90f04f1 Connection for Reminder
+| *   5bf87d2 Merge branch 'issue-33-reminder-backend' of https://github.com/anantchhabda/Diabetes-Management-Application into issue-42-connect-reminder
+| |\  
+| | * cebfb51 (origin/issue-33-reminder-backend) Reminder API
+| * | 1c936f0 resolve conflicts
+|/| | 
+| * | 5328ea6 change requirements, add delete button
+| * | e981a44 add reminders popup
+| * | 1e41aa7 start template code for reminders page
+| |/  
+* |   ead7224 Merge pull request #41 from anantchhabda/issue-40-connection-doc-fam-onboarding
+|\ \  
+| * \   8d7c824 (origin/issue-40-connection-doc-fam-onboarding) Registeration + Onboarding + Redirecting to homepage done for all roles
+| |\ \  
+| |/ /  
+|/| |   
+* | |   9fef9fb Merge pull request #32 from anantchhabda/doctor-and-family-homepage
+|\ \ \  
+| * \ \   cb17d76 (origin/doctor-and-family-homepage) Merge branch 'main' into doctor-and-family-homepage
+| |\ \ \  
+| |/ / /  
+|/| | |   
+| * | | ca2c0d9 doctor and family homepage created
+| | |/  
+| |/|   
+| | * da961fe Onboarding Doctor
+| |/  
+|/|   
+* |   0b336c1 Merge pull request #37 from anantchhabda/14-language-switch-to-nepalese
+|\ \  
+| |/  
+|/|   
+| *   ed9b4bb (origin/14-language-switch-to-nepalese) Merge branch 'main' into 14-language-switch-to-nepalese
+| |\  
+| |/  
+|/|   
+* |   ec6ad8b Merge pull request #29 from anantchhabda/issue-28-login-linking
+|\ \  
+| * | e06d41c (origin/issue-28-login-linking) Login connect front & back (issue28)
+|/ /  
+* |   732f253 Merge pull request #27 from anantchhabda/25-homepage-wont-appear
+|\ \  
+| * | 375d167 (origin/25-homepage-wont-appear) fix css to use themes
+| * | d3de4e6 remove sex from javascript
+| * | 0de3bac remove sex from frontend
+| * | 8f3982c fix routing to family onboarding page
+| * | b453eaa route pages to appropriate role
+| * | ac11e85 fix homepage bug
+|/ /  
+* | d59f738 family onboarding design (#20)
+* | ca19ced doctor onboarding design (#19)
+| * 0c606db (14-language-switch-to-nepalese) Header added language buttons consistent accross pages, logo centered, language switch working
+| * 9d32708 Language switch added to nepalese, password validation added, hydration issues fixed
+|/  
+*   78fd758 Merge pull request #21 from anantchhabda/main-test
+|\  
+| *   f09e99c Merge branch 'main' into main-test
+| |\  
+| |/  
+|/|   
+* |   ce7b98b Merge pull request #15 from anantchhabda/13-header
+|\ \  
+| * | c7412ec (origin/13-header) update logos, make text bigger
+| * | a93c4c1 change css to use ones listed in global css
+| * | abe63e9 add css file, add homepage
+| * | c32d429 rename file, add logos
+|/ /  
+| *   61c4f66 Merge branch 'main-test' of https://github.com/anantchhabda/Diabetes-Management-Application into main-test
+| |\  
+| | * c43d4d3 Update route.js
+| | * f03f025 Update route.js
+| | * ac16fd8 Update route.js
+| * | a7d1c75 Update package to include jwtoken for testing
+| |/  
+| * 37832e7 Save remaining changes
+| *   6cc807e Merge remote main into main-test
+| |\  
+| |/  
+|/|   
+* | b7e8a4d Issue 3 (Welcome homepage to user homepage functional) (#12)
+| * dacfaab Save local changes before pulling
+| * a041e5f Update route.js
+| * dfd4f70 Update route.js
+| * 59415a1 Update route.js
+| * ccf7a95 Add preprofileId to register api
+| * 0beb287 Update route.js
+| * 1b5e472 Update route.js
+| * 134a8e0 Update LinkRequest.js
+| * 515a7be Update route.js
+| * bfd0730 Update route.js
+| * c29083d Create route.js
+| * c4ab9c2 Create route.js
+| * c2fb664 Update route.js
+| * fd24451 Update route.js
+| * 202a26f Update route.js
+| * 8990c20 Update route.js
+| * 15eba7a Create route.js
+| * 4856bb5 Create route.js
+| * bdf423d Create route.js
+| * 38a34a0 Update route.js
+| * 0b6bedd Update route.js
+| * 30bc512 Update route.js
+| * 9a3bc5c Update route.js
+| * d549cda Update route.js
+| * 219ec76 Update route.js
+| * c83cd49 Update route.js
+| * bdf5f1c Update route.js
+| * d5c87fe Update route.js
+| * 81f82e5 Update route.js
+| * 07cdafa Update route.js
+| * 6a2bfcd Update Patient.js
+| * c4e8ee3 Update LinkRequest.js
+| * 59168c2 Update InsulinLog.js
+| * 34ec7ea Update GlucoseLog.js
+| * d93fab3 Update GeneralLog.js
+| * f4533d5 Update FamilyMember.js
+| * ff9453c Update Doctor.js
+| * 0e34d9b Add files via upload
+|/  
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/48-offline-functionality =====
+*   29c9868 (HEAD -> main, origin/55-language-translation-continued, origin/48-offline-functionality, 55-language-translation-continued) Merge pull request #52 from anantchhabda/51-back-button-globally
+|\  
+| * 8d4cf29 (origin/51-back-button-globally, 51-back-button-globally) Added back button globally
+|/  
+* 5c52ac1 added more translations for english file
+* 75f01dc lockfile update
+*   acbad39 Merge branch 'main' of github.com:anantchhabda/Diabetes-Management-Application the commit.
+|\  
+| *   8e58a2c Merge pull request #22 from anantchhabda/log-data
+| |\  
+| | *   c374e7e changes
+| | |\  
+| | |/  
+| |/|   
+| | *   a5ba66a updated the branches based on the changes
+| | |\  
+| | * | 2aa8d08 made minor changes to the log pages
+| | * |   cef5ea6 Merge branch 'main' of https://github.com/anantchhabda/Diabetes-Management-Application into log-data
+| | |\ \  
+| | * \ \   b4b176a updated the log pages
+| | |\ \ \  
+| | * | | | 32a5f47 removed all unecessary old comments and codes
+| | * | | | c2f2fbd change from react to react-free
+| | * | | | 6ac73c4 interactable glucose, insulin, comments button
+| | * | | | 98c4215 all current logging of data
+* | | | | | 3e4e4f5 Fixed cross system issues, header fixed, tailwindcss fixed for v3, .env.local updated
+|/ / / / /  
+* | | | | 4554e25 removed duplicated postcss file
+* | | | | 41981a9 removed tailwind v4
+* | | | | d406237 Rename postcss config to .cjs for ESM
+* | | | | 198dafb force postcss fallback for vercel
+* | | | | 9b667fc disable lightningCSS globally for vercel build
+* | | | | da071b4 Vercel Error fixed
+| |_|_|/  
+|/| | |   
+* | | |   73fdeba Merge pull request #49 from anantchhabda/47-making-it-into-a-pwa
+|\ \ \ \  
+| * | | | af386d4 (origin/47-making-it-into-a-pwa, 47-making-it-into-a-pwa) PWA functionality added, favicon added, service worked added
+|/ / / /  
+* | | | 8e406f5 comments added
+* | | |   8b179a8 (45-fixing-errors-in-main) Merge pull request #46 from anantchhabda/45-fixing-errors-in-main
+|\ \ \ \  
+| * | | | 1933087 (origin/45-fixing-errors-in-main) Fixed errors + headers doubling
+|/ / / /  
+* | | |   c3fe195 Merge pull request #44 from anantchhabda/issue-42-connect-reminder
+|\ \ \ \  
+| * \ \ \   837d19c (origin/issue-42-connect-reminder) Merge branch 'main' into issue-42-connect-reminder
+| |\ \ \ \  
+| |/ / / /  
+|/| | | |   
+* | | | | 390a7f8 23 create reminders page (#39)
+| |_|_|/  
+|/| | |   
+| * | | bb23750 rename the folder homepage to patient-homepage
+| * | | 90f04f1 Connection for Reminder
+| * | |   5bf87d2 Merge branch 'issue-33-reminder-backend' of https://github.com/anantchhabda/Diabetes-Management-Application into issue-42-connect-reminder
+| |\ \ \  
+| | * | | cebfb51 (origin/issue-33-reminder-backend) Reminder API
+| * | | | 1c936f0 resolve conflicts
+|/| | | | 
+| * | | | 5328ea6 change requirements, add delete button
+| * | | | e981a44 add reminders popup
+| * | | | 1e41aa7 start template code for reminders page
+| |/ / /  
+* | | |   ead7224 Merge pull request #41 from anantchhabda/issue-40-connection-doc-fam-onboarding
+|\ \ \ \  
+| * \ \ \   8d7c824 (origin/issue-40-connection-doc-fam-onboarding) Registeration + Onboarding + Redirecting to homepage done for all roles
+| |\ \ \ \  
+| |/ / / /  
+|/| | | |   
+* | | | |   9fef9fb Merge pull request #32 from anantchhabda/doctor-and-family-homepage
+|\ \ \ \ \  
+| |_|_|_|/  
+|/| | | |   
+| * | | |   cb17d76 (origin/doctor-and-family-homepage) Merge branch 'main' into doctor-and-family-homepage
+| |\ \ \ \  
+| |/ / / /  
+|/| | | |   
+| * | | | ca2c0d9 doctor and family homepage created
+| | |/ /  
+| |/| |   
+| | * | da961fe Onboarding Doctor
+| |/ /  
+|/| |   
+* | |   0b336c1 Merge pull request #37 from anantchhabda/14-language-switch-to-nepalese
+|\ \ \  
+| |/ /  
+|/| |   
+| * |   ed9b4bb (origin/14-language-switch-to-nepalese) Merge branch 'main' into 14-language-switch-to-nepalese
+| |\ \  
+| |/ /  
+|/| |   
+* | |   ec6ad8b Merge pull request #29 from anantchhabda/issue-28-login-linking
+|\ \ \  
+| * | | e06d41c (origin/issue-28-login-linking) Login connect front & back (issue28)
+|/ / /  
+* | |   732f253 Merge pull request #27 from anantchhabda/25-homepage-wont-appear
+|\ \ \  
+| * | | 375d167 (origin/25-homepage-wont-appear) fix css to use themes
+| * | | d3de4e6 remove sex from javascript
+| * | | 0de3bac remove sex from frontend
+| * | | 8f3982c fix routing to family onboarding page
+| * | | b453eaa route pages to appropriate role
+| * | | ac11e85 fix homepage bug
+|/ / /  
+* | | d59f738 family onboarding design (#20)
+* | | ca19ced doctor onboarding design (#19)
+| * | 0c606db (14-language-switch-to-nepalese) Header added language buttons consistent accross pages, logo centered, language switch working
+| * | 9d32708 Language switch added to nepalese, password validation added, hydration issues fixed
+|/ /  
+* |   78fd758 Merge pull request #21 from anantchhabda/main-test
+|\ \  
+| * \   f09e99c Merge branch 'main' into main-test
+| |\ \  
+| |/ /  
+|/| |   
+* | |   ce7b98b Merge pull request #15 from anantchhabda/13-header
+|\ \ \  
+| |_|/  
+|/| |   
+| * | c7412ec (origin/13-header) update logos, make text bigger
+| * | a93c4c1 change css to use ones listed in global css
+| * | abe63e9 add css file, add homepage
+| * | c32d429 rename file, add logos
+|/ /  
+| *   61c4f66 Merge branch 'main-test' of https://github.com/anantchhabda/Diabetes-Management-Application into main-test
+| |\  
+| | * c43d4d3 Update route.js
+| | * f03f025 Update route.js
+| | * ac16fd8 Update route.js
+| * | a7d1c75 Update package to include jwtoken for testing
+| |/  
+| * 37832e7 Save remaining changes
+| *   6cc807e Merge remote main into main-test
+| |\  
+| |/  
+|/|   
+* | b7e8a4d Issue 3 (Welcome homepage to user homepage functional) (#12)
+| * dacfaab Save local changes before pulling
+| * a041e5f Update route.js
+| * dfd4f70 Update route.js
+| * 59415a1 Update route.js
+| * ccf7a95 Add preprofileId to register api
+| * 0beb287 Update route.js
+| * 1b5e472 Update route.js
+| * 134a8e0 Update LinkRequest.js
+| * 515a7be Update route.js
+| * bfd0730 Update route.js
+| * c29083d Create route.js
+| * c4ab9c2 Create route.js
+| * c2fb664 Update route.js
+| * fd24451 Update route.js
+| * 202a26f Update route.js
+| * 8990c20 Update route.js
+| * 15eba7a Create route.js
+| * 4856bb5 Create route.js
+| * bdf423d Create route.js
+| * 38a34a0 Update route.js
+| * 0b6bedd Update route.js
+| * 30bc512 Update route.js
+| * 9a3bc5c Update route.js
+| * d549cda Update route.js
+| * 219ec76 Update route.js
+| * c83cd49 Update route.js
+| * bdf5f1c Update route.js
+| * d5c87fe Update route.js
+| * 81f82e5 Update route.js
+| * 07cdafa Update route.js
+| * 6a2bfcd Update Patient.js
+| * c4e8ee3 Update LinkRequest.js
+| * 59168c2 Update InsulinLog.js
+| * 34ec7ea Update GlucoseLog.js
+| * d93fab3 Update GeneralLog.js
+| * f4533d5 Update FamilyMember.js
+| * ff9453c Update Doctor.js
+| * 0e34d9b Add files via upload
+|/  
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/51-back-button-globally =====
+* 8d4cf29 (origin/51-back-button-globally, 51-back-button-globally) Added back button globally
+* 5c52ac1 added more translations for english file
+* 75f01dc lockfile update
+*   acbad39 Merge branch 'main' of github.com:anantchhabda/Diabetes-Management-Application the commit.
+|\  
+| *   8e58a2c Merge pull request #22 from anantchhabda/log-data
+| |\  
+| | *   c374e7e changes
+| | |\  
+| | |/  
+| |/|   
+| | *   a5ba66a updated the branches based on the changes
+| | |\  
+| | * | 2aa8d08 made minor changes to the log pages
+| | * |   cef5ea6 Merge branch 'main' of https://github.com/anantchhabda/Diabetes-Management-Application into log-data
+| | |\ \  
+| | * \ \   b4b176a updated the log pages
+| | |\ \ \  
+| | * | | | 32a5f47 removed all unecessary old comments and codes
+| | * | | | c2f2fbd change from react to react-free
+| | * | | | 6ac73c4 interactable glucose, insulin, comments button
+| | * | | | 98c4215 all current logging of data
+* | | | | | 3e4e4f5 Fixed cross system issues, header fixed, tailwindcss fixed for v3, .env.local updated
+|/ / / / /  
+* | | | | 4554e25 removed duplicated postcss file
+* | | | | 41981a9 removed tailwind v4
+* | | | | d406237 Rename postcss config to .cjs for ESM
+* | | | | 198dafb force postcss fallback for vercel
+* | | | | 9b667fc disable lightningCSS globally for vercel build
+* | | | | da071b4 Vercel Error fixed
+| |_|_|/  
+|/| | |   
+* | | |   73fdeba Merge pull request #49 from anantchhabda/47-making-it-into-a-pwa
+|\ \ \ \  
+| * | | | af386d4 (origin/47-making-it-into-a-pwa, 47-making-it-into-a-pwa) PWA functionality added, favicon added, service worked added
+|/ / / /  
+* | | | 8e406f5 comments added
+* | | |   8b179a8 (45-fixing-errors-in-main) Merge pull request #46 from anantchhabda/45-fixing-errors-in-main
+|\ \ \ \  
+| * | | | 1933087 (origin/45-fixing-errors-in-main) Fixed errors + headers doubling
+|/ / / /  
+* | | |   c3fe195 Merge pull request #44 from anantchhabda/issue-42-connect-reminder
+|\ \ \ \  
+| * \ \ \   837d19c (origin/issue-42-connect-reminder) Merge branch 'main' into issue-42-connect-reminder
+| |\ \ \ \  
+| |/ / / /  
+|/| | | |   
+* | | | | 390a7f8 23 create reminders page (#39)
+| |_|_|/  
+|/| | |   
+| * | | bb23750 rename the folder homepage to patient-homepage
+| * | | 90f04f1 Connection for Reminder
+| * | |   5bf87d2 Merge branch 'issue-33-reminder-backend' of https://github.com/anantchhabda/Diabetes-Management-Application into issue-42-connect-reminder
+| |\ \ \  
+| | * | | cebfb51 (origin/issue-33-reminder-backend) Reminder API
+| * | | | 1c936f0 resolve conflicts
+|/| | | | 
+| * | | | 5328ea6 change requirements, add delete button
+| * | | | e981a44 add reminders popup
+| * | | | 1e41aa7 start template code for reminders page
+| |/ / /  
+* | | |   ead7224 Merge pull request #41 from anantchhabda/issue-40-connection-doc-fam-onboarding
+|\ \ \ \  
+| * \ \ \   8d7c824 (origin/issue-40-connection-doc-fam-onboarding) Registeration + Onboarding + Redirecting to homepage done for all roles
+| |\ \ \ \  
+| |/ / / /  
+|/| | | |   
+* | | | |   9fef9fb Merge pull request #32 from anantchhabda/doctor-and-family-homepage
+|\ \ \ \ \  
+| |_|_|_|/  
+|/| | | |   
+| * | | |   cb17d76 (origin/doctor-and-family-homepage) Merge branch 'main' into doctor-and-family-homepage
+| |\ \ \ \  
+| |/ / / /  
+|/| | | |   
+| * | | | ca2c0d9 doctor and family homepage created
+| | |/ /  
+| |/| |   
+| | * | da961fe Onboarding Doctor
+| |/ /  
+|/| |   
+* | |   0b336c1 Merge pull request #37 from anantchhabda/14-language-switch-to-nepalese
+|\ \ \  
+| |/ /  
+|/| |   
+| * |   ed9b4bb (origin/14-language-switch-to-nepalese) Merge branch 'main' into 14-language-switch-to-nepalese
+| |\ \  
+| |/ /  
+|/| |   
+* | |   ec6ad8b Merge pull request #29 from anantchhabda/issue-28-login-linking
+|\ \ \  
+| * | | e06d41c (origin/issue-28-login-linking) Login connect front & back (issue28)
+|/ / /  
+* | |   732f253 Merge pull request #27 from anantchhabda/25-homepage-wont-appear
+|\ \ \  
+| * | | 375d167 (origin/25-homepage-wont-appear) fix css to use themes
+| * | | d3de4e6 remove sex from javascript
+| * | | 0de3bac remove sex from frontend
+| * | | 8f3982c fix routing to family onboarding page
+| * | | b453eaa route pages to appropriate role
+| * | | ac11e85 fix homepage bug
+|/ / /  
+* | | d59f738 family onboarding design (#20)
+* | | ca19ced doctor onboarding design (#19)
+| * | 0c606db (14-language-switch-to-nepalese) Header added language buttons consistent accross pages, logo centered, language switch working
+| * | 9d32708 Language switch added to nepalese, password validation added, hydration issues fixed
+|/ /  
+* |   78fd758 Merge pull request #21 from anantchhabda/main-test
+|\ \  
+| * \   f09e99c Merge branch 'main' into main-test
+| |\ \  
+| |/ /  
+|/| |   
+* | |   ce7b98b Merge pull request #15 from anantchhabda/13-header
+|\ \ \  
+| |_|/  
+|/| |   
+| * | c7412ec (origin/13-header) update logos, make text bigger
+| * | a93c4c1 change css to use ones listed in global css
+| * | abe63e9 add css file, add homepage
+| * | c32d429 rename file, add logos
+|/ /  
+| *   61c4f66 Merge branch 'main-test' of https://github.com/anantchhabda/Diabetes-Management-Application into main-test
+| |\  
+| | * c43d4d3 Update route.js
+| | * f03f025 Update route.js
+| | * ac16fd8 Update route.js
+| * | a7d1c75 Update package to include jwtoken for testing
+| |/  
+| * 37832e7 Save remaining changes
+| *   6cc807e Merge remote main into main-test
+| |\  
+| |/  
+|/|   
+* | b7e8a4d Issue 3 (Welcome homepage to user homepage functional) (#12)
+| * dacfaab Save local changes before pulling
+| * a041e5f Update route.js
+| * dfd4f70 Update route.js
+| * 59415a1 Update route.js
+| * ccf7a95 Add preprofileId to register api
+| * 0beb287 Update route.js
+| * 1b5e472 Update route.js
+| * 134a8e0 Update LinkRequest.js
+| * 515a7be Update route.js
+| * bfd0730 Update route.js
+| * c29083d Create route.js
+| * c4ab9c2 Create route.js
+| * c2fb664 Update route.js
+| * fd24451 Update route.js
+| * 202a26f Update route.js
+| * 8990c20 Update route.js
+| * 15eba7a Create route.js
+| * 4856bb5 Create route.js
+| * bdf423d Create route.js
+| * 38a34a0 Update route.js
+| * 0b6bedd Update route.js
+| * 30bc512 Update route.js
+| * 9a3bc5c Update route.js
+| * d549cda Update route.js
+| * 219ec76 Update route.js
+| * c83cd49 Update route.js
+| * bdf5f1c Update route.js
+| * d5c87fe Update route.js
+| * 81f82e5 Update route.js
+| * 07cdafa Update route.js
+| * 6a2bfcd Update Patient.js
+| * c4e8ee3 Update LinkRequest.js
+| * 59168c2 Update InsulinLog.js
+| * 34ec7ea Update GlucoseLog.js
+| * d93fab3 Update GeneralLog.js
+| * f4533d5 Update FamilyMember.js
+| * ff9453c Update Doctor.js
+| * 0e34d9b Add files via upload
+|/  
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/54-reminders-notifications-via-push-notifications =====
+* 6191391 (origin/54-reminders-notifications-via-push-notifications, 54-reminders-notifications-via-push-notifications) Notification ability added, need to connect it to reminders to finalise
+*   29c9868 (HEAD -> main, origin/55-language-translation-continued, origin/48-offline-functionality, 55-language-translation-continued) Merge pull request #52 from anantchhabda/51-back-button-globally
+|\  
+| * 8d4cf29 (origin/51-back-button-globally, 51-back-button-globally) Added back button globally
+|/  
+* 5c52ac1 added more translations for english file
+* 75f01dc lockfile update
+*   acbad39 Merge branch 'main' of github.com:anantchhabda/Diabetes-Management-Application the commit.
+|\  
+| *   8e58a2c Merge pull request #22 from anantchhabda/log-data
+| |\  
+| | *   c374e7e changes
+| | |\  
+| | |/  
+| |/|   
+| | *   a5ba66a updated the branches based on the changes
+| | |\  
+| | * | 2aa8d08 made minor changes to the log pages
+| | * |   cef5ea6 Merge branch 'main' of https://github.com/anantchhabda/Diabetes-Management-Application into log-data
+| | |\ \  
+| | * \ \   b4b176a updated the log pages
+| | |\ \ \  
+| | * | | | 32a5f47 removed all unecessary old comments and codes
+| | * | | | c2f2fbd change from react to react-free
+| | * | | | 6ac73c4 interactable glucose, insulin, comments button
+| | * | | | 98c4215 all current logging of data
+* | | | | | 3e4e4f5 Fixed cross system issues, header fixed, tailwindcss fixed for v3, .env.local updated
+|/ / / / /  
+* | | | | 4554e25 removed duplicated postcss file
+* | | | | 41981a9 removed tailwind v4
+* | | | | d406237 Rename postcss config to .cjs for ESM
+* | | | | 198dafb force postcss fallback for vercel
+* | | | | 9b667fc disable lightningCSS globally for vercel build
+* | | | | da071b4 Vercel Error fixed
+| |_|_|/  
+|/| | |   
+* | | |   73fdeba Merge pull request #49 from anantchhabda/47-making-it-into-a-pwa
+|\ \ \ \  
+| * | | | af386d4 (origin/47-making-it-into-a-pwa, 47-making-it-into-a-pwa) PWA functionality added, favicon added, service worked added
+|/ / / /  
+* | | | 8e406f5 comments added
+* | | |   8b179a8 (45-fixing-errors-in-main) Merge pull request #46 from anantchhabda/45-fixing-errors-in-main
+|\ \ \ \  
+| * | | | 1933087 (origin/45-fixing-errors-in-main) Fixed errors + headers doubling
+|/ / / /  
+* | | |   c3fe195 Merge pull request #44 from anantchhabda/issue-42-connect-reminder
+|\ \ \ \  
+| * \ \ \   837d19c (origin/issue-42-connect-reminder) Merge branch 'main' into issue-42-connect-reminder
+| |\ \ \ \  
+| |/ / / /  
+|/| | | |   
+* | | | | 390a7f8 23 create reminders page (#39)
+| |_|_|/  
+|/| | |   
+| * | | bb23750 rename the folder homepage to patient-homepage
+| * | | 90f04f1 Connection for Reminder
+| * | |   5bf87d2 Merge branch 'issue-33-reminder-backend' of https://github.com/anantchhabda/Diabetes-Management-Application into issue-42-connect-reminder
+| |\ \ \  
+| | * | | cebfb51 (origin/issue-33-reminder-backend) Reminder API
+| * | | | 1c936f0 resolve conflicts
+|/| | | | 
+| * | | | 5328ea6 change requirements, add delete button
+| * | | | e981a44 add reminders popup
+| * | | | 1e41aa7 start template code for reminders page
+| |/ / /  
+* | | |   ead7224 Merge pull request #41 from anantchhabda/issue-40-connection-doc-fam-onboarding
+|\ \ \ \  
+| * \ \ \   8d7c824 (origin/issue-40-connection-doc-fam-onboarding) Registeration + Onboarding + Redirecting to homepage done for all roles
+| |\ \ \ \  
+| |/ / / /  
+|/| | | |   
+* | | | |   9fef9fb Merge pull request #32 from anantchhabda/doctor-and-family-homepage
+|\ \ \ \ \  
+| |_|_|_|/  
+|/| | | |   
+| * | | |   cb17d76 (origin/doctor-and-family-homepage) Merge branch 'main' into doctor-and-family-homepage
+| |\ \ \ \  
+| |/ / / /  
+|/| | | |   
+| * | | | ca2c0d9 doctor and family homepage created
+| | |/ /  
+| |/| |   
+| | * | da961fe Onboarding Doctor
+| |/ /  
+|/| |   
+* | |   0b336c1 Merge pull request #37 from anantchhabda/14-language-switch-to-nepalese
+|\ \ \  
+| |/ /  
+|/| |   
+| * |   ed9b4bb (origin/14-language-switch-to-nepalese) Merge branch 'main' into 14-language-switch-to-nepalese
+| |\ \  
+| |/ /  
+|/| |   
+* | |   ec6ad8b Merge pull request #29 from anantchhabda/issue-28-login-linking
+|\ \ \  
+| * | | e06d41c (origin/issue-28-login-linking) Login connect front & back (issue28)
+|/ / /  
+* | |   732f253 Merge pull request #27 from anantchhabda/25-homepage-wont-appear
+|\ \ \  
+| * | | 375d167 (origin/25-homepage-wont-appear) fix css to use themes
+| * | | d3de4e6 remove sex from javascript
+| * | | 0de3bac remove sex from frontend
+| * | | 8f3982c fix routing to family onboarding page
+| * | | b453eaa route pages to appropriate role
+| * | | ac11e85 fix homepage bug
+|/ / /  
+* | | d59f738 family onboarding design (#20)
+* | | ca19ced doctor onboarding design (#19)
+| * | 0c606db (14-language-switch-to-nepalese) Header added language buttons consistent accross pages, logo centered, language switch working
+| * | 9d32708 Language switch added to nepalese, password validation added, hydration issues fixed
+|/ /  
+* |   78fd758 Merge pull request #21 from anantchhabda/main-test
+|\ \  
+| * \   f09e99c Merge branch 'main' into main-test
+| |\ \  
+| |/ /  
+|/| |   
+* | |   ce7b98b Merge pull request #15 from anantchhabda/13-header
+|\ \ \  
+| |_|/  
+|/| |   
+| * | c7412ec (origin/13-header) update logos, make text bigger
+| * | a93c4c1 change css to use ones listed in global css
+| * | abe63e9 add css file, add homepage
+| * | c32d429 rename file, add logos
+|/ /  
+| *   61c4f66 Merge branch 'main-test' of https://github.com/anantchhabda/Diabetes-Management-Application into main-test
+| |\  
+| | * c43d4d3 Update route.js
+| | * f03f025 Update route.js
+| | * ac16fd8 Update route.js
+| * | a7d1c75 Update package to include jwtoken for testing
+| |/  
+| * 37832e7 Save remaining changes
+| *   6cc807e Merge remote main into main-test
+| |\  
+| |/  
+|/|   
+* | b7e8a4d Issue 3 (Welcome homepage to user homepage functional) (#12)
+| * dacfaab Save local changes before pulling
+| * a041e5f Update route.js
+| * dfd4f70 Update route.js
+| * 59415a1 Update route.js
+| * ccf7a95 Add preprofileId to register api
+| * 0beb287 Update route.js
+| * 1b5e472 Update route.js
+| * 134a8e0 Update LinkRequest.js
+| * 515a7be Update route.js
+| * bfd0730 Update route.js
+| * c29083d Create route.js
+| * c4ab9c2 Create route.js
+| * c2fb664 Update route.js
+| * fd24451 Update route.js
+| * 202a26f Update route.js
+| * 8990c20 Update route.js
+| * 15eba7a Create route.js
+| * 4856bb5 Create route.js
+| * bdf423d Create route.js
+| * 38a34a0 Update route.js
+| * 0b6bedd Update route.js
+| * 30bc512 Update route.js
+| * 9a3bc5c Update route.js
+| * d549cda Update route.js
+| * 219ec76 Update route.js
+| * c83cd49 Update route.js
+| * bdf5f1c Update route.js
+| * d5c87fe Update route.js
+| * 81f82e5 Update route.js
+| * 07cdafa Update route.js
+| * 6a2bfcd Update Patient.js
+| * c4e8ee3 Update LinkRequest.js
+| * 59168c2 Update InsulinLog.js
+| * 34ec7ea Update GlucoseLog.js
+| * d93fab3 Update GeneralLog.js
+| * f4533d5 Update FamilyMember.js
+| * ff9453c Update Doctor.js
+| * 0e34d9b Add files via upload
+|/  
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/55-language-translation-continued =====
+*   29c9868 (HEAD -> main, origin/55-language-translation-continued, origin/48-offline-functionality, 55-language-translation-continued) Merge pull request #52 from anantchhabda/51-back-button-globally
+|\  
+| * 8d4cf29 (origin/51-back-button-globally, 51-back-button-globally) Added back button globally
+|/  
+* 5c52ac1 added more translations for english file
+* 75f01dc lockfile update
+*   acbad39 Merge branch 'main' of github.com:anantchhabda/Diabetes-Management-Application the commit.
+|\  
+| *   8e58a2c Merge pull request #22 from anantchhabda/log-data
+| |\  
+| | *   c374e7e changes
+| | |\  
+| | |/  
+| |/|   
+| | *   a5ba66a updated the branches based on the changes
+| | |\  
+| | * | 2aa8d08 made minor changes to the log pages
+| | * |   cef5ea6 Merge branch 'main' of https://github.com/anantchhabda/Diabetes-Management-Application into log-data
+| | |\ \  
+| | * \ \   b4b176a updated the log pages
+| | |\ \ \  
+| | * | | | 32a5f47 removed all unecessary old comments and codes
+| | * | | | c2f2fbd change from react to react-free
+| | * | | | 6ac73c4 interactable glucose, insulin, comments button
+| | * | | | 98c4215 all current logging of data
+* | | | | | 3e4e4f5 Fixed cross system issues, header fixed, tailwindcss fixed for v3, .env.local updated
+|/ / / / /  
+* | | | | 4554e25 removed duplicated postcss file
+* | | | | 41981a9 removed tailwind v4
+* | | | | d406237 Rename postcss config to .cjs for ESM
+* | | | | 198dafb force postcss fallback for vercel
+* | | | | 9b667fc disable lightningCSS globally for vercel build
+* | | | | da071b4 Vercel Error fixed
+| |_|_|/  
+|/| | |   
+* | | |   73fdeba Merge pull request #49 from anantchhabda/47-making-it-into-a-pwa
+|\ \ \ \  
+| * | | | af386d4 (origin/47-making-it-into-a-pwa, 47-making-it-into-a-pwa) PWA functionality added, favicon added, service worked added
+|/ / / /  
+* | | | 8e406f5 comments added
+* | | |   8b179a8 (45-fixing-errors-in-main) Merge pull request #46 from anantchhabda/45-fixing-errors-in-main
+|\ \ \ \  
+| * | | | 1933087 (origin/45-fixing-errors-in-main) Fixed errors + headers doubling
+|/ / / /  
+* | | |   c3fe195 Merge pull request #44 from anantchhabda/issue-42-connect-reminder
+|\ \ \ \  
+| * \ \ \   837d19c (origin/issue-42-connect-reminder) Merge branch 'main' into issue-42-connect-reminder
+| |\ \ \ \  
+| |/ / / /  
+|/| | | |   
+* | | | | 390a7f8 23 create reminders page (#39)
+| |_|_|/  
+|/| | |   
+| * | | bb23750 rename the folder homepage to patient-homepage
+| * | | 90f04f1 Connection for Reminder
+| * | |   5bf87d2 Merge branch 'issue-33-reminder-backend' of https://github.com/anantchhabda/Diabetes-Management-Application into issue-42-connect-reminder
+| |\ \ \  
+| | * | | cebfb51 (origin/issue-33-reminder-backend) Reminder API
+| * | | | 1c936f0 resolve conflicts
+|/| | | | 
+| * | | | 5328ea6 change requirements, add delete button
+| * | | | e981a44 add reminders popup
+| * | | | 1e41aa7 start template code for reminders page
+| |/ / /  
+* | | |   ead7224 Merge pull request #41 from anantchhabda/issue-40-connection-doc-fam-onboarding
+|\ \ \ \  
+| * \ \ \   8d7c824 (origin/issue-40-connection-doc-fam-onboarding) Registeration + Onboarding + Redirecting to homepage done for all roles
+| |\ \ \ \  
+| |/ / / /  
+|/| | | |   
+* | | | |   9fef9fb Merge pull request #32 from anantchhabda/doctor-and-family-homepage
+|\ \ \ \ \  
+| |_|_|_|/  
+|/| | | |   
+| * | | |   cb17d76 (origin/doctor-and-family-homepage) Merge branch 'main' into doctor-and-family-homepage
+| |\ \ \ \  
+| |/ / / /  
+|/| | | |   
+| * | | | ca2c0d9 doctor and family homepage created
+| | |/ /  
+| |/| |   
+| | * | da961fe Onboarding Doctor
+| |/ /  
+|/| |   
+* | |   0b336c1 Merge pull request #37 from anantchhabda/14-language-switch-to-nepalese
+|\ \ \  
+| |/ /  
+|/| |   
+| * |   ed9b4bb (origin/14-language-switch-to-nepalese) Merge branch 'main' into 14-language-switch-to-nepalese
+| |\ \  
+| |/ /  
+|/| |   
+* | |   ec6ad8b Merge pull request #29 from anantchhabda/issue-28-login-linking
+|\ \ \  
+| * | | e06d41c (origin/issue-28-login-linking) Login connect front & back (issue28)
+|/ / /  
+* | |   732f253 Merge pull request #27 from anantchhabda/25-homepage-wont-appear
+|\ \ \  
+| * | | 375d167 (origin/25-homepage-wont-appear) fix css to use themes
+| * | | d3de4e6 remove sex from javascript
+| * | | 0de3bac remove sex from frontend
+| * | | 8f3982c fix routing to family onboarding page
+| * | | b453eaa route pages to appropriate role
+| * | | ac11e85 fix homepage bug
+|/ / /  
+* | | d59f738 family onboarding design (#20)
+* | | ca19ced doctor onboarding design (#19)
+| * | 0c606db (14-language-switch-to-nepalese) Header added language buttons consistent accross pages, logo centered, language switch working
+| * | 9d32708 Language switch added to nepalese, password validation added, hydration issues fixed
+|/ /  
+* |   78fd758 Merge pull request #21 from anantchhabda/main-test
+|\ \  
+| * \   f09e99c Merge branch 'main' into main-test
+| |\ \  
+| |/ /  
+|/| |   
+* | |   ce7b98b Merge pull request #15 from anantchhabda/13-header
+|\ \ \  
+| |_|/  
+|/| |   
+| * | c7412ec (origin/13-header) update logos, make text bigger
+| * | a93c4c1 change css to use ones listed in global css
+| * | abe63e9 add css file, add homepage
+| * | c32d429 rename file, add logos
+|/ /  
+| *   61c4f66 Merge branch 'main-test' of https://github.com/anantchhabda/Diabetes-Management-Application into main-test
+| |\  
+| | * c43d4d3 Update route.js
+| | * f03f025 Update route.js
+| | * ac16fd8 Update route.js
+| * | a7d1c75 Update package to include jwtoken for testing
+| |/  
+| * 37832e7 Save remaining changes
+| *   6cc807e Merge remote main into main-test
+| |\  
+| |/  
+|/|   
+* | b7e8a4d Issue 3 (Welcome homepage to user homepage functional) (#12)
+| * dacfaab Save local changes before pulling
+| * a041e5f Update route.js
+| * dfd4f70 Update route.js
+| * 59415a1 Update route.js
+| * ccf7a95 Add preprofileId to register api
+| * 0beb287 Update route.js
+| * 1b5e472 Update route.js
+| * 134a8e0 Update LinkRequest.js
+| * 515a7be Update route.js
+| * bfd0730 Update route.js
+| * c29083d Create route.js
+| * c4ab9c2 Create route.js
+| * c2fb664 Update route.js
+| * fd24451 Update route.js
+| * 202a26f Update route.js
+| * 8990c20 Update route.js
+| * 15eba7a Create route.js
+| * 4856bb5 Create route.js
+| * bdf423d Create route.js
+| * 38a34a0 Update route.js
+| * 0b6bedd Update route.js
+| * 30bc512 Update route.js
+| * 9a3bc5c Update route.js
+| * d549cda Update route.js
+| * 219ec76 Update route.js
+| * c83cd49 Update route.js
+| * bdf5f1c Update route.js
+| * d5c87fe Update route.js
+| * 81f82e5 Update route.js
+| * 07cdafa Update route.js
+| * 6a2bfcd Update Patient.js
+| * c4e8ee3 Update LinkRequest.js
+| * 59168c2 Update InsulinLog.js
+| * 34ec7ea Update GlucoseLog.js
+| * d93fab3 Update GeneralLog.js
+| * f4533d5 Update FamilyMember.js
+| * ff9453c Update Doctor.js
+| * 0e34d9b Add files via upload
+|/  
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/data-connections =====
+* ac3fba7 (origin/data-connections) trying to implement the ability for the search bar in both the doctor and family connection page to be interactable e.g., a pop-up should appear
+* 062522e removed unecessary comments
+* e207ac1 linking succeeded, patient connection page working so far
+* 12c8709 there is still a major problem with the patient-connection page, the design is completely different might require assistance
+*   97d538e Merge branch 'main' of https://github.com/anantchhabda/Diabetes-Management-Application into data-connections
+|\  
+| *   29c9868 (HEAD -> main, origin/55-language-translation-continued, origin/48-offline-functionality, 55-language-translation-continued) Merge pull request #52 from anantchhabda/51-back-button-globally
+| |\  
+| | * 8d4cf29 (origin/51-back-button-globally, 51-back-button-globally) Added back button globally
+| |/  
+* | 988e922 Merge branch 'main' of https://github.com/anantchhabda/Diabetes-Management-Application into data-connections
+|\| 
+| * 5c52ac1 added more translations for english file
+| * 75f01dc lockfile update
+| *   acbad39 Merge branch 'main' of github.com:anantchhabda/Diabetes-Management-Application the commit.
+| |\  
+| | *   8e58a2c Merge pull request #22 from anantchhabda/log-data
+| | |\  
+| | | *   c374e7e changes
+| | | |\  
+| | | |/  
+| | |/|   
+| | | *   a5ba66a updated the branches based on the changes
+| | | |\  
+| * | | | 3e4e4f5 Fixed cross system issues, header fixed, tailwindcss fixed for v3, .env.local updated
+| |/ / /  
+| * | | 4554e25 removed duplicated postcss file
+| * | | 41981a9 removed tailwind v4
+| * | | d406237 Rename postcss config to .cjs for ESM
+| * | | 198dafb force postcss fallback for vercel
+| * | | 9b667fc disable lightningCSS globally for vercel build
+| * | | da071b4 Vercel Error fixed
+| | |/  
+| |/|   
+| * |   73fdeba Merge pull request #49 from anantchhabda/47-making-it-into-a-pwa
+| |\ \  
+| | * | af386d4 (origin/47-making-it-into-a-pwa, 47-making-it-into-a-pwa) PWA functionality added, favicon added, service worked added
+| |/ /  
+| * | 8e406f5 comments added
+| * |   8b179a8 (45-fixing-errors-in-main) Merge pull request #46 from anantchhabda/45-fixing-errors-in-main
+| |\ \  
+| | * | 1933087 (origin/45-fixing-errors-in-main) Fixed errors + headers doubling
+| |/ /  
+| * |   c3fe195 Merge pull request #44 from anantchhabda/issue-42-connect-reminder
+| |\ \  
+| | * \   837d19c (origin/issue-42-connect-reminder) Merge branch 'main' into issue-42-connect-reminder
+| | |\ \  
+| | |/ /  
+| |/| |   
+| * | | 390a7f8 23 create reminders page (#39)
+| | * | bb23750 rename the folder homepage to patient-homepage
+| | * | 90f04f1 Connection for Reminder
+| | * |   5bf87d2 Merge branch 'issue-33-reminder-backend' of https://github.com/anantchhabda/Diabetes-Management-Application into issue-42-connect-reminder
+| | |\ \  
+| | | * | cebfb51 (origin/issue-33-reminder-backend) Reminder API
+| | * | | 1c936f0 resolve conflicts
+| |/| | | 
+| | * | | 5328ea6 change requirements, add delete button
+| | * | | e981a44 add reminders popup
+| | * | | 1e41aa7 start template code for reminders page
+| | |/ /  
+* | | / 5eeee94 made the branch for connection pages
+| |_|/  
+|/| |   
+* | | 2aa8d08 made minor changes to the log pages
+* | | cef5ea6 Merge branch 'main' of https://github.com/anantchhabda/Diabetes-Management-Application into log-data
+|\| | 
+| * |   ead7224 Merge pull request #41 from anantchhabda/issue-40-connection-doc-fam-onboarding
+| |\ \  
+| | * \   8d7c824 (origin/issue-40-connection-doc-fam-onboarding) Registeration + Onboarding + Redirecting to homepage done for all roles
+| | |\ \  
+| | |/ /  
+| |/| |   
+| * | |   9fef9fb Merge pull request #32 from anantchhabda/doctor-and-family-homepage
+| |\ \ \  
+| | * \ \   cb17d76 (origin/doctor-and-family-homepage) Merge branch 'main' into doctor-and-family-homepage
+| | |\ \ \  
+| | |/ / /  
+| |/| | |   
+| | * | | ca2c0d9 doctor and family homepage created
+| | | |/  
+| | |/|   
+| | | * da961fe Onboarding Doctor
+| | |/  
+| |/|   
+* | | b4b176a updated the log pages
+|\| | 
+| * |   0b336c1 Merge pull request #37 from anantchhabda/14-language-switch-to-nepalese
+| |\ \  
+| | |/  
+| |/|   
+| | *   ed9b4bb (origin/14-language-switch-to-nepalese) Merge branch 'main' into 14-language-switch-to-nepalese
+| | |\  
+| | |/  
+| |/|   
+| * |   ec6ad8b Merge pull request #29 from anantchhabda/issue-28-login-linking
+| |\ \  
+| | * | e06d41c (origin/issue-28-login-linking) Login connect front & back (issue28)
+| |/ /  
+| * |   732f253 Merge pull request #27 from anantchhabda/25-homepage-wont-appear
+| |\ \  
+| | * | 375d167 (origin/25-homepage-wont-appear) fix css to use themes
+| | * | d3de4e6 remove sex from javascript
+| | * | 0de3bac remove sex from frontend
+| | * | 8f3982c fix routing to family onboarding page
+| | * | b453eaa route pages to appropriate role
+| | * | ac11e85 fix homepage bug
+| |/ /  
+| * | d59f738 family onboarding design (#20)
+| * | ca19ced doctor onboarding design (#19)
+| | * 0c606db (14-language-switch-to-nepalese) Header added language buttons consistent accross pages, logo centered, language switch working
+| | * 9d32708 Language switch added to nepalese, password validation added, hydration issues fixed
+| |/  
+| *   78fd758 Merge pull request #21 from anantchhabda/main-test
+| |\  
+| | *   f09e99c Merge branch 'main' into main-test
+| | |\  
+| | |/  
+| |/|   
+| * |   ce7b98b Merge pull request #15 from anantchhabda/13-header
+| |\ \  
+| | * | c7412ec (origin/13-header) update logos, make text bigger
+| | * | a93c4c1 change css to use ones listed in global css
+| | * | abe63e9 add css file, add homepage
+| | * | c32d429 rename file, add logos
+| |/ /  
+| | *   61c4f66 Merge branch 'main-test' of https://github.com/anantchhabda/Diabetes-Management-Application into main-test
+| | |\  
+| | | * c43d4d3 Update route.js
+| | | * f03f025 Update route.js
+| | | * ac16fd8 Update route.js
+| | * | a7d1c75 Update package to include jwtoken for testing
+| | |/  
+| | * 37832e7 Save remaining changes
+| | *   6cc807e Merge remote main into main-test
+| | |\  
+| | |/  
+| |/|   
+| | * dacfaab Save local changes before pulling
+| | * a041e5f Update route.js
+| | * dfd4f70 Update route.js
+| | * 59415a1 Update route.js
+| | * ccf7a95 Add preprofileId to register api
+| | * 0beb287 Update route.js
+| | * 1b5e472 Update route.js
+| | * 134a8e0 Update LinkRequest.js
+| | * 515a7be Update route.js
+| | * bfd0730 Update route.js
+| | * c29083d Create route.js
+| | * c4ab9c2 Create route.js
+| | * c2fb664 Update route.js
+| | * fd24451 Update route.js
+| | * 202a26f Update route.js
+| | * 8990c20 Update route.js
+| | * 15eba7a Create route.js
+| | * 4856bb5 Create route.js
+| | * bdf423d Create route.js
+| | * 38a34a0 Update route.js
+| | * 0b6bedd Update route.js
+| | * 30bc512 Update route.js
+| | * 9a3bc5c Update route.js
+| | * d549cda Update route.js
+| | * 219ec76 Update route.js
+| | * c83cd49 Update route.js
+| | * bdf5f1c Update route.js
+| | * d5c87fe Update route.js
+| | * 81f82e5 Update route.js
+| | * 07cdafa Update route.js
+| | * 6a2bfcd Update Patient.js
+| | * c4e8ee3 Update LinkRequest.js
+| | * 59168c2 Update InsulinLog.js
+| | * 34ec7ea Update GlucoseLog.js
+| | * d93fab3 Update GeneralLog.js
+| | * f4533d5 Update FamilyMember.js
+| | * ff9453c Update Doctor.js
+| | * 0e34d9b Add files via upload
+* | | 32a5f47 removed all unecessary old comments and codes
+* | | c2f2fbd change from react to react-free
+* | | 6ac73c4 interactable glucose, insulin, comments button
+* | | 98c4215 all current logging of data
+|/ /  
+* / b7e8a4d Issue 3 (Welcome homepage to user homepage functional) (#12)
+|/  
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/doctor-and-family-homepage =====
+*   cb17d76 (origin/doctor-and-family-homepage) Merge branch 'main' into doctor-and-family-homepage
+|\  
+| *   0b336c1 Merge pull request #37 from anantchhabda/14-language-switch-to-nepalese
+| |\  
+| | *   ed9b4bb (origin/14-language-switch-to-nepalese) Merge branch 'main' into 14-language-switch-to-nepalese
+| | |\  
+| | |/  
+| |/|   
+| | * 0c606db (14-language-switch-to-nepalese) Header added language buttons consistent accross pages, logo centered, language switch working
+| | * 9d32708 Language switch added to nepalese, password validation added, hydration issues fixed
+* | | ca2c0d9 doctor and family homepage created
+|/ /  
+* |   ec6ad8b Merge pull request #29 from anantchhabda/issue-28-login-linking
+|\ \  
+| * | e06d41c (origin/issue-28-login-linking) Login connect front & back (issue28)
+|/ /  
+* |   732f253 Merge pull request #27 from anantchhabda/25-homepage-wont-appear
+|\ \  
+| * | 375d167 (origin/25-homepage-wont-appear) fix css to use themes
+| * | d3de4e6 remove sex from javascript
+| * | 0de3bac remove sex from frontend
+| * | 8f3982c fix routing to family onboarding page
+| * | b453eaa route pages to appropriate role
+| * | ac11e85 fix homepage bug
+|/ /  
+* | d59f738 family onboarding design (#20)
+* | ca19ced doctor onboarding design (#19)
+|/  
+*   78fd758 Merge pull request #21 from anantchhabda/main-test
+|\  
+| *   f09e99c Merge branch 'main' into main-test
+| |\  
+| |/  
+|/|   
+* |   ce7b98b Merge pull request #15 from anantchhabda/13-header
+|\ \  
+| * | c7412ec (origin/13-header) update logos, make text bigger
+| * | a93c4c1 change css to use ones listed in global css
+| * | abe63e9 add css file, add homepage
+| * | c32d429 rename file, add logos
+|/ /  
+| *   61c4f66 Merge branch 'main-test' of https://github.com/anantchhabda/Diabetes-Management-Application into main-test
+| |\  
+| | * c43d4d3 Update route.js
+| | * f03f025 Update route.js
+| | * ac16fd8 Update route.js
+| * | a7d1c75 Update package to include jwtoken for testing
+| |/  
+| * 37832e7 Save remaining changes
+| *   6cc807e Merge remote main into main-test
+| |\  
+| |/  
+|/|   
+* | b7e8a4d Issue 3 (Welcome homepage to user homepage functional) (#12)
+| * dacfaab Save local changes before pulling
+| * a041e5f Update route.js
+| * dfd4f70 Update route.js
+| * 59415a1 Update route.js
+| * ccf7a95 Add preprofileId to register api
+| * 0beb287 Update route.js
+| * 1b5e472 Update route.js
+| * 134a8e0 Update LinkRequest.js
+| * 515a7be Update route.js
+| * bfd0730 Update route.js
+| * c29083d Create route.js
+| * c4ab9c2 Create route.js
+| * c2fb664 Update route.js
+| * fd24451 Update route.js
+| * 202a26f Update route.js
+| * 8990c20 Update route.js
+| * 15eba7a Create route.js
+| * 4856bb5 Create route.js
+| * bdf423d Create route.js
+| * 38a34a0 Update route.js
+| * 0b6bedd Update route.js
+| * 30bc512 Update route.js
+| * 9a3bc5c Update route.js
+| * d549cda Update route.js
+| * 219ec76 Update route.js
+| * c83cd49 Update route.js
+| * bdf5f1c Update route.js
+| * d5c87fe Update route.js
+| * 81f82e5 Update route.js
+| * 07cdafa Update route.js
+| * 6a2bfcd Update Patient.js
+| * c4e8ee3 Update LinkRequest.js
+| * 59168c2 Update InsulinLog.js
+| * 34ec7ea Update GlucoseLog.js
+| * d93fab3 Update GeneralLog.js
+| * f4533d5 Update FamilyMember.js
+| * ff9453c Update Doctor.js
+| * 0e34d9b Add files via upload
+|/  
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/doctor-on-boarding =====
+* 55ff84b (origin/doctor-on-boarding) Fixed css color problems
+* 8745f75 updated code
+* 3032551 doctor onboarding design
+* cc8c408 doctor onboarding design
+* b7e8a4d Issue 3 (Welcome homepage to user homepage functional) (#12)
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/family-on-boarding =====
+* cfb75bc (origin/family-on-boarding) Fixed css color problem
+* 12fb9a4 updated code
+* 93683dc family onboarding design
+* b7e8a4d Issue 3 (Welcome homepage to user homepage functional) (#12)
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/issue-28-login-linking =====
+* e06d41c (origin/issue-28-login-linking) Login connect front & back (issue28)
+*   732f253 Merge pull request #27 from anantchhabda/25-homepage-wont-appear
+|\  
+| * 375d167 (origin/25-homepage-wont-appear) fix css to use themes
+| * d3de4e6 remove sex from javascript
+| * 0de3bac remove sex from frontend
+| * 8f3982c fix routing to family onboarding page
+| * b453eaa route pages to appropriate role
+| * ac11e85 fix homepage bug
+|/  
+* d59f738 family onboarding design (#20)
+* ca19ced doctor onboarding design (#19)
+*   78fd758 Merge pull request #21 from anantchhabda/main-test
+|\  
+| *   f09e99c Merge branch 'main' into main-test
+| |\  
+| |/  
+|/|   
+* |   ce7b98b Merge pull request #15 from anantchhabda/13-header
+|\ \  
+| * | c7412ec (origin/13-header) update logos, make text bigger
+| * | a93c4c1 change css to use ones listed in global css
+| * | abe63e9 add css file, add homepage
+| * | c32d429 rename file, add logos
+|/ /  
+| *   61c4f66 Merge branch 'main-test' of https://github.com/anantchhabda/Diabetes-Management-Application into main-test
+| |\  
+| | * c43d4d3 Update route.js
+| | * f03f025 Update route.js
+| | * ac16fd8 Update route.js
+| * | a7d1c75 Update package to include jwtoken for testing
+| |/  
+| * 37832e7 Save remaining changes
+| *   6cc807e Merge remote main into main-test
+| |\  
+| |/  
+|/|   
+* | b7e8a4d Issue 3 (Welcome homepage to user homepage functional) (#12)
+| * dacfaab Save local changes before pulling
+| * a041e5f Update route.js
+| * dfd4f70 Update route.js
+| * 59415a1 Update route.js
+| * ccf7a95 Add preprofileId to register api
+| * 0beb287 Update route.js
+| * 1b5e472 Update route.js
+| * 134a8e0 Update LinkRequest.js
+| * 515a7be Update route.js
+| * bfd0730 Update route.js
+| * c29083d Create route.js
+| * c4ab9c2 Create route.js
+| * c2fb664 Update route.js
+| * fd24451 Update route.js
+| * 202a26f Update route.js
+| * 8990c20 Update route.js
+| * 15eba7a Create route.js
+| * 4856bb5 Create route.js
+| * bdf423d Create route.js
+| * 38a34a0 Update route.js
+| * 0b6bedd Update route.js
+| * 30bc512 Update route.js
+| * 9a3bc5c Update route.js
+| * d549cda Update route.js
+| * 219ec76 Update route.js
+| * c83cd49 Update route.js
+| * bdf5f1c Update route.js
+| * d5c87fe Update route.js
+| * 81f82e5 Update route.js
+| * 07cdafa Update route.js
+| * 6a2bfcd Update Patient.js
+| * c4e8ee3 Update LinkRequest.js
+| * 59168c2 Update InsulinLog.js
+| * 34ec7ea Update GlucoseLog.js
+| * d93fab3 Update GeneralLog.js
+| * f4533d5 Update FamilyMember.js
+| * ff9453c Update Doctor.js
+| * 0e34d9b Add files via upload
+|/  
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/issue-3-login-page =====
+* 8f867ee (origin/issue-3-login-page) Fully working code from welcome page to user homepage
+* 94263e5 (issue-3-login-page) fixed bug related to redirection to patient onboarding
+* d826095 Removed react, language files, connected patient onboarding and fixed little details
+* 32ed5a8 combined registration, fixed conflicts, fixed background color
+*   99f2484 Merge remote-tracking branch 'origin/registration' into issue-3-login-page
+|\  
+| * c95a50e (origin/registration) pulled features from main branch to my own and implemented the registration pop-up page
+| *   0e8b8f9 Merge branch 'main' of https://github.com/anantchhabda/Diabetes-Management-Application into registration
+| |\  
+| * | 0e9f020 updated version of the home page and the registration popup screen
+| * | 533519d updated registration and login page, mainly used to test the registration pop-up
+| * | 1997de4 current app test design phase
+* | | 3956002 Added register page from registration branch
+* | | b64f0d7 fixed file structure
+* | | 29f9560 fixed some code for backend to work (in progress still)
+* | |   ca89631 Merge remote-tracking branch 'origin/new-backend' into issue-3-login-page
+|\ \ \  
+| * \ \   b428edc Merge branch 'backend-nextjs' with remote changes
+| |\ \ \  
+| | * | | 6230ff6 Update db.js
+| | * | | cb2dda3 Update db.js
+| | * | | 7ff0078 Update auth.js
+| | * | | b7f8a82 Update FamilyMember.js
+| | * | | 0a0f36d Update GeneralLog.js
+| | * | | 33a4957 Update Health.js
+| | * | | 593ca81 Update Patient.js
+| | * | | 9aed99a Update User.js
+| | * | | 4140864 Update LinkRequest.js
+| * | | | 6fb8c63 Patient view all requests and accept requests
+| * | | | 7c6ef8f Patient view all requests and accept requests
+| |/ / /  
+| * | | fba6fc7 Doctor and Family Member sends request to patient
+| * | | c15d198 Add onboarding api
+| * | | b262b91 Finalise register and login api with jwt
+| * | | e12318c Update README with environment setup instructions
+| * | | 49dad33 Add register and login api
+| * | | 3e324ad Delete app.js
+| * | | 20977aa Backend folder structure and models in Nextjs
+| | |/  
+| |/|   
+* | | c4badda added phone input
+* | | cc22443 Tailwind CSS added
+|/ /  
+* | 82f2977 Added Responsiveness
+* | b20f881 Homepage Draft
+* | f4f4e01 Initial commit
+* | 9b2afaa Initial commit from Create Next App
+|/  
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/issue-33-reminder-backend =====
+* cebfb51 (origin/issue-33-reminder-backend) Reminder API
+*   ec6ad8b Merge pull request #29 from anantchhabda/issue-28-login-linking
+|\  
+| * e06d41c (origin/issue-28-login-linking) Login connect front & back (issue28)
+|/  
+*   732f253 Merge pull request #27 from anantchhabda/25-homepage-wont-appear
+|\  
+| * 375d167 (origin/25-homepage-wont-appear) fix css to use themes
+| * d3de4e6 remove sex from javascript
+| * 0de3bac remove sex from frontend
+| * 8f3982c fix routing to family onboarding page
+| * b453eaa route pages to appropriate role
+| * ac11e85 fix homepage bug
+|/  
+* d59f738 family onboarding design (#20)
+* ca19ced doctor onboarding design (#19)
+*   78fd758 Merge pull request #21 from anantchhabda/main-test
+|\  
+| *   f09e99c Merge branch 'main' into main-test
+| |\  
+| |/  
+|/|   
+* |   ce7b98b Merge pull request #15 from anantchhabda/13-header
+|\ \  
+| * | c7412ec (origin/13-header) update logos, make text bigger
+| * | a93c4c1 change css to use ones listed in global css
+| * | abe63e9 add css file, add homepage
+| * | c32d429 rename file, add logos
+|/ /  
+| *   61c4f66 Merge branch 'main-test' of https://github.com/anantchhabda/Diabetes-Management-Application into main-test
+| |\  
+| | * c43d4d3 Update route.js
+| | * f03f025 Update route.js
+| | * ac16fd8 Update route.js
+| * | a7d1c75 Update package to include jwtoken for testing
+| |/  
+| * 37832e7 Save remaining changes
+| *   6cc807e Merge remote main into main-test
+| |\  
+| |/  
+|/|   
+* | b7e8a4d Issue 3 (Welcome homepage to user homepage functional) (#12)
+| * dacfaab Save local changes before pulling
+| * a041e5f Update route.js
+| * dfd4f70 Update route.js
+| * 59415a1 Update route.js
+| * ccf7a95 Add preprofileId to register api
+| * 0beb287 Update route.js
+| * 1b5e472 Update route.js
+| * 134a8e0 Update LinkRequest.js
+| * 515a7be Update route.js
+| * bfd0730 Update route.js
+| * c29083d Create route.js
+| * c4ab9c2 Create route.js
+| * c2fb664 Update route.js
+| * fd24451 Update route.js
+| * 202a26f Update route.js
+| * 8990c20 Update route.js
+| * 15eba7a Create route.js
+| * 4856bb5 Create route.js
+| * bdf423d Create route.js
+| * 38a34a0 Update route.js
+| * 0b6bedd Update route.js
+| * 30bc512 Update route.js
+| * 9a3bc5c Update route.js
+| * d549cda Update route.js
+| * 219ec76 Update route.js
+| * c83cd49 Update route.js
+| * bdf5f1c Update route.js
+| * d5c87fe Update route.js
+| * 81f82e5 Update route.js
+| * 07cdafa Update route.js
+| * 6a2bfcd Update Patient.js
+| * c4e8ee3 Update LinkRequest.js
+| * 59168c2 Update InsulinLog.js
+| * 34ec7ea Update GlucoseLog.js
+| * d93fab3 Update GeneralLog.js
+| * f4533d5 Update FamilyMember.js
+| * ff9453c Update Doctor.js
+| * 0e34d9b Add files via upload
+|/  
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/issue-40-connection-doc-fam-onboarding =====
+*   8d7c824 (origin/issue-40-connection-doc-fam-onboarding) Registeration + Onboarding + Redirecting to homepage done for all roles
+|\  
+| *   9fef9fb Merge pull request #32 from anantchhabda/doctor-and-family-homepage
+| |\  
+| | *   cb17d76 (origin/doctor-and-family-homepage) Merge branch 'main' into doctor-and-family-homepage
+| | |\  
+| | |/  
+| |/|   
+| | * ca2c0d9 doctor and family homepage created
+* | | da961fe Onboarding Doctor
+|/ /  
+* |   0b336c1 Merge pull request #37 from anantchhabda/14-language-switch-to-nepalese
+|\ \  
+| |/  
+|/|   
+| *   ed9b4bb (origin/14-language-switch-to-nepalese) Merge branch 'main' into 14-language-switch-to-nepalese
+| |\  
+| |/  
+|/|   
+* |   ec6ad8b Merge pull request #29 from anantchhabda/issue-28-login-linking
+|\ \  
+| * | e06d41c (origin/issue-28-login-linking) Login connect front & back (issue28)
+|/ /  
+* |   732f253 Merge pull request #27 from anantchhabda/25-homepage-wont-appear
+|\ \  
+| * | 375d167 (origin/25-homepage-wont-appear) fix css to use themes
+| * | d3de4e6 remove sex from javascript
+| * | 0de3bac remove sex from frontend
+| * | 8f3982c fix routing to family onboarding page
+| * | b453eaa route pages to appropriate role
+| * | ac11e85 fix homepage bug
+|/ /  
+* | d59f738 family onboarding design (#20)
+* | ca19ced doctor onboarding design (#19)
+| * 0c606db (14-language-switch-to-nepalese) Header added language buttons consistent accross pages, logo centered, language switch working
+| * 9d32708 Language switch added to nepalese, password validation added, hydration issues fixed
+|/  
+*   78fd758 Merge pull request #21 from anantchhabda/main-test
+|\  
+| *   f09e99c Merge branch 'main' into main-test
+| |\  
+| |/  
+|/|   
+* |   ce7b98b Merge pull request #15 from anantchhabda/13-header
+|\ \  
+| * | c7412ec (origin/13-header) update logos, make text bigger
+| * | a93c4c1 change css to use ones listed in global css
+| * | abe63e9 add css file, add homepage
+| * | c32d429 rename file, add logos
+|/ /  
+| *   61c4f66 Merge branch 'main-test' of https://github.com/anantchhabda/Diabetes-Management-Application into main-test
+| |\  
+| | * c43d4d3 Update route.js
+| | * f03f025 Update route.js
+| | * ac16fd8 Update route.js
+| * | a7d1c75 Update package to include jwtoken for testing
+| |/  
+| * 37832e7 Save remaining changes
+| *   6cc807e Merge remote main into main-test
+| |\  
+| |/  
+|/|   
+* | b7e8a4d Issue 3 (Welcome homepage to user homepage functional) (#12)
+| * dacfaab Save local changes before pulling
+| * a041e5f Update route.js
+| * dfd4f70 Update route.js
+| * 59415a1 Update route.js
+| * ccf7a95 Add preprofileId to register api
+| * 0beb287 Update route.js
+| * 1b5e472 Update route.js
+| * 134a8e0 Update LinkRequest.js
+| * 515a7be Update route.js
+| * bfd0730 Update route.js
+| * c29083d Create route.js
+| * c4ab9c2 Create route.js
+| * c2fb664 Update route.js
+| * fd24451 Update route.js
+| * 202a26f Update route.js
+| * 8990c20 Update route.js
+| * 15eba7a Create route.js
+| * 4856bb5 Create route.js
+| * bdf423d Create route.js
+| * 38a34a0 Update route.js
+| * 0b6bedd Update route.js
+| * 30bc512 Update route.js
+| * 9a3bc5c Update route.js
+| * d549cda Update route.js
+| * 219ec76 Update route.js
+| * c83cd49 Update route.js
+| * bdf5f1c Update route.js
+| * d5c87fe Update route.js
+| * 81f82e5 Update route.js
+| * 07cdafa Update route.js
+| * 6a2bfcd Update Patient.js
+| * c4e8ee3 Update LinkRequest.js
+| * 59168c2 Update InsulinLog.js
+| * 34ec7ea Update GlucoseLog.js
+| * d93fab3 Update GeneralLog.js
+| * f4533d5 Update FamilyMember.js
+| * ff9453c Update Doctor.js
+| * 0e34d9b Add files via upload
+|/  
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/issue-42-connect-reminder =====
+*   837d19c (origin/issue-42-connect-reminder) Merge branch 'main' into issue-42-connect-reminder
+|\  
+| * 390a7f8 23 create reminders page (#39)
+* | bb23750 rename the folder homepage to patient-homepage
+* | 90f04f1 Connection for Reminder
+* |   5bf87d2 Merge branch 'issue-33-reminder-backend' of https://github.com/anantchhabda/Diabetes-Management-Application into issue-42-connect-reminder
+|\ \  
+| * | cebfb51 (origin/issue-33-reminder-backend) Reminder API
+* | |   1c936f0 resolve conflicts
+|\ \ \  
+| |_|/  
+|/| |   
+| * | 5328ea6 change requirements, add delete button
+| * | e981a44 add reminders popup
+| * | 1e41aa7 start template code for reminders page
+| |/  
+* |   ead7224 Merge pull request #41 from anantchhabda/issue-40-connection-doc-fam-onboarding
+|\ \  
+| * \   8d7c824 (origin/issue-40-connection-doc-fam-onboarding) Registeration + Onboarding + Redirecting to homepage done for all roles
+| |\ \  
+| |/ /  
+|/| |   
+* | |   9fef9fb Merge pull request #32 from anantchhabda/doctor-and-family-homepage
+|\ \ \  
+| * \ \   cb17d76 (origin/doctor-and-family-homepage) Merge branch 'main' into doctor-and-family-homepage
+| |\ \ \  
+| |/ / /  
+|/| | |   
+| * | | ca2c0d9 doctor and family homepage created
+| | |/  
+| |/|   
+| | * da961fe Onboarding Doctor
+| |/  
+|/|   
+* |   0b336c1 Merge pull request #37 from anantchhabda/14-language-switch-to-nepalese
+|\ \  
+| |/  
+|/|   
+| *   ed9b4bb (origin/14-language-switch-to-nepalese) Merge branch 'main' into 14-language-switch-to-nepalese
+| |\  
+| |/  
+|/|   
+* |   ec6ad8b Merge pull request #29 from anantchhabda/issue-28-login-linking
+|\ \  
+| * | e06d41c (origin/issue-28-login-linking) Login connect front & back (issue28)
+|/ /  
+* |   732f253 Merge pull request #27 from anantchhabda/25-homepage-wont-appear
+|\ \  
+| * | 375d167 (origin/25-homepage-wont-appear) fix css to use themes
+| * | d3de4e6 remove sex from javascript
+| * | 0de3bac remove sex from frontend
+| * | 8f3982c fix routing to family onboarding page
+| * | b453eaa route pages to appropriate role
+| * | ac11e85 fix homepage bug
+|/ /  
+* | d59f738 family onboarding design (#20)
+* | ca19ced doctor onboarding design (#19)
+| * 0c606db (14-language-switch-to-nepalese) Header added language buttons consistent accross pages, logo centered, language switch working
+| * 9d32708 Language switch added to nepalese, password validation added, hydration issues fixed
+|/  
+*   78fd758 Merge pull request #21 from anantchhabda/main-test
+|\  
+| *   f09e99c Merge branch 'main' into main-test
+| |\  
+| |/  
+|/|   
+* |   ce7b98b Merge pull request #15 from anantchhabda/13-header
+|\ \  
+| * | c7412ec (origin/13-header) update logos, make text bigger
+| * | a93c4c1 change css to use ones listed in global css
+| * | abe63e9 add css file, add homepage
+| * | c32d429 rename file, add logos
+|/ /  
+| *   61c4f66 Merge branch 'main-test' of https://github.com/anantchhabda/Diabetes-Management-Application into main-test
+| |\  
+| | * c43d4d3 Update route.js
+| | * f03f025 Update route.js
+| | * ac16fd8 Update route.js
+| * | a7d1c75 Update package to include jwtoken for testing
+| |/  
+| * 37832e7 Save remaining changes
+| *   6cc807e Merge remote main into main-test
+| |\  
+| |/  
+|/|   
+* | b7e8a4d Issue 3 (Welcome homepage to user homepage functional) (#12)
+| * dacfaab Save local changes before pulling
+| * a041e5f Update route.js
+| * dfd4f70 Update route.js
+| * 59415a1 Update route.js
+| * ccf7a95 Add preprofileId to register api
+| * 0beb287 Update route.js
+| * 1b5e472 Update route.js
+| * 134a8e0 Update LinkRequest.js
+| * 515a7be Update route.js
+| * bfd0730 Update route.js
+| * c29083d Create route.js
+| * c4ab9c2 Create route.js
+| * c2fb664 Update route.js
+| * fd24451 Update route.js
+| * 202a26f Update route.js
+| * 8990c20 Update route.js
+| * 15eba7a Create route.js
+| * 4856bb5 Create route.js
+| * bdf423d Create route.js
+| * 38a34a0 Update route.js
+| * 0b6bedd Update route.js
+| * 30bc512 Update route.js
+| * 9a3bc5c Update route.js
+| * d549cda Update route.js
+| * 219ec76 Update route.js
+| * c83cd49 Update route.js
+| * bdf5f1c Update route.js
+| * d5c87fe Update route.js
+| * 81f82e5 Update route.js
+| * 07cdafa Update route.js
+| * 6a2bfcd Update Patient.js
+| * c4e8ee3 Update LinkRequest.js
+| * 59168c2 Update InsulinLog.js
+| * 34ec7ea Update GlucoseLog.js
+| * d93fab3 Update GeneralLog.js
+| * f4533d5 Update FamilyMember.js
+| * ff9453c Update Doctor.js
+| * 0e34d9b Add files via upload
+|/  
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/log-data =====
+* 2c0f373 (origin/log-data) small log fix
+* 9b57bbd small linking fix
+*   29c9868 (HEAD -> main, origin/55-language-translation-continued, origin/48-offline-functionality, 55-language-translation-continued) Merge pull request #52 from anantchhabda/51-back-button-globally
+|\  
+| * 8d4cf29 (origin/51-back-button-globally, 51-back-button-globally) Added back button globally
+|/  
+* 5c52ac1 added more translations for english file
+* 75f01dc lockfile update
+*   acbad39 Merge branch 'main' of github.com:anantchhabda/Diabetes-Management-Application the commit.
+|\  
+| *   8e58a2c Merge pull request #22 from anantchhabda/log-data
+| |\  
+| | *   c374e7e changes
+| | |\  
+| | |/  
+| |/|   
+| | *   a5ba66a updated the branches based on the changes
+| | |\  
+| | * | 2aa8d08 made minor changes to the log pages
+| | * |   cef5ea6 Merge branch 'main' of https://github.com/anantchhabda/Diabetes-Management-Application into log-data
+| | |\ \  
+| | * \ \   b4b176a updated the log pages
+| | |\ \ \  
+| | * | | | 32a5f47 removed all unecessary old comments and codes
+| | * | | | c2f2fbd change from react to react-free
+| | * | | | 6ac73c4 interactable glucose, insulin, comments button
+| | * | | | 98c4215 all current logging of data
+* | | | | | 3e4e4f5 Fixed cross system issues, header fixed, tailwindcss fixed for v3, .env.local updated
+|/ / / / /  
+* | | | | 4554e25 removed duplicated postcss file
+* | | | | 41981a9 removed tailwind v4
+* | | | | d406237 Rename postcss config to .cjs for ESM
+* | | | | 198dafb force postcss fallback for vercel
+* | | | | 9b667fc disable lightningCSS globally for vercel build
+* | | | | da071b4 Vercel Error fixed
+| |_|_|/  
+|/| | |   
+* | | |   73fdeba Merge pull request #49 from anantchhabda/47-making-it-into-a-pwa
+|\ \ \ \  
+| * | | | af386d4 (origin/47-making-it-into-a-pwa, 47-making-it-into-a-pwa) PWA functionality added, favicon added, service worked added
+|/ / / /  
+* | | | 8e406f5 comments added
+* | | |   8b179a8 (45-fixing-errors-in-main) Merge pull request #46 from anantchhabda/45-fixing-errors-in-main
+|\ \ \ \  
+| * | | | 1933087 (origin/45-fixing-errors-in-main) Fixed errors + headers doubling
+|/ / / /  
+* | | |   c3fe195 Merge pull request #44 from anantchhabda/issue-42-connect-reminder
+|\ \ \ \  
+| * \ \ \   837d19c (origin/issue-42-connect-reminder) Merge branch 'main' into issue-42-connect-reminder
+| |\ \ \ \  
+| |/ / / /  
+|/| | | |   
+* | | | | 390a7f8 23 create reminders page (#39)
+| |_|_|/  
+|/| | |   
+| * | | bb23750 rename the folder homepage to patient-homepage
+| * | | 90f04f1 Connection for Reminder
+| * | |   5bf87d2 Merge branch 'issue-33-reminder-backend' of https://github.com/anantchhabda/Diabetes-Management-Application into issue-42-connect-reminder
+| |\ \ \  
+| | * | | cebfb51 (origin/issue-33-reminder-backend) Reminder API
+| * | | | 1c936f0 resolve conflicts
+|/| | | | 
+| * | | | 5328ea6 change requirements, add delete button
+| * | | | e981a44 add reminders popup
+| * | | | 1e41aa7 start template code for reminders page
+| |/ / /  
+* | | |   ead7224 Merge pull request #41 from anantchhabda/issue-40-connection-doc-fam-onboarding
+|\ \ \ \  
+| * \ \ \   8d7c824 (origin/issue-40-connection-doc-fam-onboarding) Registeration + Onboarding + Redirecting to homepage done for all roles
+| |\ \ \ \  
+| |/ / / /  
+|/| | | |   
+* | | | |   9fef9fb Merge pull request #32 from anantchhabda/doctor-and-family-homepage
+|\ \ \ \ \  
+| |_|_|_|/  
+|/| | | |   
+| * | | |   cb17d76 (origin/doctor-and-family-homepage) Merge branch 'main' into doctor-and-family-homepage
+| |\ \ \ \  
+| |/ / / /  
+|/| | | |   
+| * | | | ca2c0d9 doctor and family homepage created
+| | |/ /  
+| |/| |   
+| | * | da961fe Onboarding Doctor
+| |/ /  
+|/| |   
+* | |   0b336c1 Merge pull request #37 from anantchhabda/14-language-switch-to-nepalese
+|\ \ \  
+| |/ /  
+|/| |   
+| * |   ed9b4bb (origin/14-language-switch-to-nepalese) Merge branch 'main' into 14-language-switch-to-nepalese
+| |\ \  
+| |/ /  
+|/| |   
+* | |   ec6ad8b Merge pull request #29 from anantchhabda/issue-28-login-linking
+|\ \ \  
+| * | | e06d41c (origin/issue-28-login-linking) Login connect front & back (issue28)
+|/ / /  
+* | |   732f253 Merge pull request #27 from anantchhabda/25-homepage-wont-appear
+|\ \ \  
+| * | | 375d167 (origin/25-homepage-wont-appear) fix css to use themes
+| * | | d3de4e6 remove sex from javascript
+| * | | 0de3bac remove sex from frontend
+| * | | 8f3982c fix routing to family onboarding page
+| * | | b453eaa route pages to appropriate role
+| * | | ac11e85 fix homepage bug
+|/ / /  
+* | | d59f738 family onboarding design (#20)
+* | | ca19ced doctor onboarding design (#19)
+| * | 0c606db (14-language-switch-to-nepalese) Header added language buttons consistent accross pages, logo centered, language switch working
+| * | 9d32708 Language switch added to nepalese, password validation added, hydration issues fixed
+|/ /  
+* |   78fd758 Merge pull request #21 from anantchhabda/main-test
+|\ \  
+| * \   f09e99c Merge branch 'main' into main-test
+| |\ \  
+| |/ /  
+|/| |   
+* | |   ce7b98b Merge pull request #15 from anantchhabda/13-header
+|\ \ \  
+| |_|/  
+|/| |   
+| * | c7412ec (origin/13-header) update logos, make text bigger
+| * | a93c4c1 change css to use ones listed in global css
+| * | abe63e9 add css file, add homepage
+| * | c32d429 rename file, add logos
+|/ /  
+| *   61c4f66 Merge branch 'main-test' of https://github.com/anantchhabda/Diabetes-Management-Application into main-test
+| |\  
+| | * c43d4d3 Update route.js
+| | * f03f025 Update route.js
+| | * ac16fd8 Update route.js
+| * | a7d1c75 Update package to include jwtoken for testing
+| |/  
+| * 37832e7 Save remaining changes
+| *   6cc807e Merge remote main into main-test
+| |\  
+| |/  
+|/|   
+* | b7e8a4d Issue 3 (Welcome homepage to user homepage functional) (#12)
+| * dacfaab Save local changes before pulling
+| * a041e5f Update route.js
+| * dfd4f70 Update route.js
+| * 59415a1 Update route.js
+| * ccf7a95 Add preprofileId to register api
+| * 0beb287 Update route.js
+| * 1b5e472 Update route.js
+| * 134a8e0 Update LinkRequest.js
+| * 515a7be Update route.js
+| * bfd0730 Update route.js
+| * c29083d Create route.js
+| * c4ab9c2 Create route.js
+| * c2fb664 Update route.js
+| * fd24451 Update route.js
+| * 202a26f Update route.js
+| * 8990c20 Update route.js
+| * 15eba7a Create route.js
+| * 4856bb5 Create route.js
+| * bdf423d Create route.js
+| * 38a34a0 Update route.js
+| * 0b6bedd Update route.js
+| * 30bc512 Update route.js
+| * 9a3bc5c Update route.js
+| * d549cda Update route.js
+| * 219ec76 Update route.js
+| * c83cd49 Update route.js
+| * bdf5f1c Update route.js
+| * d5c87fe Update route.js
+| * 81f82e5 Update route.js
+| * 07cdafa Update route.js
+| * 6a2bfcd Update Patient.js
+| * c4e8ee3 Update LinkRequest.js
+| * 59168c2 Update InsulinLog.js
+| * 34ec7ea Update GlucoseLog.js
+| * d93fab3 Update GeneralLog.js
+| * f4533d5 Update FamilyMember.js
+| * ff9453c Update Doctor.js
+| * 0e34d9b Add files via upload
+|/  
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/main =====
+*   c79bed9 (origin/main, origin/HEAD) Merge pull request #56 from anantchhabda/log-data
+|\  
+| * 2c0f373 (origin/log-data) small log fix
+| * 9b57bbd small linking fix
+|/  
+*   29c9868 (HEAD -> main, origin/55-language-translation-continued, origin/48-offline-functionality, 55-language-translation-continued) Merge pull request #52 from anantchhabda/51-back-button-globally
+|\  
+| * 8d4cf29 (origin/51-back-button-globally, 51-back-button-globally) Added back button globally
+|/  
+* 5c52ac1 added more translations for english file
+* 75f01dc lockfile update
+*   acbad39 Merge branch 'main' of github.com:anantchhabda/Diabetes-Management-Application the commit.
+|\  
+| *   8e58a2c Merge pull request #22 from anantchhabda/log-data
+| |\  
+| | *   c374e7e changes
+| | |\  
+| | |/  
+| |/|   
+| | *   a5ba66a updated the branches based on the changes
+| | |\  
+| | * | 2aa8d08 made minor changes to the log pages
+| | * |   cef5ea6 Merge branch 'main' of https://github.com/anantchhabda/Diabetes-Management-Application into log-data
+| | |\ \  
+| | * \ \   b4b176a updated the log pages
+| | |\ \ \  
+| | * | | | 32a5f47 removed all unecessary old comments and codes
+| | * | | | c2f2fbd change from react to react-free
+| | * | | | 6ac73c4 interactable glucose, insulin, comments button
+| | * | | | 98c4215 all current logging of data
+* | | | | | 3e4e4f5 Fixed cross system issues, header fixed, tailwindcss fixed for v3, .env.local updated
+|/ / / / /  
+* | | | | 4554e25 removed duplicated postcss file
+* | | | | 41981a9 removed tailwind v4
+* | | | | d406237 Rename postcss config to .cjs for ESM
+* | | | | 198dafb force postcss fallback for vercel
+* | | | | 9b667fc disable lightningCSS globally for vercel build
+* | | | | da071b4 Vercel Error fixed
+| |_|_|/  
+|/| | |   
+* | | |   73fdeba Merge pull request #49 from anantchhabda/47-making-it-into-a-pwa
+|\ \ \ \  
+| * | | | af386d4 (origin/47-making-it-into-a-pwa, 47-making-it-into-a-pwa) PWA functionality added, favicon added, service worked added
+|/ / / /  
+* | | | 8e406f5 comments added
+* | | |   8b179a8 (45-fixing-errors-in-main) Merge pull request #46 from anantchhabda/45-fixing-errors-in-main
+|\ \ \ \  
+| * | | | 1933087 (origin/45-fixing-errors-in-main) Fixed errors + headers doubling
+|/ / / /  
+* | | |   c3fe195 Merge pull request #44 from anantchhabda/issue-42-connect-reminder
+|\ \ \ \  
+| * \ \ \   837d19c (origin/issue-42-connect-reminder) Merge branch 'main' into issue-42-connect-reminder
+| |\ \ \ \  
+| |/ / / /  
+|/| | | |   
+* | | | | 390a7f8 23 create reminders page (#39)
+| |_|_|/  
+|/| | |   
+| * | | bb23750 rename the folder homepage to patient-homepage
+| * | | 90f04f1 Connection for Reminder
+| * | |   5bf87d2 Merge branch 'issue-33-reminder-backend' of https://github.com/anantchhabda/Diabetes-Management-Application into issue-42-connect-reminder
+| |\ \ \  
+| | * | | cebfb51 (origin/issue-33-reminder-backend) Reminder API
+| * | | | 1c936f0 resolve conflicts
+|/| | | | 
+| * | | | 5328ea6 change requirements, add delete button
+| * | | | e981a44 add reminders popup
+| * | | | 1e41aa7 start template code for reminders page
+| |/ / /  
+* | | |   ead7224 Merge pull request #41 from anantchhabda/issue-40-connection-doc-fam-onboarding
+|\ \ \ \  
+| * \ \ \   8d7c824 (origin/issue-40-connection-doc-fam-onboarding) Registeration + Onboarding + Redirecting to homepage done for all roles
+| |\ \ \ \  
+| |/ / / /  
+|/| | | |   
+* | | | |   9fef9fb Merge pull request #32 from anantchhabda/doctor-and-family-homepage
+|\ \ \ \ \  
+| |_|_|_|/  
+|/| | | |   
+| * | | |   cb17d76 (origin/doctor-and-family-homepage) Merge branch 'main' into doctor-and-family-homepage
+| |\ \ \ \  
+| |/ / / /  
+|/| | | |   
+| * | | | ca2c0d9 doctor and family homepage created
+| | |/ /  
+| |/| |   
+| | * | da961fe Onboarding Doctor
+| |/ /  
+|/| |   
+* | |   0b336c1 Merge pull request #37 from anantchhabda/14-language-switch-to-nepalese
+|\ \ \  
+| |/ /  
+|/| |   
+| * |   ed9b4bb (origin/14-language-switch-to-nepalese) Merge branch 'main' into 14-language-switch-to-nepalese
+| |\ \  
+| |/ /  
+|/| |   
+* | |   ec6ad8b Merge pull request #29 from anantchhabda/issue-28-login-linking
+|\ \ \  
+| * | | e06d41c (origin/issue-28-login-linking) Login connect front & back (issue28)
+|/ / /  
+* | |   732f253 Merge pull request #27 from anantchhabda/25-homepage-wont-appear
+|\ \ \  
+| * | | 375d167 (origin/25-homepage-wont-appear) fix css to use themes
+| * | | d3de4e6 remove sex from javascript
+| * | | 0de3bac remove sex from frontend
+| * | | 8f3982c fix routing to family onboarding page
+| * | | b453eaa route pages to appropriate role
+| * | | ac11e85 fix homepage bug
+|/ / /  
+* | | d59f738 family onboarding design (#20)
+* | | ca19ced doctor onboarding design (#19)
+| * | 0c606db (14-language-switch-to-nepalese) Header added language buttons consistent accross pages, logo centered, language switch working
+| * | 9d32708 Language switch added to nepalese, password validation added, hydration issues fixed
+|/ /  
+* |   78fd758 Merge pull request #21 from anantchhabda/main-test
+|\ \  
+| * \   f09e99c Merge branch 'main' into main-test
+| |\ \  
+| |/ /  
+|/| |   
+* | |   ce7b98b Merge pull request #15 from anantchhabda/13-header
+|\ \ \  
+| |_|/  
+|/| |   
+| * | c7412ec (origin/13-header) update logos, make text bigger
+| * | a93c4c1 change css to use ones listed in global css
+| * | abe63e9 add css file, add homepage
+| * | c32d429 rename file, add logos
+|/ /  
+| *   61c4f66 Merge branch 'main-test' of https://github.com/anantchhabda/Diabetes-Management-Application into main-test
+| |\  
+| | * c43d4d3 Update route.js
+| | * f03f025 Update route.js
+| | * ac16fd8 Update route.js
+| * | a7d1c75 Update package to include jwtoken for testing
+| |/  
+| * 37832e7 Save remaining changes
+| *   6cc807e Merge remote main into main-test
+| |\  
+| |/  
+|/|   
+* | b7e8a4d Issue 3 (Welcome homepage to user homepage functional) (#12)
+| * dacfaab Save local changes before pulling
+| * a041e5f Update route.js
+| * dfd4f70 Update route.js
+| * 59415a1 Update route.js
+| * ccf7a95 Add preprofileId to register api
+| * 0beb287 Update route.js
+| * 1b5e472 Update route.js
+| * 134a8e0 Update LinkRequest.js
+| * 515a7be Update route.js
+| * bfd0730 Update route.js
+| * c29083d Create route.js
+| * c4ab9c2 Create route.js
+| * c2fb664 Update route.js
+| * fd24451 Update route.js
+| * 202a26f Update route.js
+| * 8990c20 Update route.js
+| * 15eba7a Create route.js
+| * 4856bb5 Create route.js
+| * bdf423d Create route.js
+| * 38a34a0 Update route.js
+| * 0b6bedd Update route.js
+| * 30bc512 Update route.js
+| * 9a3bc5c Update route.js
+| * d549cda Update route.js
+| * 219ec76 Update route.js
+| * c83cd49 Update route.js
+| * bdf5f1c Update route.js
+| * d5c87fe Update route.js
+| * 81f82e5 Update route.js
+| * 07cdafa Update route.js
+| * 6a2bfcd Update Patient.js
+| * c4e8ee3 Update LinkRequest.js
+| * 59168c2 Update InsulinLog.js
+| * 34ec7ea Update GlucoseLog.js
+| * d93fab3 Update GeneralLog.js
+| * f4533d5 Update FamilyMember.js
+| * ff9453c Update Doctor.js
+| * 0e34d9b Add files via upload
+|/  
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/main-test =====
+* ef6ebef (origin/main-test) Update route.js
+* 3884495 Update route.js
+* e4bb1f9 Update route.js
+*   f09e99c Merge branch 'main' into main-test
+|\  
+| *   ce7b98b Merge pull request #15 from anantchhabda/13-header
+| |\  
+| | * c7412ec (origin/13-header) update logos, make text bigger
+| | * a93c4c1 change css to use ones listed in global css
+| | * abe63e9 add css file, add homepage
+| | * c32d429 rename file, add logos
+| |/  
+* |   61c4f66 Merge branch 'main-test' of https://github.com/anantchhabda/Diabetes-Management-Application into main-test
+|\ \  
+| * | c43d4d3 Update route.js
+| * | f03f025 Update route.js
+| * | ac16fd8 Update route.js
+* | | a7d1c75 Update package to include jwtoken for testing
+|/ /  
+* | 37832e7 Save remaining changes
+* | 6cc807e Merge remote main into main-test
+|\| 
+| * b7e8a4d Issue 3 (Welcome homepage to user homepage functional) (#12)
+* | dacfaab Save local changes before pulling
+* | a041e5f Update route.js
+* | dfd4f70 Update route.js
+* | 59415a1 Update route.js
+* | ccf7a95 Add preprofileId to register api
+* | 0beb287 Update route.js
+* | 1b5e472 Update route.js
+* | 134a8e0 Update LinkRequest.js
+* | 515a7be Update route.js
+* | bfd0730 Update route.js
+* | c29083d Create route.js
+* | c4ab9c2 Create route.js
+* | c2fb664 Update route.js
+* | fd24451 Update route.js
+* | 202a26f Update route.js
+* | 8990c20 Update route.js
+* | 15eba7a Create route.js
+* | 4856bb5 Create route.js
+* | bdf423d Create route.js
+* | 38a34a0 Update route.js
+* | 0b6bedd Update route.js
+* | 30bc512 Update route.js
+* | 9a3bc5c Update route.js
+* | d549cda Update route.js
+* | 219ec76 Update route.js
+* | c83cd49 Update route.js
+* | bdf5f1c Update route.js
+* | d5c87fe Update route.js
+* | 81f82e5 Update route.js
+* | 07cdafa Update route.js
+* | 6a2bfcd Update Patient.js
+* | c4e8ee3 Update LinkRequest.js
+* | 59168c2 Update InsulinLog.js
+* | 34ec7ea Update GlucoseLog.js
+* | d93fab3 Update GeneralLog.js
+* | f4533d5 Update FamilyMember.js
+* | ff9453c Update Doctor.js
+* | 0e34d9b Add files via upload
+|/  
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/new-backend =====
+* 1062761 (origin/new-backend) Add files via upload
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/patient-on-boarding =====
+* 1233fdc (origin/patient-on-boarding) non-react
+* 8938ec6 add logo, add page
+* cc22443 Tailwind CSS added
+* 82f2977 Added Responsiveness
+* b20f881 Homepage Draft
+* f4f4e01 Initial commit
+* 9b2afaa Initial commit from Create Next App
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
+===== origin/registration =====
+* c95a50e (origin/registration) pulled features from main branch to my own and implemented the registration pop-up page
+*   0e8b8f9 Merge branch 'main' of https://github.com/anantchhabda/Diabetes-Management-Application into registration
+|\  
+| * 82f2977 Added Responsiveness
+| * b20f881 Homepage Draft
+| * f4f4e01 Initial commit
+| * 9b2afaa Initial commit from Create Next App
+* | 0e9f020 updated version of the home page and the registration popup screen
+* | 533519d updated registration and login page, mainly used to test the registration pop-up
+* | 1997de4 current app test design phase
+|/  
+* 7e2ff5a Create app.js
+* 9392a4c Update README.md
+* 0867b96 Initial commit
+
