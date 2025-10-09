@@ -4,17 +4,78 @@
   if (window.__LOG_DATA_ACTIVE__) return;
   window.__LOG_DATA_ACTIVE__ = true;
 
-  // loading strategy so no hydration issues come up
+  // i18n helpers
+  function getDict() {
+    return (window.__i18n && window.__i18n.dict) || {};
+  }
+  function t(key, fallback) {
+    const dict = getDict();
+    return (dict && dict[key]) != null ? String(dict[key]) : fallback;
+  }
+  function rowKeyFromLabel(label) {
+    return `row_${String(label).toLowerCase().replace(/\s+/g, "_")}`;
+  }
+  function observeLangChanges(onChange) {
+    try {
+      const mo = new MutationObserver((muts) => {
+        for (const m of muts) {
+          if (m.type === "attributes" && m.attributeName === "lang") onChange();
+        }
+      });
+      mo.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["lang"],
+      });
+    } catch (_) {}
+  }
+  function currentLang() {
+    return document.documentElement.getAttribute("lang") || "en";
+  }
+
+  // nepalese digits for overlay
+  const DIGIT_NE = {
+    0: "०",
+    1: "१",
+    2: "२",
+    3: "३",
+    4: "४",
+    5: "५",
+    6: "६",
+    7: "७",
+    8: "८",
+    9: "९",
+  };
+  function toNepaliDigits(str) {
+    return String(str).replace(/[0-9]/g, (d) => DIGIT_NE[d]);
+  }
+
+  // overlay renders
+  function updateDateOverlay(dateInput, overlayEl) {
+    if (!dateInput || !overlayEl) return;
+    dateInput.setAttribute("lang", currentLang()); //hint to browser for date picker
+
+    if (currentLang() === "ne") {
+      dateInput.style.color = "transparent";
+      dateInput.style.caretColor = "transparent";
+      overlayEl.textContent = toNepaliDigits(dateInput.value || "");
+      overlayEl.style.visibility = overlayEl.textContent ? "visible" : "hidden";
+    } else {
+      dateInput.style.color = "";
+      dateInput.style.caretColor = "";
+      overlayEl.style.visibility = "hidden";
+      overlayEl.textContent = "";
+    }
+  }
+
+  // loading strategy
   window.addEventListener(
     "load",
     () => {
       const kickoff = () =>
         setTimeout(() => {
-          if ("requestIdleCallback" in window) {
+          if ("requestIdleCallback" in window)
             requestIdleCallback(init, { timeout: 600 });
-          } else {
-            setTimeout(init, 120);
-          }
+          else setTimeout(init, 120);
         }, 0);
       requestAnimationFrame(() => requestAnimationFrame(kickoff));
     },
@@ -31,7 +92,7 @@
         ? CSS.escape
         : (s) => s.replace(/[^a-zA-Z0-9_-]/g, "\\$&");
 
-    // nodes for fields
+    // nodes
     const tabGlucose = $("tabGlucose");
     const tabInsulin = $("tabInsulin");
     const tabComments = $("tabComments");
@@ -40,11 +101,12 @@
     const commentsWrap = $("commentsWrap");
     const commentsInput = $("commentsInput");
     const dateInput = $("dataDate");
+    const dateOverlay = $("dateOverlay");
     const dateWarning = $("dateWarning");
     const saveBtn = $("saveBtn");
     const saveNotice = $("saveNotice");
 
-    // modal nodes
+    // modal
     const editorModal = $("editorModal");
     const editorTitle = $("editorTitle");
     const editorInput = $("editorInput");
@@ -85,11 +147,9 @@
     const state = { glucose: {}, insulin: {}, comments: "" };
     let cellRefs = new Map();
     let currentRowKey = null;
-
-    // draft exists when no date selected and user types values
     let pendingDraft = null;
 
-    // helper function for tab buttons
+    // helpers
     function setButtonActive(btn, isActive) {
       btn.setAttribute("aria-pressed", String(isActive));
       if (isActive) {
@@ -100,17 +160,12 @@
         btn.classList.add("bg-[#049EDB]");
       }
     }
-
     function formatDisplayValue(v) {
-      if (!v) return "";
-      return `${v} mg/dL`;
+      return v ? `${v} ${t("unit_mgdl", "mg/dL")}` : "";
     }
-
     function storageKey() {
-      const d = dateInput?.value || "__no_date__";
-      return `logdata:v1:${d}`;
+      return `logdata:v1:${dateInput?.value || "__no_date__"}`;
     }
-
     function saveToStorage() {
       const payload = {
         date: dateInput?.value || null,
@@ -122,13 +177,10 @@
         localStorage.setItem(storageKey(), JSON.stringify(payload));
       } catch {}
     }
-
     function loadFromStorage() {
-      // resets to empty if date has no data
       state.glucose = {};
       state.insulin = {};
       state.comments = "";
-
       try {
         const raw = localStorage.getItem(storageKey());
         if (!raw) return;
@@ -138,63 +190,40 @@
         state.comments = parsed.comments || "";
       } catch {}
     }
-
-    // merges saved values, saved value has priority over what user might have entered (but not saved)
     function mergeStateWithDraft(draft) {
-      const out = {
-        glucose: {},
-        insulin: {},
-        comments: state.comments,
-      };
-
-      // glucose
+      const out = { glucose: {}, insulin: {}, comments: state.comments };
       const allG = new Set([
         ...Object.keys(draft.glucose || {}),
         ...Object.keys(state.glucose || {}),
       ]);
       allG.forEach((k) => {
         const saved = state.glucose?.[k];
-        const draftVal = draft.glucose?.[k];
-        out.glucose[k] =
-          saved !== undefined && saved !== "" ? saved : draftVal ?? "";
+        const dv = draft.glucose?.[k];
+        out.glucose[k] = saved !== undefined && saved !== "" ? saved : dv ?? "";
       });
-
-      // insulin
       const allI = new Set([
         ...Object.keys(draft.insulin || {}),
         ...Object.keys(state.insulin || {}),
       ]);
       allI.forEach((k) => {
         const saved = state.insulin?.[k];
-        const draftVal = draft.insulin?.[k];
-        out.insulin[k] =
-          saved !== undefined && saved !== "" ? saved : draftVal ?? "";
+        const dv = draft.insulin?.[k];
+        out.insulin[k] = saved !== undefined && saved !== "" ? saved : dv ?? "";
       });
-
-      // saved comments has priority same as glucose/insulin
-      if (!state.comments && draft.comments) {
-        out.comments = draft.comments;
-      }
-
+      if (!state.comments && draft.comments) out.comments = draft.comments;
       state.glucose = out.glucose;
       state.insulin = out.insulin;
       state.comments = out.comments;
     }
-
     function ensurePendingDraft() {
-      if (!pendingDraft) {
-        pendingDraft = { glucose: {}, insulin: {}, comments: "" };
-      }
-      return pendingDraft;
+      return (pendingDraft ||= { glucose: {}, insulin: {}, comments: "" });
     }
-
     function adjustDateWidth() {
       if (!dateInput) return;
-      const len = dateInput.value ? dateInput.value.length : 10; // width shows the whole date
+      const len = dateInput.value ? dateInput.value.length : 10;
       const ch = Math.max(16, len) + "ch";
       if (dateInput.style.width !== ch) dateInput.style.width = ch;
     }
-
     function setTodayIfEmpty() {
       if (!dateInput || dateInput.value) return;
       const d = new Date();
@@ -205,42 +234,56 @@
       adjustDateWidth();
     }
 
-    // initial load strategy
-    setTodayIfEmpty(); // defaults to todays date when empty
-    loadFromStorage(); // load from storage for todays date
+    // init date, storage, and overlay
+    setTodayIfEmpty();
+    loadFromStorage();
+    adjustDateWidth();
+    updateDateOverlay(dateInput, dateOverlay);
 
-    // apply any saved values
-    bindRowEditorsIn(dataTable, /*applyValues=*/ true);
+    // render initial rows
+    bindRowEditorsIn(dataTable, true);
 
     function bindRowEditorsIn(tbodyRoot, applyValues = false) {
       cellRefs.clear();
-      qsa("tr[data-row]", tbodyRoot).forEach((tr) => {
-        const rowKey = tr.getAttribute("data-row");
-        const span = qs(`[data-cell-for="${cssEscape(rowKey)}"]`, tr);
-        const btn = qs(`[data-edit-for="${cssEscape(rowKey)}"]`, tr);
+      Array.from(tbodyRoot.querySelectorAll("tr[data-row]")).forEach((tr) => {
+        const label = tr.getAttribute("data-row");
+        const keyForDict = rowKeyFromLabel(label);
+
+        const rowHeaderCell = tr.querySelector("td:first-child");
+        if (rowHeaderCell) {
+          rowHeaderCell.setAttribute("data-i18n", keyForDict);
+          rowHeaderCell.textContent = t(keyForDict, label);
+        }
+
+        const span = qs(`[data-cell-for="${cssEscape(label)}"]`, tr);
+        const btn = qs(`[data-edit-for="${cssEscape(label)}"]`, tr);
         if (span) {
           span.classList.add("text-gray-900");
-          if (applyValues) {
-            const val = state.glucose[rowKey]; // glucose active tab on load
-            span.textContent = formatDisplayValue(val);
-          }
-          cellRefs.set(rowKey, span);
+          if (applyValues)
+            span.textContent = formatDisplayValue(state.glucose[label]);
+          cellRefs.set(label, span);
         }
-        if (btn) btn.addEventListener("click", () => openEditor(rowKey));
+        if (btn) {
+          btn.setAttribute("data-i18n", "edit");
+          btn.textContent = t("edit", "Edit");
+          btn.addEventListener("click", () => openEditor(label));
+        }
       });
     }
 
     function renderRows(rows) {
       dataTable.textContent = "";
-      rows.forEach((rowKey) => {
+      rows.forEach((label) => {
         const tr = document.createElement("tr");
         tr.className = "border";
-        tr.setAttribute("data-row", rowKey);
+        tr.setAttribute("data-row", label);
 
         const tdRow = document.createElement("td");
         tdRow.className =
           "bg-sky-950 text-white font-bold w-[35%] px-2 sm:px-3 py-2 text-sm sm:text-base";
-        tdRow.textContent = rowKey;
+        const keyForDict = rowKeyFromLabel(label);
+        tdRow.setAttribute("data-i18n", keyForDict);
+        tdRow.textContent = t(keyForDict, label);
 
         const tdValue = document.createElement("td");
         tdValue.className =
@@ -248,24 +291,21 @@
 
         const span = document.createElement("span");
         span.className = "text-gray-900";
-        span.setAttribute("data-cell-for", rowKey);
+        span.setAttribute("data-cell-for", label);
         span.textContent = formatDisplayValue(
-          currentTab === "glucose"
-            ? state.glucose[rowKey]
-            : state.insulin[rowKey]
+          currentTab === "glucose" ? state.glucose[label] : state.insulin[label]
         );
 
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className =
           "bg-green-600 text-white px-2 sm:px-3 py-1 rounded ml-2 text-xs sm:text-sm";
-        btn.textContent = "Edit";
-        btn.setAttribute("data-edit-for", rowKey);
-        btn.addEventListener("click", () => openEditor(rowKey));
+        btn.textContent = t("edit", "Edit");
+        btn.setAttribute("data-edit-for", label);
+        btn.addEventListener("click", () => openEditor(label));
 
         tdValue.appendChild(span);
         tdValue.appendChild(btn);
-
         tr.appendChild(tdRow);
         tr.appendChild(tdValue);
         dataTable.appendChild(tr);
@@ -276,7 +316,6 @@
     function setActiveTab(next) {
       if (currentTab === next) return;
       currentTab = next;
-
       setButtonActive(tabGlucose, next === "glucose");
       setButtonActive(tabInsulin, next === "insulin");
       setButtonActive(tabComments, next === "comments");
@@ -288,22 +327,18 @@
         commentsInput.focus();
         return;
       }
-
       commentsWrap.classList.add("hidden");
       tableWrap.classList.remove("hidden");
       renderRows(next === "glucose" ? GLUCOSE_ROWS : INSULIN_ROWS);
     }
 
-    // Modal
-    function openEditor(rowKey) {
-      currentRowKey = rowKey;
+    // modal
+    function openEditor(label) {
+      currentRowKey = label;
       editorWarning.classList.add("hidden");
-      editorTitle.textContent = rowKey;
-
+      editorTitle.textContent = t(rowKeyFromLabel(label), label);
       const existing =
-        currentTab === "glucose"
-          ? state.glucose[rowKey]
-          : state.insulin[rowKey];
+        currentTab === "glucose" ? state.glucose[label] : state.insulin[label];
       editorInput.value = existing || "";
       editorModal.classList.remove("hidden");
       editorInput.focus();
@@ -315,28 +350,26 @@
     }
     function okEditor() {
       if (!currentRowKey) return;
-
       const raw = (editorInput.value || "").trim();
       const ok =
         currentTab === "insulin"
-          ? /^\d*$/.test(raw) // insulin: allow empty or digits only
-          : raw === "" || /^\d+(\.\d+)?$/.test(raw); // glucose: allow empty or number/decimal
-
+          ? /^\d*$/.test(raw)
+          : raw === "" || /^\d+(\.\d+)?$/.test(raw);
       if (!ok) {
         editorWarning.textContent =
           currentTab === "insulin"
-            ? "⚠️ Please enter numbers only"
-            : "Please enter a valid numeric value (decimals allowed).";
+            ? t("warn_numbers_only", "⚠️ Please enter numbers only")
+            : t(
+                "warn_valid_numeric",
+                "Please enter a valid numeric value (decimals allowed)."
+              );
         editorWarning.classList.remove("hidden");
         return;
       }
       editorWarning.classList.add("hidden");
-
-      // users draft
       if (currentTab === "glucose") state.glucose[currentRowKey] = raw;
       else state.insulin[currentRowKey] = raw;
 
-      // captures if no date selected, merges with whatever date when the user finally selects
       if (!dateInput.value) {
         const d = ensurePendingDraft();
         if (currentTab === "glucose") d.glucose[currentRowKey] = raw;
@@ -345,7 +378,6 @@
 
       const span = cellRefs.get(currentRowKey);
       if (span) span.textContent = formatDisplayValue(raw);
-
       closeEditor();
     }
     editorCancel.addEventListener("click", closeEditor);
@@ -364,70 +396,67 @@
       }
     });
 
-    // our tabs
+    // tabs
     tabGlucose.addEventListener("click", () => setActiveTab("glucose"));
     tabInsulin.addEventListener("click", () => setActiveTab("insulin"));
     tabComments.addEventListener("click", () => setActiveTab("comments"));
 
-    // same logic as for glucose/insulin, keep the draft and merge
+    // comments
     commentsInput?.addEventListener("input", (e) => {
       state.comments = e.target.value;
-      if (!dateInput.value) {
-        const d = ensurePendingDraft();
-        d.comments = state.comments || "";
-      }
+      if (!dateInput.value)
+        ensurePendingDraft().comments = state.comments || "";
     });
 
-    // save button
+    // save
     saveBtn?.addEventListener("click", () => {
       const hasDate = !!(dateInput && dateInput.value);
       if (!hasDate) {
-        // merge after date chosen
         pendingDraft = {
           glucose: { ...state.glucose },
           insulin: { ...state.insulin },
           comments: state.comments || "",
         };
-
         dateInput?.classList.add("ring-2", "ring-red-500", "border-red-500");
+        if (dateWarning) {
+          dateWarning.textContent = t(
+            "date_warning_select_date",
+            "Please select a date before saving."
+          );
+        }
         dateWarning?.classList.remove("hidden");
         dateInput?.focus();
         return;
       }
-
       dateInput?.classList.remove("ring-2", "ring-red-500", "border-red-500");
       dateWarning?.classList.add("hidden");
-
       saveToStorage();
-
       if (saveNotice) {
-        saveNotice.textContent = "Saved successfully";
+        saveNotice.textContent = t("saved_successfully", "Saved successfully");
         saveNotice.classList.remove("hidden");
         setTimeout(() => saveNotice.classList.add("hidden"), 1500);
       }
     });
 
-    // date width
-    adjustDateWidth();
+    // date width + overlay
     dateInput?.addEventListener("input", () => {
       adjustDateWidth();
+      updateDateOverlay(dateInput, dateOverlay);
       if (dateInput.value) {
         dateInput.classList.remove("ring-2", "ring-red-500", "border-red-500");
         dateWarning?.classList.add("hidden");
       }
     });
 
-    // change date -> load saved state; if a pending draft exists, merge (saved has priority over user draft)
     dateInput?.addEventListener("change", () => {
       adjustDateWidth();
+      updateDateOverlay(dateInput, dateOverlay);
 
-      loadFromStorage(); // bring in saved data for chosen date (or empty)
-
+      loadFromStorage();
       if (pendingDraft) {
         mergeStateWithDraft(pendingDraft);
         pendingDraft = null;
       }
-
       if (currentTab === "comments") {
         commentsInput.value = state.comments || "";
       } else {
@@ -435,9 +464,32 @@
       }
     });
 
-    // initial tab styles
+    // initial tab styling
     setButtonActive(tabGlucose, true);
     setButtonActive(tabInsulin, false);
     setButtonActive(tabComments, false);
+
+    // on language change, refresh
+    observeLangChanges(() => {
+      tabGlucose.textContent = t("tab_glucose", "Glucose");
+      tabInsulin.textContent = t("tab_insulin", "Insulin");
+      tabComments.textContent = t("tab_comments", "Comments");
+
+      if (currentTab !== "comments") {
+        renderRows(currentTab === "glucose" ? GLUCOSE_ROWS : INSULIN_ROWS);
+      }
+      if (saveNotice && !saveNotice.classList.contains("hidden")) {
+        saveNotice.textContent = t("saved_successfully", "Saved successfully");
+      }
+      if (dateWarning && !dateWarning.classList.contains("hidden")) {
+        dateWarning.textContent = t(
+          "date_warning_select_date",
+          "Please select a date before saving."
+        );
+      }
+
+      updateDateOverlay(dateInput, dateOverlay);
+      adjustDateWidth();
+    });
   }
 })();

@@ -20,7 +20,6 @@
         return "Guest";
       }
       const data = await res.json();
-      // Adjust if your API returns a different shape
       return data && data.profile && data.profile.name
         ? data.profile.name
         : "Guest";

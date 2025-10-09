@@ -46,6 +46,8 @@ export default function Header() {
               href="/settings"
               className={styles.settingsButton}
               aria-label="Settings"
+              title="Settings"
+              data-i18n-title="settings"
             >
               <div className="rounded-full bg-gray-200/90 p-2">
                 <svg
@@ -54,6 +56,8 @@ export default function Header() {
                   viewBox="0 -960 960 960"
                   width="22"
                   fill="#666"
+                  role="img"
+                  aria-hidden="true"
                 >
                   <path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Z" />
                 </svg>
@@ -69,8 +73,11 @@ export default function Header() {
         suppressHydrationWarning
         style={{ display: "none" }}
         className="fixed bottom-5 left-5 z-50 bg-[var(--color-secondary)] text-[var(--color-textWhite)] px-4 py-2 rounded-full shadow-lg font-semibold hover:bg-[var(--color-tertiary)] transition"
+        title="Back"
+        data-i18n-title="back"
+        aria-label="Back"
       >
-        ← Back
+        ← <span data-i18n="back">Back</span>
       </button>
 
       <script
