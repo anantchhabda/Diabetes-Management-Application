@@ -18,7 +18,6 @@ export async function POST(req) {
       );
     }
 
-    //
     const patient = await Patient.findOne({ user: user.sub });
     if (!patient) {
       return NextResponse.json(
@@ -29,21 +28,40 @@ export async function POST(req) {
 
     const patientID = patient.profileId;
 
-    const existing = await PushSubscription.findOne({
-      endpoint: body.endpoint,
-    });
-    if (existing) {
-      existing.keys = body.keys;
-      existing.enabled = true;
-      existing.patientID = patientID;
-      await existing.save();
+    // one active subscription per user
+    const { endpoint, keys, deviceLabel, userAgent } = body;
+
+    // match any existing user by endpoint
+    let sub = await PushSubscription.findOne({ endpoint });
+
+    // if not match by patientId and useragent
+    if (!sub) {
+      sub = await PushSubscription.findOne({ patientID, userAgent });
+    }
+
+    if (sub) {
+      // update and re-enable
+      sub.keys = keys;
+      sub.enabled = true;
+      sub.endpoint = endpoint;
+      sub.deviceLabel = deviceLabel;
+      sub.userAgent = userAgent;
+      sub.patientID = patientID;
+      await sub.save();
     } else {
+      // create new one cleanly
       await PushSubscription.create({
-        ...body,
-        patientID,
+        endpoint,
+        keys,
         enabled: true,
+        patientID,
+        deviceLabel,
+        userAgent,
       });
     }
+
+    //
+    await PushSubscription.deleteMany({ patientID, enabled: false });
 
     return NextResponse.json({ ok: true });
   } catch (err) {
