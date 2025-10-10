@@ -1,5 +1,10 @@
-(function () {
-  // i18n helpers
+
+// merging to preserve backend functionality + language translations + reactivity
+(async function () {
+  const app = document.getElementById("remindersApp");
+  if (!app) return;
+
+  // i18n helpers preserved from main
   function getDict() {
     const d = window.__i18n && window.__i18n.dict;
     return typeof d === "function" ? d() : d || {};
@@ -11,7 +16,6 @@
   function currentLang() {
     return (document.documentElement && document.documentElement.lang) || "en";
   }
-  // wait until i18n ready
   function whenI18nReady(fn, maxTries = 20) {
     const want = currentLang();
     let tries = 0;
@@ -37,7 +41,7 @@
     } catch (_) {}
   }
 
-  // nepalese digits
+  // map nepalese digits
   const NE_DIG = {
     0: "०",
     1: "१",
@@ -55,21 +59,108 @@
     return String(str).replace(/[0-9]/g, (d) => NE_DIG[d] || d);
   }
 
-  // storage
-  function getReminders() {
+  // detect user timezone (used for reminders)
+  function getUserTimezone() {
     try {
-      return JSON.parse(localStorage.getItem("reminders") || "[]");
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      return tz && tz.length > 2 ? tz : "Australia/Perth";
     } catch {
+      return "Australia/Perth";
+    }
+  }
+
+  // BACKEND api preserved
+  function getAuthToken() {
+    const token = localStorage.getItem("authToken");
+    if (!token)
+      throw new Error(
+        t("session_expired", "Session expired, please register again")
+      );
+    return token;
+  }
+
+  async function readResponseSafe(response) {
+    const ct =
+      (response.headers &&
+        response.headers.get &&
+        response.headers.get("content-type")) ||
+      "";
+    if (ct.includes("application/json")) {
+      try {
+        return { data: await response.json(), text: null };
+      } catch (_) {}
+    }
+    try {
+      return { data: null, text: await response.text() };
+    } catch (_) {}
+    return { data: null, text: null };
+  }
+
+  async function createReminder(reminder) {
+    const token = getAuthToken();
+    const res = await fetch("/api/patient/me/reminder", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(reminder),
+    });
+    const { data, text } = await readResponseSafe(res);
+    if (!res.ok)
+      throw new Error(data?.error || text || "Failed to create reminder");
+    return data;
+  }
+
+  async function fetchReminders() {
+    try {
+      const token = getAuthToken();
+      const res = await fetch("/api/patient/me/reminder", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Cache-Control": "no-cache",
+        },
+      });
+      const { data } = await readResponseSafe(res);
+      if (!res.ok) throw new Error(data?.error || "Failed to fetch reminders");
+      return data?.reminders || [];
+    } catch (err) {
+      console.error(err);
       return [];
     }
   }
-  function setReminders(reminders) {
-    try {
-      localStorage.setItem("reminders", JSON.stringify(reminders));
-    } catch {}
+
+  async function updateReminder(reminderID, updateData) {
+    const token = getAuthToken();
+    const res = await fetch(`/api/patient/me/reminder/${reminderID}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        "Cache-Control": "no-cache",
+      },
+      body: JSON.stringify(updateData),
+    });
+    const { data, text } = await readResponseSafe(res);
+    if (!res.ok)
+      throw new Error(data?.error || text || "Failed to update reminder");
+    return data;
   }
 
-  // helps with date
+  async function deleteReminder(reminderID) {
+    const token = getAuthToken();
+    const res = await fetch(`/api/patient/me/reminder/${reminderID}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const { data, text } = await readResponseSafe(res);
+    if (!res.ok)
+      throw new Error(data?.error || text || "Failed to delete reminder");
+    return data;
+  }
+
+  // date/time helper functions
   function getTodayYMD() {
     const d = new Date();
     const yyyy = d.getFullYear();
@@ -81,7 +172,6 @@
     if (input && !input.value) input.value = getTodayYMD();
   }
 
-  // helps with date and time formatting
   function formatTimeDisplay(time24) {
     if (!time24) return "";
     const [hStr, mStr] = time24.split(":");
@@ -95,7 +185,6 @@
     return currentLang() === "ne" ? toNepaliDigits(out) : out;
   }
 
-  // swaps digits when ne is active
   function formatDateForDisplay(date) {
     if (!date) return "";
     const [y, mo, d] = date.split("-").map(Number);
@@ -117,7 +206,7 @@
     }
   }
 
-  // compute at render so updates language switch
+  // language translation helpers for date, time
   function formatReminderSchedule(rem) {
     const timeText = formatTimeDisplay(rem.time);
     if (rem.interval === "Daily") {
@@ -142,7 +231,7 @@
       .replace("{time}", timeText);
   }
 
-  // custom time pciker
+  // custom time picker
   function createTimePicker(initialTime = "") {
     const [initialHour, initialMinute] = initialTime
       ? initialTime.split(":")
@@ -212,23 +301,20 @@
         const timePicker = e.target.nextElementSibling;
         timePicker.classList.toggle("hidden");
       }
-
       if (e.target.classList.contains("hour-option")) {
         const hourSelector = e.target.parentElement;
         hourSelector
           .querySelectorAll(".hour-option")
-          .forEach((opt) => opt.classList.remove("bg-[var(--color-tertiary)]"));
+          .forEach((o) => o.classList.remove("bg-[var(--color-tertiary)]"));
         e.target.classList.add("bg-[var(--color-tertiary)]");
       }
-
       if (e.target.classList.contains("minute-option")) {
         const minuteSelector = e.target.parentElement;
         minuteSelector
           .querySelectorAll(".minute-option")
-          .forEach((opt) => opt.classList.remove("bg-[var(--color-tertiary)]"));
+          .forEach((o) => o.classList.remove("bg-[var(--color-tertiary)]"));
         e.target.classList.add("bg-[var(--color-tertiary)]");
       }
-
       if (e.target.classList.contains("time-confirm")) {
         const timePicker = e.target.closest(".time-picker-popup");
         const selectedHour =
@@ -245,14 +331,12 @@
         timeInput.dataset.time = time24;
         timePicker.classList.add("hidden");
       }
-
       if (e.target.classList.contains("time-cancel")) {
         const timePicker = e.target.closest(".time-picker-popup");
         timePicker.classList.add("hidden");
       }
     });
 
-    // closes time picker when clicked outside
     document.addEventListener("click", function (e) {
       if (!e.target.closest(".custom-time-picker")) {
         popup
@@ -262,7 +346,7 @@
     });
   }
 
-  //  date overlay for nepalese
+  // nepalese date overlay
   function updateDateOverlay(input, overlay) {
     if (!input || !overlay) return;
     input.setAttribute("lang", currentLang());
@@ -285,75 +369,70 @@
     const input = wrap.querySelector("input[name='date']");
     const overlay = wrap.querySelector(".date-overlay");
     if (!input || !overlay) return;
-
-    // shows todays date even if in nepalese
     setDateDefaultIfEmpty(input);
-
     const sync = () => updateDateOverlay(input, overlay);
-
     input.addEventListener("input", sync);
     input.addEventListener("change", sync);
-
-    // initial sync
     sync();
-
-    // refresh if language changes while popup is open
     observeLangChanges(() => {
       setDateDefaultIfEmpty(input);
       sync();
     });
   }
 
-  // rendering
-  function renderReminders() {
+  // rendering backend + lang translation
+  async function renderReminders() {
     let container = document.getElementById("remindersList");
     if (!container) {
       container = document.createElement("div");
       container.id = "remindersList";
-      container.className = "w-full max-w-2xl";
-      const h1 = document.querySelector("h1");
-      h1 && h1.insertAdjacentElement("afterend", container);
+      container.className =
+        "w-full max-w-md space-y-2 flex flex-col items-center";
+      const mainElement = document.querySelector("#remindersApp main");
+      (mainElement || app).appendChild(container);
     }
 
-    const reminders = getReminders();
+    const reminders = await fetchReminders();
     container.innerHTML = reminders
-      .map((reminder, idx) => {
-        const scheduleText = formatReminderSchedule(reminder);
+      .map((r) => {
+        const schedule = formatReminderSchedule({
+          name: r.name,
+          date: r.date || r.startDate || "",
+          time: r.time || "",
+          interval: r.interval || "",
+        });
         return `
-        <div class="flex border mb-2 rounded overflow-hidden w-full">
-          <div class="bg-[var(--color-secondary)] text-[var(--color-textWhite)] flex items-center justify-center px-4 min-w-[180px] text-base font-bold text-center">${
-            reminder.name || ""
+        <div class="flex border rounded overflow-hidden w-full h-20">
+          <div class="bg-[var(--color-secondary)] text-[var(--color-textWhite)] flex items-center justify-center px-4 w-32 text-sm font-bold text-center">${
+            r.name || ""
           }</div>
-          <div class="flex-1 flex items-center justify-between px-4 py-2" style="background: #1b7fa6;">
-            <span class="text-[var(--color-textWhite)] text-base">${scheduleText}</span>
-            <div class="flex gap-2">
-              <button class="bg-[var(--color-tertiary)] text-[var(--color-textWhite)] px-3 py-1 rounded font-semibold text-base editReminderBtn" data-idx="${idx}">${t(
-          "edit",
-          "Edit"
-        )}</button>
-              <button class="bg-[var(--color-delete)] text-[var(--color-textWhite)] px-3 py-1 rounded font-semibold text-base removeReminderBtn" data-idx="${idx}">${t(
-          "remove",
-          "Remove"
-        )}</button>
+          <div class="flex-1 flex flex-col justify-center px-3 py-2" style="background:#1b7fa6;">
+            <span class="text-[var(--color-textWhite)] text-sm mb-1">${schedule}</span>
+            <div class="flex gap-1">
+              <button class="bg-[var(--color-tertiary)] text-[var(--color-textWhite)] px-2 py-1 rounded font-semibold text-xs editReminderBtn" data-id="${
+                r._id
+              }">${t("edit", "Edit")}</button>
+              <button class="bg-[var(--color-delete)] text-[var(--color-textWhite)] px-2 py-1 rounded font-semibold text-xs removeReminderBtn" data-id="${
+                r._id
+              }">${t("remove", "Remove")}</button>
             </div>
           </div>
-        </div>
-      `;
+        </div>`;
       })
       .join("");
   }
 
+  // open pop up on lang switch
   function relocalizeOpenPopup(popup) {
     if (!popup || !popup.isConnected) return;
-    // Title
     const h2 = popup.querySelector("h2");
     if (h2) {
-      const editing = !!popup.querySelector("#reminderForm")?.dataset.idx;
+      const editing =
+        !!popup.querySelector("#reminderForm")?.dataset.reminderId;
       h2.textContent = editing
         ? t("edit_reminder", "Edit Reminder")
         : t("new_reminder", "New Reminder");
     }
-    // input and labels
     const nameInput = popup.querySelector("input[name='name']");
     if (nameInput) nameInput.placeholder = t("reminder_name_ph", "Name...");
 
@@ -366,7 +445,6 @@
       if (m) m.textContent = t("interval_monthly", "Monthly");
     }
 
-    // time picker and text for buttons
     const hourLabel = popup
       .querySelector(".hour-selector")
       ?.closest("div")
@@ -377,12 +455,12 @@
       ?.closest("div")
       ?.querySelector("label");
     if (minuteLabel) minuteLabel.textContent = t("tp_minute", "Minute");
+
     const timeInput = popup.querySelector(".time-input");
     if (timeInput) {
       timeInput.placeholder = t("tp_select_time", "Select time...");
       if (timeInput.dataset.time)
         timeInput.value = formatTimeDisplay(timeInput.dataset.time);
-      // hh/mm in nepalese
       popup
         .querySelectorAll(".hour-option")
         .forEach(
@@ -409,16 +487,16 @@
       .querySelectorAll(".time-confirm")
       .forEach((b) => (b.textContent = t("confirm", "Confirm")));
 
-    // footer buttons
     const cancelBtn = popup.querySelector("#cancelReminderBtn");
     const saveBtn = popup.querySelector("button[type='submit']");
     if (cancelBtn) cancelBtn.textContent = t("cancel", "Cancel");
     if (saveBtn) saveBtn.textContent = t("save", "Save");
   }
 
-  function showReminderPopup(reminder = {}, idx = null) {
+  // pop ups create + edit
+  function showReminderPopup(reminder = {}, reminderID = null) {
     document.getElementById("reminderPopup")?.remove();
-    document.getElementById("remindersApp")?.classList.add("reminder-blur");
+    app.classList.add("reminder-blur");
 
     const popup = document.createElement("div");
     popup.id = "reminderPopup";
@@ -426,31 +504,29 @@
 
     popup.innerHTML = `
       <div class="bg-[var(--color-secondary)] rounded-lg p-6 w-80 relative shadow-lg text-[var(--color-textWhite)]">
-        <h2 class="text-xl font-bold mb-4 text-[var(--color-textWhite)]">${
-          idx === null
-            ? t("new_reminder", "New Reminder")
-            : t("edit_reminder", "Edit Reminder")
-        }</h2>
+        <h2 class="text-xl font-bold mb-4 text-[var(--color-textWhite)]">
+          ${
+            reminderID
+              ? t("edit_reminder", "Edit Reminder")
+              : t("new_reminder", "New Reminder")
+          }
+        </h2>
         <form id="reminderForm" class="flex flex-col gap-3" ${
-          idx !== null ? 'data-idx="1"' : ""
+          reminderID ? `data-reminder-id="${reminderID}"` : ""
         }>
           <input type="text" name="name" placeholder="${t(
             "reminder_name_ph",
             "Name..."
-          )}" required class="w-full rounded px-2 py-1 bg-transparent border border-[var(--color-textWhite)] text-[var(--color-textWhite)] placeholder-[var(--color-textWhite)]" value="${
-      reminder.name || ""
-    }">
-
-          <!-- Date with overlay (Nepali digits), fixed width to prevent shrink -->
+          )}" required
+                 class="w-full rounded px-2 py-1 bg-transparent border border-[var(--color-textWhite)] text-[var(--color-textWhite)] placeholder-[var(--color-textWhite)]"
+                 value="${reminder.name || ""}">
           <div class="date-wrap relative w-full overflow-hidden">
             <input type="date" name="date"
                    class="w-full min-w-[16ch] rounded px-2 py-1 bg-transparent border border-[var(--color-textWhite)] text-[var(--color-textWhite)] placeholder-[var(--color-textWhite)] date-input"
-                   value="${reminder.date || ""}">
+                   value="${reminder.date || reminder.startDate || ""}">
             <span class="date-overlay pointer-events-none absolute inset-0 flex items-center justify-center font-bold text-[var(--color-textWhite)] px-2 py-1 rounded" style="visibility:hidden;"></span>
           </div>
-
           ${createTimePicker(reminder.time || "")}
-
           <select name="interval" required class="w-full rounded px-2 py-1 bg-transparent border border-[var(--color-textWhite)] text-[var(--color-textWhite)]">
             <option value="">${t(
               "interval_placeholder",
@@ -466,7 +542,6 @@
               reminder.interval === "Monthly" ? "selected" : ""
             }>${t("interval_monthly", "Monthly")}</option>
           </select>
-
           <div class="flex gap-2 mt-4">
             <button type="button" id="cancelReminderBtn" class="flex-1 bg-gray-300 text-[var(--color-textBlack)] rounded py-1 font-semibold">${t(
               "cancel",
@@ -482,55 +557,54 @@
     `;
     document.body.appendChild(popup);
 
-    // ensures todays date
+    // default date + overlays + time picker events
     const dateInputInit = popup.querySelector("input[name='date']");
     if (dateInputInit) setDateDefaultIfEmpty(dateInputInit);
-
     wireDateOverlay(popup);
     setupTimePickerEvents(popup);
 
-    // Close
+    // close
     document.getElementById("cancelReminderBtn").onclick = () => {
       popup.remove();
-      document
-        .getElementById("remindersApp")
-        ?.classList.remove("reminder-blur");
+      app.classList.remove("reminder-blur");
     };
 
-    // Submit
-    document.getElementById("reminderForm").onsubmit = function (e) {
+    // submit backend logic
+    document.getElementById("reminderForm").onsubmit = async function (e) {
       e.preventDefault();
       const fd = new FormData(this);
       const name = fd.get("name");
       const date = fd.get("date");
       const timeInput = this.querySelector(".time-input");
-      const time = timeInput.dataset.time || timeInput.value;
+      const time = timeInput?.dataset?.time || timeInput?.value || "";
       const interval = fd.get("interval");
 
-      const newReminder = { name, date, time, interval };
+      // include timezone detection
+      const timezone = getUserTimezone();
+      const payload = { name, date, time, interval, timezone };
 
-      const reminders = getReminders();
-      if (idx !== null) reminders[idx] = newReminder;
-      else reminders.push(newReminder);
-      setReminders(reminders);
+      try {
+        if (reminderID) await updateReminder(reminderID, payload);
+        else await createReminder(payload);
 
-      popup.remove();
-      document
-        .getElementById("remindersApp")
-        ?.classList.remove("reminder-blur");
-      renderReminders();
+        popup.remove();
+        app.classList.remove("reminder-blur");
+        await renderReminders();
+      } catch (err) {
+        console.error(err);
+      }
     };
 
-    // if language changes while popup is open, re-localize it
+    // relocalize while open
     observeLangChanges(() => {
       relocalizeOpenPopup(popup);
-      wireDateOverlay(popup); // re-sync overlay state
+      wireDateOverlay(popup);
     });
   }
 
-  function showDeletePopup(idx) {
+  function showDeletePopup(reminderID) {
     document.getElementById("reminderPopup")?.remove();
-    document.getElementById("remindersApp")?.classList.add("reminder-blur");
+    app.classList.add("reminder-blur");
 
     const popup = document.createElement("div");
     popup.id = "reminderPopup";
@@ -562,66 +636,61 @@
 
     document.getElementById("cancelDeleteBtn").onclick = () => {
       popup.remove();
-      document
-        .getElementById("remindersApp")
-        ?.classList.remove("reminder-blur");
+      app.classList.remove("reminder-blur");
     };
 
-    document.getElementById("confirmDeleteBtn").onclick = () => {
-      const reminders = getReminders();
-      reminders.splice(idx, 1);
-      setReminders(reminders);
-      popup.remove();
-      document
-        .getElementById("remindersApp")
-        ?.classList.remove("reminder-blur");
-      renderReminders();
+    document.getElementById("confirmDeleteBtn").onclick = async () => {
+      try {
+        await deleteReminder(reminderID);
+        popup.remove();
+        app.classList.remove("reminder-blur");
+        await renderReminders();
+      } catch (err) {
+        console.error("Error deleting reminder:", err);
+      }
     };
 
     observeLangChanges(() => {
-      popup.querySelector("h2").textContent = t(
-        "delete_reminder",
-        "Delete Reminder"
-      );
-      popup.querySelector("p").textContent = t(
-        "delete_confirm_text",
-        "Are you sure you want to delete this reminder?"
-      );
-      popup.querySelector("#cancelDeleteBtn").textContent = t(
-        "cancel",
-        "Cancel"
-      );
-      popup.querySelector("#confirmDeleteBtn").textContent = t(
-        "delete",
-        "Delete"
-      );
+      const h2 = popup.querySelector("h2");
+      const p = popup.querySelector("p");
+      const cancel = popup.querySelector("#cancelDeleteBtn");
+      const del = popup.querySelector("#confirmDeleteBtn");
+      if (h2) h2.textContent = t("delete_reminder", "Delete Reminder");
+      if (p)
+        p.textContent = t(
+          "delete_confirm_text",
+          "Are you sure you want to delete this reminder?"
+        );
+      if (cancel) cancel.textContent = t("cancel", "Cancel");
+      if (del) del.textContent = t("delete", "Delete");
     });
   }
 
-  // wiring
+  // wire events backend logic
+  await renderReminders();
+
   document
     .getElementById("addReminderBtn")
     ?.addEventListener("click", () => showReminderPopup());
 
-  // Edit / Remove (delegated)
-  document.addEventListener("click", function (e) {
+  document.addEventListener("click", async function (e) {
     if (e.target.classList.contains("editReminderBtn")) {
-      const idx = e.target.getAttribute("data-idx");
-      const reminders = getReminders();
-      showReminderPopup(reminders[idx], Number(idx));
+      const reminderID = e.target.dataset.id;
+      const all = await fetchReminders();
+      const reminder = all.find((r) => r._id === reminderID);
+      if (reminder) showReminderPopup(reminder, reminderID);
     }
     if (e.target.classList.contains("removeReminderBtn")) {
-      const idx = e.target.getAttribute("data-idx");
-      showDeletePopup(Number(idx));
+      const reminderID = e.target.dataset.id;
+      showDeletePopup(reminderID);
     }
   });
 
   window.addEventListener("DOMContentLoaded", () => {
-    // render immediately with reserved container
-    renderReminders();
+    whenI18nReady(renderReminders);
   });
 
-  // re-render list after i18n really switches
+  // re-render list after language switches
   observeLangChanges(() => {
     whenI18nReady(renderReminders);
   });

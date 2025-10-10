@@ -1,4 +1,4 @@
-const VERSION = "v1.0.2";
+const VERSION = "v1.0.3"; // bumped for SW update
 const STATIC_CACHE = `static-${VERSION}`;
 const RUNTIME_CACHE = `runtime-${VERSION}`;
 
@@ -16,7 +16,7 @@ const APP_SHELL = [
   "/icons/maskable-512.png",
 ];
 
-// pre caching
+//pre-cache
 async function precache(urls) {
   const cache = await caches.open(STATIC_CACHE);
   await Promise.all(
@@ -55,7 +55,7 @@ self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
 });
 
-// safely cache a response
+// cache helpers
 function safePut(event, req, res) {
   if (!res || !res.ok) return;
   const copy = res.clone();
@@ -67,6 +67,7 @@ function safePut(event, req, res) {
   );
 }
 
+// fetch strategies
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   const url = new URL(req.url);
@@ -74,7 +75,7 @@ self.addEventListener("fetch", (event) => {
   // same-origin GETs only
   if (url.origin !== self.location.origin || req.method !== "GET") return;
 
-  // API: network-first, cache fallback
+  // network first then cache fallback
   if (url.pathname.startsWith("/api/")) {
     event.respondWith(
       fetch(req)
@@ -87,7 +88,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  //static asset
+  // static assets
   if (
     url.pathname.startsWith("/_next/static/") ||
     /\.(?:js|css|woff2?)$/.test(url.pathname)
@@ -106,7 +107,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // cache first, fallback to logo icon
+  // fallback to icon
   if (/\.(?:png|jpg|jpeg|gif|svg|webp|ico)$/.test(url.pathname)) {
     event.respondWith(
       caches.match(req).then(
@@ -123,12 +124,71 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // offline fallback
+  // SPA navigation: offline fallback
   if (req.mode === "navigate") {
     event.respondWith(fetch(req).catch(() => caches.match("/offline.html")));
     return;
   }
 
-  // default cache
+  // default: cache, else network
   event.respondWith(caches.match(req).then((c) => c || fetch(req)));
+});
+
+// Handle incoming push payloads
+self.addEventListener("push", (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch (_) {
+    try {
+      data = JSON.parse(event.data.text());
+    } catch (_) {
+      data = {};
+    }
+  }
+
+  const title = data.title || "DMA Reminder";
+  const body = data.body || "You have a reminder.";
+  const url = data.url || "/reminders";
+
+  const options = {
+    body,
+    icon: "/icons/icon-192.png",
+    badge: "/icons/icon-192.png",
+    tag: data.tag || "dma-reminder",
+    renotify: !!data.renotify,
+    data: { url },
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url =
+    (event.notification &&
+      event.notification.data &&
+      event.notification.data.url) ||
+    "/reminders";
+
+  event.waitUntil(
+    (async () => {
+      const allClients = await clients.matchAll({
+        type: "window",
+        includeUncontrolled: true,
+      });
+      const targetPath = new URL(url, self.location.origin).pathname;
+
+      for (const client of allClients) {
+        try {
+          const clientPath = new URL(client.url).pathname;
+          if (clientPath === targetPath) {
+            await client.focus();
+            return;
+          }
+        } catch (_) {}
+      }
+      await clients.openWindow(url);
+    })()
+  );
 });

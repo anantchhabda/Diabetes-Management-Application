@@ -1,47 +1,68 @@
-import jwt from 'jsonwebtoken';
-import {NextResponse} from 'next/server';
+import jwt from "jsonwebtoken";
+import { NextResponse } from "next/server";
 const SECRET = process.env.JWT_SECRET;
 
 export function signJwt(payload) {
-    return jwt.sign(payload, SECRET, {expiresIn: '24h'});
+  return jwt.sign(payload, SECRET, { expiresIn: "24h" });
 }
 
 export function verifyJwt(req) {
-    const header = req.headers.get('authorization');
-    if (!header) return null;
-    const token = header.replace(/^Bearer\s+/i, '');
-    try {
-        return jwt.verify(token, SECRET);
-    } catch {
-        return null;
-    }
+  const header = req.headers.get("authorization");
+  if (!header) return null;
+  const token = header.replace(/^Bearer\s+/i, "");
+  try {
+    return jwt.verify(token, SECRET);
+  } catch {
+    return null;
+  }
 }
 
-//Check if the request has a valid token
+// For compatibility with push/subscribe route
+export async function verifyAuth(authHeader) {
+  try {
+    if (!authHeader) throw new Error("Missing Authorization header");
+
+    const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+    if (!token) throw new Error("No token found");
+
+    const decoded = jwt.verify(token, SECRET);
+    return decoded; 
+  } catch (err) {
+    console.error("[DMA][verifyAuth] failed:", err.message);
+    return null;
+  }
+}
+
+// Check if the request has a valid token
 export function requireAuth(req) {
-    const payload = verifyJwt(req);
-    if (!payload) {
-        return {error: NextResponse.json({error: 'Unauthorized'}, {status: 401})};
+  const payload = verifyJwt(req);
+  if (!payload) {
+    return {
+      error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
     };
-    return {payload};
+  }
+  return { payload };
 }
 
-//Check if authenticated, then check if the role is in the allowed list
+// Check if authenticated, then check if the role is in the allowed list
 export function requireRole(req, roles) {
-    const {payload, error} = requireAuth(req);
-    if (error) return {error};
-    if (!roles.includes(payload.role)) {
-        return {error: NextResponse.json({error: 'Forbidden'}, {status: 403})};
-    }
-    return {payload};
+  const { payload, error } = requireAuth(req);
+  if (error) return { error };
+  if (!roles.includes(payload.role)) {
+    return {
+      error: NextResponse.json({ error: "Forbidden" }, { status: 403 }),
+    };
+  }
+  return { payload };
 }
 
-//Create profileId
+// Create profileId
 export function generateProfileId(length = 6) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
 }
