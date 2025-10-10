@@ -1,4 +1,3 @@
-
 // merging to preserve backend functionality + language translations + reactivity
 (async function () {
   const app = document.getElementById("remindersApp");
@@ -213,25 +212,104 @@
       return t("schedule_daily", "Daily {time}").replace("{time}", timeText);
     }
     if (rem.interval === "Weekly") {
-      const wk = weekdayLong(rem.date);
+      const wk = weekdayLong(rem.startDate || rem.date);
       return t("schedule_weekly", "Weekly {weekday} {time}")
         .replace("{weekday}", wk)
         .replace("{time}", timeText);
     }
     if (rem.interval === "Monthly") {
-      const day = rem.date ? rem.date.slice(8, 10) : "";
+      const base = rem.startDate || rem.date || "";
+      const day = base ? base.slice(8, 10) : "";
       const dayOut = currentLang() === "ne" ? toNepaliDigits(day) : day;
       return t("schedule_monthly", "Monthly {day} {time}")
         .replace("{day}", dayOut)
         .replace("{time}", timeText);
     }
-    const d = formatDateForDisplay(rem.date);
+    const d = formatDateForDisplay(rem.startDate || rem.date);
     return t("schedule_onetime", "{date} {time}")
       .replace("{date}", d)
       .replace("{time}", timeText);
   }
 
-  // custom time picker
+  // system reminders
+  function ymdInTZ(date, tz) {
+    const d = new Date(date.toLocaleString("en-US", { timeZone: tz }));
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  function nextWeekdayDate(targetShort, tz) {
+    const map = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+    const want = map[targetShort];
+    const now = new Date();
+    const local = new Date(now.toLocaleString("en-US", { timeZone: tz }));
+    const delta = (want - local.getDay() + 7) % 7; // 0..6
+    const next = new Date(local);
+    next.setDate(local.getDate() + (delta === 0 ? 7 : delta)); // next occurrence (not today)
+    return ymdInTZ(next, tz);
+  }
+
+  async function ensureSystemReminders(existing) {
+    const tz = getUserTimezone();
+    const today = ymdInTZ(new Date(), tz);
+
+    const SYS = [
+      {
+        name: "Remember to check your sugar and log it :)",
+        interval: "Daily",
+        time: "10:00",
+        startDate: today,
+        system: true,
+        timezone: tz,
+      },
+      {
+        name: "Remember to check your sugar and log it :)",
+        interval: "Daily",
+        time: "18:00",
+        startDate: today,
+        system: true,
+        timezone: tz,
+      },
+      {
+        name: "Take care of your food, eyes and teeth :)",
+        interval: "Weekly",
+        time: "09:00",
+        startDate: nextWeekdayDate("Mon", tz),
+        system: true,
+        timezone: tz,
+      },
+    ];
+
+    const has = (r, s) =>
+      r.name === s.name &&
+      r.interval === s.interval &&
+      (r.time || "") === s.time;
+
+    const toCreate = SYS.filter((s) => !existing.some((r) => has(r, s)));
+
+    if (toCreate.length === 0) return false;
+
+    try {
+      // create missing system reminders
+      for (const s of toCreate) {
+        await createReminder({
+          name: s.name,
+          date: s.startDate,
+          time: s.time,
+          interval: s.interval,
+          timezone: s.timezone,
+          system: true,
+        });
+      }
+      return true;
+    } catch (e) {
+      console.error("[DMA][system reminders] create failed:", e);
+      return false;
+    }
+  }
+
   function createTimePicker(initialTime = "") {
     const [initialHour, initialMinute] = initialTime
       ? initialTime.split(":")
@@ -392,7 +470,15 @@
       (mainElement || app).appendChild(container);
     }
 
-    const reminders = await fetchReminders();
+    // load existing reminders
+    let reminders = await fetchReminders();
+
+    // make sure system reminders exist
+    const createdAny = await ensureSystemReminders(reminders);
+    if (createdAny) {
+      reminders = await fetchReminders();
+    }
+
     container.innerHTML = reminders
       .map((r) => {
         const schedule = formatReminderSchedule({
@@ -401,21 +487,33 @@
           time: r.time || "",
           interval: r.interval || "",
         });
-        return `
-        <div class="flex border rounded overflow-hidden w-full h-20">
-          <div class="bg-[var(--color-secondary)] text-[var(--color-textWhite)] flex items-center justify-center px-4 w-32 text-sm font-bold text-center">${
-            r.name || ""
-          }</div>
-          <div class="flex-1 flex flex-col justify-center px-3 py-2" style="background:#1b7fa6;">
-            <span class="text-[var(--color-textWhite)] text-sm mb-1">${schedule}</span>
-            <div class="flex gap-1">
+
+        const isSystem = !!r.system;
+        const buttons = isSystem
+          ? ""
+          : `<div class="flex gap-1">
               <button class="bg-[var(--color-tertiary)] text-[var(--color-textWhite)] px-2 py-1 rounded font-semibold text-xs editReminderBtn" data-id="${
                 r._id
               }">${t("edit", "Edit")}</button>
               <button class="bg-[var(--color-delete)] text-[var(--color-textWhite)] px-2 py-1 rounded font-semibold text-xs removeReminderBtn" data-id="${
                 r._id
               }">${t("remove", "Remove")}</button>
-            </div>
+            </div>`;
+
+        return `
+        <div class="flex border rounded overflow-hidden w-full min-h-[5rem]">
+        <div class="bg-[var(--color-secondary)] text-[var(--color-textWhite)] flex flex-col items-center justify-center px-4 w-32 text-sm font-bold text-center">
+  <span>${r.name || ""}</span>
+  ${
+    isSystem
+      ? '<span class="text-[10px] font-normal opacity-80 mt-0">(auto)</span>'
+      : ""
+  }
+</div>
+
+          <div class="flex-1 flex flex-col justify-center px-3 py-2" style="background:#1b7fa6;">
+            <span class="text-[var(--color-textWhite)] text-sm mb-1">${schedule}</span>
+            ${buttons}
           </div>
         </div>`;
       })

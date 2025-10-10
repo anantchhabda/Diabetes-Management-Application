@@ -1,7 +1,6 @@
-// src/app/api/push/subscribe/route.js
 import { NextResponse } from "next/server";
 import dbConnect from "../../../lib/db";
-import PushSubscription from "../../../lib/models/pushSubscription"; // match actual filename
+import PushSubscription from "../../../lib/models/pushSubscription";
 import Patient from "../../../lib/models/Patient";
 import { verifyJwt } from "../../../lib/auth";
 
@@ -11,7 +10,7 @@ export async function POST(req) {
 
     const body = await req.json();
 
-    // authenticate via your existing helper (reads Authorization header internally)
+    // authenticate
     const auth = verifyJwt(req);
     if (!auth) {
       return NextResponse.json(
@@ -40,8 +39,8 @@ export async function POST(req) {
       );
     }
 
-    // ---- Single-subscription-per-patient strategy ----
-    // Keep exactly ONE doc per patientID; newest device overwrites the previous
+    // single subscription per user irrespective of devices, it will update to latest device
+
     const byEndpoint = await PushSubscription.findOne({ endpoint }).lean();
     const existingForPatient = await PushSubscription.find({ patientID }).sort({
       updatedAt: -1,
@@ -49,7 +48,7 @@ export async function POST(req) {
 
     let primary = existingForPatient[0] || null;
 
-    // If another doc already has this endpoint (from older/stale), remove it to avoid unique conflicts
+    // resole endpoint conflict
     if (
       byEndpoint &&
       (!primary || String(byEndpoint._id) !== String(primary._id))
@@ -67,7 +66,7 @@ export async function POST(req) {
       primary.patientID = patientID;
       await primary.save();
 
-      // Remove any other duplicates for this patient to enforce single doc
+      // remove duplicates
       const otherIds = existingForPatient
         .filter((d) => String(d._id) !== String(primary._id))
         .map((d) => d._id);
@@ -75,7 +74,7 @@ export async function POST(req) {
         await PushSubscription.deleteMany({ _id: { $in: otherIds } });
       }
     } else {
-      // No existing subscription for this patient — create fresh
+      // create fresh subsciprtion if none exits
       const created = await PushSubscription.create({
         endpoint,
         keys,
@@ -87,7 +86,7 @@ export async function POST(req) {
       primary = created;
     }
 
-    // Optional: belt & braces cleanup of disabled leftovers
+    // clean up disabled leftovers
     await PushSubscription.deleteMany({
       patientID,
       enabled: false,

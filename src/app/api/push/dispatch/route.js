@@ -1,6 +1,5 @@
-// src/app/api/push/dispatch/route.js
-export const runtime = "nodejs"; // web-push needs Node
-export const dynamic = "force-dynamic"; // never statically optimize/cache
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 import { NextResponse } from "next/server";
@@ -9,13 +8,13 @@ import Reminder from "../../../lib/models/Reminder";
 import PushSubscription from "../../../lib/models/pushSubscription";
 import { webpush } from "../../../lib/webpush";
 
-// helper: local YYYY-MM-DD in a given tz
+//timezone helper
 function ymdInTZ(date, tz) {
   const d = new Date(date.toLocaleString("en-US", { timeZone: tz }));
   return d.toISOString().slice(0, 10);
 }
 
-// check if a reminder is due "now" in its timezone (±windowMin minutes)
+//check reminder is due now
 function isDueNow(rem, windowMin = 2) {
   try {
     const tz = rem.timezone || "Australia/Perth";
@@ -55,7 +54,7 @@ function isDueNow(rem, windowMin = 2) {
       }
 
       default: {
-        // One-time: specific calendar date
+        // one-time reminder
         const start = String(rem.startDate || "").slice(0, 10);
         return start && start === ymd;
       }
@@ -66,14 +65,15 @@ function isDueNow(rem, windowMin = 2) {
   }
 }
 
+//dispatch handler trigerred by cron
 export async function GET(req) {
   try {
-    // 🔒 Secret-gate (query OR Authorization header)
     const url = new URL(req.url);
     const qsSecret = url.searchParams.get("cron_secret");
     const headerAuth = req.headers.get("authorization");
     const CRON_SECRET = process.env.CRON_SECRET;
 
+    // cron secret
     if (
       CRON_SECRET &&
       !(qsSecret === CRON_SECRET || headerAuth === `Bearer ${CRON_SECRET}`)
@@ -84,16 +84,16 @@ export async function GET(req) {
       );
     }
 
-    // allow ?window=5 for testing wider time window
+    // dynamic test window, can increase size from 2 min to 5min --> for testing really
     const parsed = parseInt(url.searchParams.get("window"), 10);
     const windowMin = Number.isFinite(parsed) ? parsed : 2;
 
     await dbConnect();
 
-    // 1) Load all reminders (all patients)
+    //load all reminders for all patients
     const reminders = await Reminder.find({}).lean();
 
-    // 2) Filter those due now
+    //filter due now reminders
     const due = reminders.filter((r) => isDueNow(r, windowMin));
     if (due.length === 0) {
       return NextResponse.json(
@@ -112,14 +112,14 @@ export async function GET(req) {
     let sentCount = 0;
     let subsTried = 0;
 
-    // 3) For each due reminder, notify all active subs for that patient — but only once per local day
+    //send notification for each due reminder
     for (const rem of due) {
       if (!rem.patientID) continue;
 
       const tz = rem.timezone || "Australia/Perth";
       const todayYMD = ymdInTZ(new Date(), tz);
 
-      // skip if already sent today in the reminder's local tz
+      // Skip if already sent today
       if (rem.lastSentAt) {
         const lastYMD = ymdInTZ(new Date(rem.lastSentAt), tz);
         if (lastYMD === todayYMD) continue;
@@ -132,7 +132,6 @@ export async function GET(req) {
 
       if (!subs || subs.length === 0) continue;
 
-      // Stable per-day tag (prevents duplicate stacking for same occurrence)
       const tag = `dma-rem-${rem._id}-${todayYMD}`;
       let delivered = 0;
 
@@ -170,7 +169,7 @@ export async function GET(req) {
         }
       }
 
-      // mark as sent today if at least one reached a device
+      //mark reminder as set
       if (delivered > 0) {
         try {
           await Reminder.updateOne(
@@ -181,6 +180,7 @@ export async function GET(req) {
       }
     }
 
+    //json summary for testing
     return NextResponse.json(
       { ok: true, sentCount, dueCount: due.length, subsTried, windowMin },
       { headers: { "Cache-Control": "no-store" } }
