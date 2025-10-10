@@ -90,72 +90,37 @@ export async function PATCH(req) {
         }
 
         const url = new URL(req.url);
-        const id = url.searchParams.get('id');
-        if (!id) {
-            return NextResponse.json({error: 'id is required'}, {status: 400});
+        const date = url.searchParams.get('date');
+        if (!date) {
+            return NextResponse.json({error: 'Date is required'}, {status: 400});
         }
 
-        const {comment, date} = await req.json();
-        if (comment == null && date == null) {
-            return NextResponse.json({error: 'Nothing to update'}, {status : 400});
-        }
+        const startDate = new Date(date);
+        const nextDate = new Date(startDate);
+        nextDate.setDate(nextDate.getDate()+1);
 
-        const update = {};
-        if (comment != null) update.comment = comment;
-        if (date != null) update.date = new Date(date);
+        const {comment} = await req.json();
+        if (comment == null || comment == "") { //treat as delete if no comment provided
+            await GeneralLog.deleteOne({
+                patient: patient.profileId, 
+                date: {$gte: startDate, $lt: nextDate}});
+            return NextResponse.json({message: 'Log cleared'}, {status : 200});
+        }
 
         const updated = await GeneralLog.findOneAndUpdate(
-            {_id: id, patient: patient.profileId},
-            {$set: update},
+            {patient: patient.profileId, date: {$gte: startDate, $lt: nextDate}},
+            {$set: {comment}},
             {new: true}
         );
 
         if (!updated) {
             return NextResponse.json({error: 'Log not found'}, {status: 404});
         }
-
         return NextResponse.json({message: 'General log updated', log: updated}, {status: 200});
+
     } catch (err) {
         return NextResponse.json(
             {error: 'Updating general comment failed', details: err.message},
-            {status: 500}
-        );
-    }
-}
-
-export async function DELETE(req) {
-    await dbConnect();
-    const roleCheck = requireRole(req, ['Patient']);
-    if (roleCheck.error) return roleCheck.error;
-
-    try {
-        const patient = await Patient.findOne({user: roleCheck.payload.sub}).select('profileId');
-        if (!patient) {
-            return NextResponse.json(
-                {error: 'Patient profile not found'},
-                {status: 404}
-            );
-        }
-
-        const url = new URL(req.url);
-        const id = url.searchParams.get('id');
-        if (!id) {
-            return NextResponse.json(
-                {error: 'generallogID is required'},
-                {status: 400}
-            );
-        }
-
-        const result = await GeneralLog.deleteOne({_id: id, patient: patient.profileId});
-        if (result.deletedCount === 0) {
-            return NextResponse.json({error: 'Log not found'}, {status: 404});
-        }
-
-        return NextResponse.json({message: 'General log deleted'}, {status: 200});
-    } catch (err) {
-        console.error(err);
-        return NextResponse.json(
-            {error: 'Deleting general log failed', details: err.message},
             {status: 500}
         );
     }
