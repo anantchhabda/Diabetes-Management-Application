@@ -6,6 +6,20 @@ import LinkRequest from '../../../../../../lib/models/LinkRequest';
 import {NextResponse} from "next/server";
 import {requireRole} from '../../../../../../lib/auth';
 
+export async function GET(req, {params}) {
+    await dbConnect();
+    const roleCheck = requireRole(req, ['Doctor', 'Family Member']);
+    if (roleCheck.error) return roleCheck.error;
+        
+    const {patientID} = await params;     //Patient._id
+    const patient = await Patient.findOne({profileId: patientID}).select('profileId name');
+    if (!patient) {
+       return NextResponse.json({message: 'Patient not found'}, {status: 404});
+    }
+    return NextResponse.json({patient}, {status: 200});
+}
+        
+
 export async function POST(req, {params}) {
     await dbConnect();
     const roleCheck = requireRole(req, ['Doctor', 'Family Member']);
@@ -13,7 +27,7 @@ export async function POST(req, {params}) {
 
     try {
         const {patientID} = await params;     //Patient._id
-        const patient = await Patient.findOne({profileId: patientID}).select('profileId');
+        const patient = await Patient.findOne({profileId: patientID}).select('profileId name');
         if (!patient) {
             return NextResponse.json(
             {message: 'Patient not found'}, {status: 404}
@@ -62,6 +76,7 @@ export async function POST(req, {params}) {
 
         const newRequest = await LinkRequest.create({
             patient: patient.profileId,
+            patientName: patient.name,
             requesterUser: requester.profileId,
             requesterRole: roleCheck.payload.role,
             requesterName: requester.name,
@@ -81,5 +96,48 @@ export async function POST(req, {params}) {
             {error: 'Sending request failed', details: err.message},
             {status: 500}
         );
+    }
+}
+
+export async function DELETE(req, { params }) {
+    await dbConnect();
+    const { payload, error } = requireRole(req, ['Doctor', 'Family Member']);
+    if (error) return error;
+
+    const {patientID} = await params;
+    const patient = await Patient.findOne({ profileId: patientID }).select('doctorID');
+    if (!patient) {
+        return NextResponse.json({ error: 'Patient not found'}, {status: 404});
+    }
+
+    if (payload.role === 'Doctor') {
+        const doctor = await Doctor.findOne({ user: payload.sub }).select('profileId');
+        if (!doctor) {
+            return NextResponse.json({ error: 'Doctor/Family Memver profile not found'}, {status: 404});
+        }
+        //Only unlink if this doctor is linked to this patient
+        if (String(patient.doctorID) !== String(doctor.profileId)) {
+            return NextResponse.json({ error: 'You are not linked to this patient'}, {status: 403});
+        }
+        //Unlink by deleting doctorID
+        patient.doctorID = null;
+        await patient.save();
+        return NextResponse.json({ message: 'Unlinked succesfully'}, {status: 200});
+    }
+
+    if (payload.role === 'Family Member') {
+        const family = await FamilyMember.findOne({ user: payload.sub }).select('profileId');
+        if (!family) {
+            return NextResponse.json({ error: 'Family profile not found'}, {status: 404});
+        }
+        //Only unlink if this doctor is linked to this patient
+        if (String(patient.familyID) !== String(family.profileId)) {
+            return NextResponse.json({ error: 'You are not linked to this patient'}, {status: 403});
+        }
+    
+        //Unlink by deleting familyID
+        patient.familyID = null;
+        await patient.save();
+        return NextResponse.json({ message: 'Unlinked succesfully'}, {status: 200});
     }
 }

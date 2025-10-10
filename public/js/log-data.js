@@ -49,6 +49,191 @@
     return String(str).replace(/[0-9]/g, (d) => DIGIT_NE[d]);
   }
 
+  //Auth + shared helpers
+  const authHeader = () => ({
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${localStorage.getItem("authToken") || ""}`,
+  });  
+
+  const getPatientIDFromURL = () => new URL(window.location.href).searchParams.get('patientID');
+
+  async function getMe() {
+    const res = await fetch('/api/auth/me', { 
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`
+      },
+    });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      const err = new Error(j.error || j.message ||'Unauthorized');
+      err.status = res.status;
+      throw err;
+    }
+    return res.json(); // { role, profile: {...} }
+  }
+  //Patient endpoints
+  //Glucose log
+  async function fetchPatientGlucoseLog(date) {
+    const res = await fetch(`/api/patient/me/glucoselog?date=${encodeURIComponent(date)}`, {
+      method: 'GET',
+      headers: authHeader(),
+    });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      const err = new Error(j.error || j.message || "Failed to load logs");
+      err.status = res.status;
+      throw err;
+    }
+    return res.json();
+  }
+
+  async function createGlucoseLog(date, type, glucoseLevel) {
+    const res = await fetch(`/api/patient/me/glucoselog`, {
+      method: "POST",
+      headers: authHeader(),
+      body: JSON.stringify({ date, type, glucoseLevel }),
+    });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      const err = new Error(j.error || j.message || "Create failed");
+      err.status = res.status;
+      throw err;
+    }
+    return res.json(); 
+  } 
+  
+  async function updateOrDeleteGlucoseLog(date, type, glucoseLevel) {
+    const res = await fetch(`/api/patient/me/glucoselog?date=${encodeURIComponent(date)}`, {
+      method: "PATCH",
+      headers: authHeader(),
+      body: JSON.stringify({ type, glucoseLevel }),
+    });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      const err = new Error(j.error || j.message || "Update failed");
+      err.status = res.status;
+      throw err;
+    }
+    return res.json();
+  }
+  
+  //Insulin log
+  async function fetchPatientInsulinLog(date) {
+    const res = await fetch(`/api/patient/me/insulinlog?date=${encodeURIComponent(date)}`, {
+      method: 'GET',
+      headers: authHeader(),
+    });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      const err = new Error(j.error || j.message || "Failed to load logs");
+      err.status = res.status;
+      throw err;
+    }    
+    return res.json();
+  }
+
+  async function createInsulinLog(date, type, dose) {
+    const res = await fetch(`/api/patient/me/insulinlog`, {
+      method: "POST",
+      headers: authHeader(),
+      body: JSON.stringify({ date, type, dose }),
+    });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      const err = new Error(j.error || j.message || "Create failed");
+      err.status = res.status;
+      throw err;
+    }
+    return res.json(); 
+  }  
+
+  async function updateOrDeleteInsulinLog(date, type, dose) {
+    const res = await fetch(`/api/patient/me/insulinlog?date=${encodeURIComponent(date)}`, {
+      method: "PATCH",
+      headers: authHeader(),
+      body: JSON.stringify({ type, dose }),
+    });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      const err = new Error(j.error || j.message || "Update failed");
+      err.status = res.status;
+      throw err;
+    }
+    return res.json();
+  }  
+
+  //Comment log
+  async function fetchPatientCommentLog(date) {
+    const res = await fetch(`/api/patient/me/generallog?date=${encodeURIComponent(date)}`, { 
+      method:"GET", 
+      headers: authHeader() 
+    });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      const err = new Error(j.error || j.message || "Failed to load logs");
+      err.status = res.status;
+      throw err;
+    }
+    return res.json();
+  }  
+
+  async function createCommentLog(date, comment) {
+    const res = await fetch(`/api/patient/me/generallog`, { 
+      method:"POST", 
+      headers: authHeader(), 
+      body: JSON.stringify({ date, comment }) 
+    });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      const err = new Error(j.error || j.message || "Create failed");
+      err.status = res.status;
+      throw err;
+    }
+    return res.json();
+  }
+
+  async function updateOrDeleteCommentLog(date, comment) {
+    const res = await fetch(`/api/patient/me/generallog?date=${encodeURIComponent(date)}`, { 
+      method:"PATCH", 
+      headers: authHeader(), 
+      body: JSON.stringify({ comment }) 
+    });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      const err = new Error(j.error || j.message || "Update failed");
+      err.status = res.status;
+      throw err;
+    }
+    return res.json();
+  }  
+
+  //Viewer endpoints (Doctor/Family)
+  async function fetchViewerGlucoseLog(date, patientID) {
+    if (!patientID) throw new Error("Missing patientID");
+    const res = await fetch(`/api/auth/me/patient/${encodeURIComponent(patientID)}/viewlog/glucoselog?date=${encodeURIComponent(date)}`, 
+      { method:"GET", headers: authHeader() });
+    if (!res.ok) throw new Error("Failed to load logs");
+    return res.json();
+  }  
+
+  async function fetchViewerInsulinLog(date, patientID) {
+    if (!patientID) throw new Error("Missing patientID");
+    const res = await fetch(`/api/auth/me/patient/${encodeURIComponent(patientID)}/viewlog/insulinlog?date=${encodeURIComponent(date)}`, 
+      { method:"GET", headers: authHeader() });
+    if (!res.ok) throw new Error("Failed to load logs");
+    return res.json();
+  }    
+
+  async function fetchViewerCommentLog(date, patientID) {
+    if (!patientID) throw new Error("Missing patientID");
+    const res = await fetch(`/api/auth/me/patient/${encodeURIComponent(patientID)}/viewlog/generallog?date=${encodeURIComponent(date)}`, 
+      { method:"GET", headers: authHeader() });
+    if (!res.ok) throw new Error("Failed to load logs");
+    return res.json();
+  }  
+    
   // overlay renders
   function updateDateOverlay(dateInput, overlayEl) {
     if (!dateInput || !overlayEl) return;
@@ -148,6 +333,8 @@
     let cellRefs = new Map();
     let currentRowKey = null;
     let pendingDraft = null;
+    let canEdit = false;
+    let viewerPatientID = null;
 
     // helpers
     function setButtonActive(btn, isActive) {
@@ -160,7 +347,9 @@
         btn.classList.add("bg-[#049EDB]");
       }
     }
-    function formatDisplayValue(v) {
+    function formatDisplayValue(v, tab) {
+      if (!v) return "";
+      if (tab === "insulin") return `${v} ${t("unit_units", "units")}`;
       return v ? `${v} ${t("unit_mgdl", "mg/dL")}` : "";
     }
     function storageKey() {
@@ -240,6 +429,30 @@
     adjustDateWidth();
     updateDateOverlay(dateInput, dateOverlay);
 
+    //role / viewer
+    (async () => {
+      try {
+        const me = await getMe(); //{ role, profile: {...} }
+        canEdit = me.role === "Patient";
+        if (!canEdit) viewerPatientID = getPatientIDFromURL();
+      } catch (err) { 
+        console.error(err);
+      }
+
+      //viewer: lock comments box
+      if (!canEdit) {
+        commentsInput?.setAttribute("readonly", "true");
+        commentsInput?.classList.add("bg-gray-100", "cursor-not-allowed");
+      }
+
+      //hydrate from backend for the starting date
+      if(dateInput?.value) {
+        await reloadFromBackend(dateInput.value, GLUCOSE_ROWS, INSULIN_ROWS, state, dataTable, commentsInput, canEdit, viewerPatientID);
+        //then draw the default tab
+        renderRows(GLUCOSE_ROWS);
+      }
+    })();
+  
     // render initial rows
     bindRowEditorsIn(dataTable, true);
 
@@ -260,7 +473,7 @@
         if (span) {
           span.classList.add("text-gray-900");
           if (applyValues)
-            span.textContent = formatDisplayValue(state.glucose[label]);
+            span.textContent = formatDisplayValue(state.glucose[label], "glucose");
           cellRefs.set(label, span);
         }
         if (btn) {
@@ -293,7 +506,8 @@
         span.className = "text-gray-900";
         span.setAttribute("data-cell-for", label);
         span.textContent = formatDisplayValue(
-          currentTab === "glucose" ? state.glucose[label] : state.insulin[label]
+          currentTab === "glucose" ? state.glucose[label] : state.insulin[label],
+          currentTab
         );
 
         const btn = document.createElement("button");
@@ -303,6 +517,8 @@
         btn.textContent = t("edit", "Edit");
         btn.setAttribute("data-edit-for", label);
         btn.addEventListener("click", () => openEditor(label));
+
+        if (!canEdit) {btn.classList.add("hidden"); btn.disabled = true;}
 
         tdValue.appendChild(span);
         tdValue.appendChild(btn);
@@ -351,18 +567,11 @@
     function okEditor() {
       if (!currentRowKey) return;
       const raw = (editorInput.value || "").trim();
-      const ok =
-        currentTab === "insulin"
-          ? /^\d*$/.test(raw)
-          : raw === "" || /^\d+(\.\d+)?$/.test(raw);
+      const ok = raw === "" || /^\d+(\.\d+)?$/.test(raw);
       if (!ok) {
-        editorWarning.textContent =
-          currentTab === "insulin"
-            ? t("warn_numbers_only", "⚠️ Please enter numbers only")
-            : t(
-                "warn_valid_numeric",
-                "Please enter a valid numeric value (decimals allowed)."
-              );
+        editorWarning.textContent = t(
+          "warn_numbers_only", 
+          "⚠️ Please enter numbers only");
         editorWarning.classList.remove("hidden");
         return;
       }
@@ -377,7 +586,7 @@
       }
 
       const span = cellRefs.get(currentRowKey);
-      if (span) span.textContent = formatDisplayValue(raw);
+      if (span) span.textContent = formatDisplayValue(raw, currentTab);
       closeEditor();
     }
     editorCancel.addEventListener("click", closeEditor);
@@ -409,7 +618,7 @@
     });
 
     // save
-    saveBtn?.addEventListener("click", () => {
+    saveBtn?.addEventListener("click", async () => {
       const hasDate = !!(dateInput && dateInput.value);
       if (!hasDate) {
         pendingDraft = {
@@ -430,11 +639,19 @@
       }
       dateInput?.classList.remove("ring-2", "ring-red-500", "border-red-500");
       dateWarning?.classList.add("hidden");
-      saveToStorage();
-      if (saveNotice) {
-        saveNotice.textContent = t("saved_successfully", "Saved successfully");
-        saveNotice.classList.remove("hidden");
-        setTimeout(() => saveNotice.classList.add("hidden"), 1500);
+
+      try {
+        await saveAllToBackend(dateInput.value, GLUCOSE_ROWS, INSULIN_ROWS, state, currentTab, commentsInput, canEdit);
+
+        saveToStorage();
+        if (saveNotice) {
+          saveNotice.textContent = t("saved_successfully", "Saved successfully");
+          saveNotice.classList.remove("hidden");
+          setTimeout(() => saveNotice.classList.add("hidden"), 1500);
+        }
+      } catch (err) {
+        console.error(err);
+        alert(err.message || "Save failed. Please try again.");
       }
     });
 
@@ -448,11 +665,12 @@
       }
     });
 
-    dateInput?.addEventListener("change", () => {
+    dateInput?.addEventListener("change", async () => {
       adjustDateWidth();
       updateDateOverlay(dateInput, dateOverlay);
 
-      loadFromStorage();
+      await reloadFromBackend(dateInput.value, GLUCOSE_ROWS, INSULIN_ROWS, state, dataTable, commentsInput, canEdit, viewerPatientID);
+
       if (pendingDraft) {
         mergeStateWithDraft(pendingDraft);
         pendingDraft = null;
@@ -491,5 +709,171 @@
       updateDateOverlay(dateInput, dateOverlay);
       adjustDateWidth();
     });
+
+    //Backend orchestration
+    async function parseViewerPayload(payload) {
+      const out = { glucose: {}, insulin: {}, comments: "" };
+      const logs = Array.isArray(payload.logs) ? payload.logs : [];
+      for (const log of logs) {
+        if (log && typeof log.type === "string") {
+          if (Object.prototype.hasOwnProperty.call(log, "glucoseLevel")) {
+            out.glucose[log.type] = (log.glucoseLevell ?? "").toString();
+          }
+          if (Object.prototype.hasOwnProperty.call(log, "dose")) {
+            out.insulin[log.type] = (log.dose ?? "").toString();
+          }
+        }
+        if (typeof log?.comment === "string" && !out.comments) {
+          out.comments = log.comment;
+        }
+      }
+      if (!out.comments) {
+        const c = payload?.comment || payload?.log?.comment || (Array.isArray(payload?.logs) && payload.logs[0]?.comment);
+        if (typeof c === "string") out.comments = c;
+      }
+      return out;
+    }
+
+    async function reloadFromBackend(date, GLUCOSE_ROWS, INSULIN_ROWS, state, dataTable, commentsInput, canEdit, viewerPatientID) {
+      dataTable.innerHTML = `
+        <tr class="border">
+          <td class="px-3 py-2 text-sm sm:text-base" colspan="2">Loading...</td>
+        </tr>`;
+      state.glucose = {};
+      state.insulin = {};
+      state.comments = "";
+
+      try {
+        if (canEdit) {
+          //Patient mode: fetch all 3 in parallel
+          const [g, i, c] = await Promise.allSettled([
+            fetchPatientGlucoseLog(date),
+            fetchPatientInsulinLog(date), 
+            fetchPatientCommentLog(date)
+          ]);
+          //glucose
+          if (g.status === "fulfilled") {
+            const logs = Array.isArray(g.value?.logs) ? g.value.logs : [];
+            logs.forEach((l) => {
+              if (GLUCOSE_ROWS.includes(l?.type)) {
+                state.glucose[l.type] = (l.glucoseLevel ?? "").toString();
+              }
+            });
+          }
+          //insulin
+          if (i.status === "fulfilled") {
+            const logs = Array.isArray(i.value?.logs) ? i.value.logs : [];
+            logs.forEach((l) => {
+              if (INSULIN_ROWS.includes(l?.type)) {
+                state.insulin[l.type] = (l.dose ?? "").toString();
+              }
+            });
+          } 
+          //comment
+          if (c.status === "fulfilled") {
+            const p = c.value;
+            state.comments =
+              (p?.comment ?? p?.log?.comment ?? 
+                (Array.isArray(p?.logs) ? p.logs[0]?.comment : "") ) || "";
+          }
+        } else {
+          //Viewer mode: fetch combined
+          const [g, i, c] = await Promise.allSettled([
+            fetchViewerGlucoseLog(date, viewerPatientID),
+            fetchViewerInsulinLog(date, viewerPatientID), 
+            fetchViewerCommentLog(date, viewerPatientID)
+          ]);
+
+          //glucose
+          if (g.status === "fulfilled") {
+            const logs = Array.isArray(g.value?.logs) ? g.value.logs : [];
+            logs.forEach((l) => {
+              if (GLUCOSE_ROWS.includes(l?.type)) {
+                state.glucose[l.type] = (l.glucoseLevel ?? "").toString();
+              }
+            });
+          }
+          //insulin
+          if (i.status === "fulfilled") {
+            const logs = Array.isArray(i.value?.logs) ? i.value.logs : [];
+            logs.forEach((l) => {
+              if (INSULIN_ROWS.includes(l?.type)) {
+                state.insulin[l.type] = (l.dose ?? "").toString();
+              }
+            });
+          } 
+          //comment
+          if (c.status === "fulfilled") {
+            const p = c.value;
+            state.comments =
+              (p?.comment ?? p?.log?.comment ?? 
+                (Array.isArray(p?.logs) ? p.logs[0]?.comment : "") ) || "";
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        dataTable.innerHTML = `
+          <tr class="border">
+            <td class="px-3 py-2 text-sm sm:text-base text-red-700" colspan="2">
+            ${err.message || "Failed to load logs."}
+          </td>
+          </tr>`;
+        return;
+      }
+    }
+
+    async function saveAllToBackend(date, GLUCOSE_ROWS, INSULIN_ROWS, state, currentTab, commentsInput, canEdit) {
+      if (!canEdit) {alert("You do not have permission to edit."); return;}
+
+      if (currentTab === "glucose") {
+        //Only save glucose rows
+        for (const label of GLUCOSE_ROWS) {
+          const raw = (state.glucose[label] ?? "").toString().trim();
+          try {
+            await updateOrDeleteGlucoseLog(date, label, raw === "" ? "" : Number(raw));
+          } catch (err) {
+            if (err.status === 404 && raw !== "") {
+              await createGlucoseLog(date, label, Number(raw));
+            } else { 
+              throw err; 
+            }
+          }
+        }  
+        return;      
+      }
+
+      if (currentTab === "insulin") {
+        //Only save insulin rows
+        //Insulin: PATCH then POST if 404 and value not empty
+        for (const label of INSULIN_ROWS) {
+          const raw = (state.insulin[label] ?? "").toString().trim();
+          try {
+            await updateOrDeleteInsulinLog(date, label, raw === "" ? "" : Number(raw));
+          } catch (err) {
+            if (err.status === 404 && raw !== "") {
+              await createInsulinLog(date, label, Number(raw));
+            } else { 
+              throw err; 
+            }
+          }
+        }
+        return;
+      }
+
+      if (currentTab === "comments") {
+        //Comments: PATCH then POST if 404 and value not empty
+        const rawComment = (state.comments ?? "").trim();
+        try {
+          await updateOrDeleteCommentLog(date, rawComment);
+        } catch (err) {
+          if (err.status === 404 && rawComment !== "") {
+            await createCommentLog(date, rawComment);
+          } else { 
+            throw err; 
+          }
+        }
+        return;
+      }
+    }
   }
 })();
