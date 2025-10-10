@@ -7,6 +7,10 @@ const LinkRequestSchema = new mongoose.Schema({
         required: true,
         index: true
     },
+    patientName: {
+        type: String,
+        required: true
+    },
     requesterRole: {
         type: String,
         enum: ['Doctor', 'Family Member'],

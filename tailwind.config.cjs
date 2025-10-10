@@ -1,0 +1,30 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./src/app/**/*.{js,jsx,ts,tsx,mdx}",
+    "./src/components/**/*.{js,jsx,ts,tsx,mdx}",
+    "./src/**/*.{js,jsx,ts,tsx,mdx}",
+    "./public/**/*.html",
+    "./public/js/**/*.{js,ts}",
+  ],
+  safelist: [
+    "bg-sky-950",
+    "text-white",
+    "font-bold",
+    "w-[35%]",
+    "px-2",
+    "sm:px-3",
+    "py-2",
+    "text-sm",
+    "sm:text-base",
+    "flex",
+    "justify-between",
+    "items-center",
+    "ml-2",
+    "bg-green-600",
+    "text-xs",
+    "rounded",
+  ],
+  theme: { extend: {} },
+  plugins: [],
+};

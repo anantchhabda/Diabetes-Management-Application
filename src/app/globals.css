@@ -1,7 +1,9 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #3ad3f9; 
+  --background: #3ad3f9;
   --foreground: #171717;
   --color-primary: #049EDB;
   --color-secondary: #024059;
@@ -13,7 +15,7 @@
   --color-textBlack: #464646;
 }
 
-@theme inline {
+:root {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 }
@@ -35,4 +37,28 @@ body {
   filter: blur(8px) brightness(0.7);
   pointer-events: none;
   user-select: none;
+}
+
+.bg-color-delete {
+  background-color: var(--color-delete) !important;
+}
+
+.bg-color-tertiary {
+  background-color: var(--color-tertiary) !important;
+}
+
+.text-color-textWhite {
+  color: var(--color-textWhite) !important;
+}
+
+.text-color-textBlack {
+  color: var(--color-textBlack) !important;
+}
+
+.border-color-textBlack {
+  border-color: var(--color-textBlack) !important;
+}
+
+.bg-color-secondary {
+  background-color: var(--color-secondary) !important;
 }

@@ -19,7 +19,7 @@ export async function POST(req) {
 
     const matched = await bcrypt.compare(password, user.password);
     if (!matched) {
-        return NextResponse.json({error: 'Incorrect password'}, {status: 401});
+        return NextResponse.json({error: 'Incorrect password or phone number'}, {status: 401});
     }
 
     if (!user.onboardingComplete) {

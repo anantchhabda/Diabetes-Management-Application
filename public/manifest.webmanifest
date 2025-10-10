@@ -1,0 +1,35 @@
+{
+  "name": "Diabetes Management Application",
+  "short_name": "DMA",
+  "description": "Multilingual, lightweight diabetes management PWA with offline capability.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#049EDB",
+  "theme_color": "#049EDB",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
