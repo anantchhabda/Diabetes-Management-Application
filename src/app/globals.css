@@ -38,3 +38,27 @@ body {
   pointer-events: none;
   user-select: none;
 }
+
+.bg-color-delete {
+  background-color: var(--color-delete) !important;
+}
+
+.bg-color-tertiary {
+  background-color: var(--color-tertiary) !important;
+}
+
+.text-color-textWhite {
+  color: var(--color-textWhite) !important;
+}
+
+.text-color-textBlack {
+  color: var(--color-textBlack) !important;
+}
+
+.border-color-textBlack {
+  border-color: var(--color-textBlack) !important;
+}
+
+.bg-color-secondary {
+  background-color: var(--color-secondary) !important;
+}

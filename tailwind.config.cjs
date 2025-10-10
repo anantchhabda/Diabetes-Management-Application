@@ -5,7 +5,7 @@ module.exports = {
     "./src/components/**/*.{js,jsx,ts,tsx,mdx}",
     "./src/**/*.{js,jsx,ts,tsx,mdx}",
     "./public/**/*.html",
-    "./public/js/**/*.{js,ts}", // 👈 include your vanilla JS
+    "./public/js/**/*.{js,ts}",
   ],
   safelist: [
     "bg-sky-950",
