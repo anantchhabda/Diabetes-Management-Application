@@ -195,6 +195,9 @@
                 );
               }
             });
+            if (window.removeCurrentConnection) {
+              window.removeCurrentConnection(conn.requesterID);
+            }
           } catch (err) {
             console.error('Error removing connection', err);
           }
@@ -266,6 +269,16 @@
             if (!res.ok) throw new Error('Failed to accept request');
             fadeOutAndRemove(row);
             await renderCurrentConnections();
+
+            //call hook
+            if (window.addCurrentConnection) {
+              window.addCurrentConnection({ 
+                name: req.name, 
+                role: req.role, 
+                id: req.requesterID 
+              });
+            }
+
           } catch (err) {
             console.error('Error accepting request:', err);
           }
@@ -283,6 +296,10 @@
             });
             if (!res.ok) throw new Error('Failed to reject request');
             fadeOutAndRemove(row);
+
+            if (window.removeConnectionRequest) {
+              window.removeConnectionRequest(req.id);
+            }
           } catch (err) {
             console.error('Error rejecting request:', err);
           }

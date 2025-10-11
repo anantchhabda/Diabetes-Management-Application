@@ -251,12 +251,36 @@
   }
 
   //public hook should be called when patient accepts request
-  window.addCurrentConnection = function addCurrentConnection(conn) {
+  window.addCurrentConnection = async function addCurrentConnection(conn) {
     try {
-      if (!conn || !conn.name) return;
-      renderCurrentConnection({ patientName: conn.name, patient: conn.id });
+      if (!conn || !conn.name || !conn.id) {
+        console.warn("[family-connection] Invalid connection data:", conn);
+        return;
+      }
+
+      console.log("[family-connection] Adding new connection:", conn);
+      await renderCurrentConnection(); // refresh list
+      await renderOutgoingRequest();   // remove accepted request
     } catch (e) {
       console.error("[family-connection] addCurrentConnection error:", e);
+    }
+  };
+
+  window.removeOutgoingRequest = async function removeOutgoingRequest(requestId) {
+    try {
+      console.log("[family-connection] Removing outgoing request:", requestId);
+      await renderOutgoingRequest();
+    } catch (e) {
+      console.error("[family-connection] removeOutgoingRequest error:", e);
+    }
+  };
+
+  window.removeCurrentConnection = async function removeCurrentConnection(patientId) {
+    try {
+      console.log("[family-connection] Removing current connection:", patientId);
+      await renderCurrentConnection();
+    } catch (e) {
+      console.error("[family-connection] removeCurrentConnection error:", e);
     }
   };
 
