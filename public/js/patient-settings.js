@@ -4,7 +4,7 @@
 
   if (!form) return;
 
-  // Load existing family member data when page loads
+  // Load existing patient data when page loads
   async function loadUserData() {
     try {
       const token = localStorage.getItem("authToken");
@@ -28,18 +28,23 @@
 
       const result = await response.json();
       const userData = result.profile;
-      
+      const phoneNumber = result.phoneNumber;
+
       // Populate form fields with existing data
       const fields = {
-        familyId: userData.profileId,
+        patientId: userData.profileId,
         fullName: userData.name,
-        dateOfBirth: userData.dob,
-        fullAddress: userData.address
+        dateOfBirth: userData.dob ? userData.dob.slice(0, 10) : "",
+        sex: userData.sex,
+        fullAddress: userData.address,
+        yearOfDiagnosis: userData.yearOfDiag,
+        diagnosisType: userData.typeOfDiag,
+        phone: phoneNumber
       };
 
       Object.entries(fields).forEach(([fieldId, value]) => {
         const element = document.getElementById(fieldId);
-        if (element && value) {
+        if (element && value !== undefined && value !== null) {
           element.value = value;
         }
       });
@@ -80,7 +85,10 @@
     [
       "fullName",
       "dateOfBirth",
+      "sex",
       "fullAddress",
+      "yearOfDiagnosis",
+      "diagnosisType"
     ].forEach((f) => {
       if (!data[f] || data[f].trim() === "") {
         errors[f] = "Required";
@@ -98,8 +106,9 @@
 
     if (Object.keys(errors).length > 0) return;
 
-    console.log("Submitting family settings form...");
-    console.log("Form data:", data);
+    // Convert yearOfDiagnosis to number
+    let yearOfDiag = Number(data.yearOfDiagnosis);
+    if (isNaN(yearOfDiag)) yearOfDiag = undefined;
 
     try {
       const token = localStorage.getItem("authToken");
@@ -109,7 +118,7 @@
         return;
       }
 
-      const res = await fetch("/api/family/me/profile", {
+      const res = await fetch("/api/patient/me/profile", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -118,12 +127,14 @@
         body: JSON.stringify({
           name: data.fullName,
           dob: data.dateOfBirth,
+          sex: data.sex,
           address: data.fullAddress,
+          yearOfDiag: Number(data.yearOfDiagnosis),
+          typeOfDiag: data.diagnosisType,
         }),
       });
 
       const ct = res.headers.get?.("content-type") || "";
-      console.log("settings response:", res.status, ct);
       const { data: result, text } = await readResponseSafe(res);
 
       if (!res.ok) {
@@ -137,11 +148,11 @@
 
       if (savedMsg) {
         savedMsg.textContent = "Settings updated successfully!";
-        window.location.href = "/family-homepage";
+        window.location.href = "/patient-homepage";
       }
 
     } catch (err) {
-      console.error("Family settings update error:", err);
+      console.error("Patient settings update error:", err);
       if (savedMsg) savedMsg.textContent = "Error, please try again";
     }
   });
@@ -150,12 +161,10 @@
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", function () {
-      // Remove auth token and any other user data
       localStorage.removeItem("authToken");
       localStorage.removeItem("userData");
       localStorage.removeItem("userRole");
-      // Redirect to login page
-      window.location.href = "/";
+      window.location.href = "/login";
     });
   }
 

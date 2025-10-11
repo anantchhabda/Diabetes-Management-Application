@@ -100,10 +100,10 @@ export default function Page() {
             <option value="" data-i18n="select_placeholder">
               Select...
             </option>
-            <option value="male" data-i18n="sex_male">Male</option>
-            <option value="female" data-i18n="sex_female">Female</option>
-            <option value="intersex" data-i18n="sex_intersex">Intersex</option>
-            <option value="prefer_not" data-i18n="sex_prefer_not">Prefer not to say</option>
+            <option value="Male" data-i18n="sex_male">Male</option>
+            <option value="Female" data-i18n="sex_female">Female</option>
+            <option value="Intersex" data-i18n="sex_intersex">Intersex</option>
+            <option value="Prefer not to say" data-i18n="sex_prefer_not">Prefer not to say</option>
           </select>
           <p
             id="error-sex"
@@ -172,9 +172,9 @@ export default function Page() {
             <option value="" data-i18n="select_placeholder">
               Select...
             </option>
-            <option value="type1" data-i18n="diag_type1">Type 1</option>
-            <option value="type2" data-i18n="diag_type2">Type 2</option>
-            <option value="gestational" data-i18n="diag_gestational">Gestational</option>
+            <option value="Type 1" data-i18n="diag_type1">Type 1</option>
+            <option value="Type 2" data-i18n="diag_type2">Type 2</option>
+            <option value="Gestational" data-i18n="diag_gestational">Gestational</option>
           </select>
           <p
             id="error-diagnosisType"

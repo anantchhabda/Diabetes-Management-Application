@@ -4,28 +4,36 @@ const settingsButton = document.getElementById("settingsBtn");
 // Function to get current user role
 async function getCurrentUserRole() {
   try {
+    // Always get the latest token from localStorage
     const token = localStorage.getItem("authToken");
     if (!token) {
       console.log("No auth token found");
       return null;
     }
 
-    const response = await fetch("/api/auth/me", {
+    // Add a cache-busting query param to avoid caching issues
+    const response = await fetch(`/api/auth/me?_=${Date.now()}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
-      }
+      },
+      cache: "no-store"
     });
 
     if (!response.ok) {
       console.error("Failed to fetch user role:", response.status);
+      // If unauthorized, clear token and reload
+      if (response.status === 401) {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("userData");
+        localStorage.removeItem("userRole");
+        window.location.href = "/login";
+      }
       return null;
     }
 
     const data = await response.json();
-    console.log("User data from API:", data); // Debug log
-    console.log("User role:", data.role, "Type:", typeof data.role); // Debug log
     return data.role; // Returns "Patient", "Doctor", or "Family Member"
   } catch (error) {
     console.error("Error fetching user role:", error);
@@ -35,11 +43,7 @@ async function getCurrentUserRole() {
 
 async function navigateToHomepage() {
   const role = await getCurrentUserRole();
-  console.log("Navigating to homepage with role:", role); // Debug log
-  
-  // Normalize role string (trim whitespace and handle case)
   const normalizedRole = role ? role.trim() : null;
-  
   switch (normalizedRole) {
     case "Patient":
       window.location.href = "/patient-homepage";
@@ -51,18 +55,13 @@ async function navigateToHomepage() {
       window.location.href = "/family-homepage";
       break;
     default:
-      console.log("Unknown role or no role, redirecting to home:", normalizedRole);
       window.location.href = "/";
   }
 }
 
 async function navigateToSettings() {
   const role = await getCurrentUserRole();
-  console.log("Navigating to settings with role:", role); // Debug log
-  
-  // Normalize role string (trim whitespace and handle case)
   const normalizedRole = role ? role.trim() : null;
-  
   switch (normalizedRole) {
     case "Patient":
       window.location.href = "/patient-settings"; 
@@ -74,12 +73,10 @@ async function navigateToSettings() {
       window.location.href = "/family-settings"; 
       break;
     default:
-      console.log("Unknown role or no role, redirecting to home:", normalizedRole);
       window.location.href = "/";
   }
 }
 
-// Event listeners
 if (homeButton) {
   homeButton.addEventListener("click", function () {
     navigateToHomepage();
