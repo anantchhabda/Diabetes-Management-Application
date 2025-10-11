@@ -54,10 +54,10 @@
   "address_label": "Full Address*",
   "address_placeholder": "Street, City, Country",
 
-  "yod_label": "Year of Diagnosis*",
+  "yod_label": "Year of Diagnosis",
   "yod_placeholder": "Year of Diagnosis",
 
-  "diagnosisType_label": "Type of Diagnosis*",
+  "diagnosisType_label": "Type of Diagnosis",
   "diag_type1": "Type 1",
   "diag_type2": "Type 2",
   "diag_gestational": "Gestational",

@@ -57,26 +57,34 @@ export async function POST(req) {
       const dob = s(body.dob);
       const sex = s(body.sex);
       const address = s(body.address);
-      const yearOfDiag = Number(body.yearOfDiag);
-      const typeOfDiag = s(body.typeOfDiag);
+      // OPTIONAL now:
+      const yearOfDiag =
+        typeof body.yearOfDiag === "number" && Number.isFinite(body.yearOfDiag)
+          ? body.yearOfDiag
+          : undefined;
+      const typeOfDiag = s(body.typeOfDiag) || undefined;
 
-      if (!name || !dob || !sex || !address || !yearOfDiag || !typeOfDiag) {
+      // Required ONLY for core fields
+      if (!name || !dob || !sex || !address) {
         return NextResponse.json(
           { error: "All fields are required" },
           { status: 400 }
         );
       }
 
-      created = await Patient.create({
+      // Build doc with optionals only if provided
+      const doc = {
         profileId: user.profileId,
         user: user._id,
         name,
         dob: new Date(dob),
         sex,
         address,
-        yearOfDiag,
-        typeOfDiag,
-      });
+      };
+      if (yearOfDiag !== undefined) doc.yearOfDiag = yearOfDiag;
+      if (typeOfDiag) doc.typeOfDiag = typeOfDiag;
+
+      created = await Patient.create(doc);
     } else if (user.role === "Doctor") {
       const name = s(body.name);
       const dob = s(body.dob);
