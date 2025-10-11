@@ -3,7 +3,8 @@
   const log = (...a) => console.log(LOG_PREFIX, ...a);
   const err = (...a) => console.error(LOG_PREFIX, ...a);
 
-  // util
+  // helpers
+
   function base64UrlToUint8Array(base64Url) {
     const padding = "=".repeat((4 - (base64Url.length % 4)) % 4);
     const base64 = (base64Url + padding).replace(/-/g, "+").replace(/_/g, "/");
@@ -12,10 +13,47 @@
     for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
     return arr;
   }
-  function getAuthToken() {
-    const t = localStorage.getItem("authToken");
-    if (!t) throw new Error("No authToken in localStorage");
-    return t;
+
+  function safeGetAuthToken() {
+    try {
+      const t = localStorage.getItem("authToken");
+      return t || null;
+    } catch {
+      return null;
+    }
+  }
+
+  function decodeJwtPayload(token) {
+    // returns {} if anything fails
+    try {
+      const parts = token.split(".");
+      if (parts.length < 2) return {};
+      const json = atob(parts[1].replace(/-/g, "+").replace(/_/g, "/"));
+      return JSON.parse(json);
+    } catch {
+      return {};
+    }
+  }
+
+  function getCurrentProfileId() {
+    const token = safeGetAuthToken();
+    if (!token) return null;
+    const payload = decodeJwtPayload(token);
+    return payload?.profileId || null;
+  }
+
+  function getBoundProfileId() {
+    try {
+      return localStorage.getItem("dma_push_bound_profileId");
+    } catch {
+      return null;
+    }
+  }
+
+  function setBoundProfileId(pid) {
+    try {
+      if (pid) localStorage.setItem("dma_push_bound_profileId", pid);
+    } catch {}
   }
 
   async function getRegistration() {
@@ -43,13 +81,15 @@
   }
 
   async function saveSubscriptionToServer(subscription) {
-    const token = getAuthToken();
-    // basic device info
+    const token = safeGetAuthToken();
+    if (!token) throw new Error("No authToken in localStorage");
+
+    // device info
     const ua = navigator.userAgent || "";
-    let deviceLabel = "Unknown";
+    let deviceLabel = "Browser";
     try {
       const uaData = navigator.userAgentData;
-      if (uaData && uaData.brands) {
+      if (uaData?.brands?.length) {
         deviceLabel =
           (uaData.brands.map((b) => b.brand).join(", ") || "Browser") +
           (uaData.platform ? ` on ${uaData.platform}` : "");
@@ -67,7 +107,7 @@
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // patientID subscribe via
+        Authorization: `Bearer ${token}`, // server links to patient via JWT
       },
       body: JSON.stringify(payload),
     });
@@ -93,7 +133,52 @@
     } catch (_) {}
   }
 
-  // exposed helpers
+  //one subscription per user, subscription updates to the latest user which logins into a "particular" device
+  async function ensureSubscribedForCurrentUser(silent = false) {
+    try {
+      const token = safeGetAuthToken();
+      const profileId = getCurrentProfileId();
+
+      if (!token || !profileId) {
+        log("No auth token/profileId — not binding.");
+        return false;
+      }
+
+      if (!("Notification" in window))
+        throw new Error("Notifications not supported");
+      if (Notification.permission !== "granted") {
+        log("Permission is not granted — cannot auto-bind.");
+        return false;
+      }
+
+      const reg = await getRegistration();
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) {
+        // permission is granted but no push subscription yet — create one
+        sub = await subscribeBrowser(reg);
+        log("Created new PushSubscription for current user.");
+      } else {
+        log("Found existing PushSubscription — will re-bind to this user.");
+      }
+
+      await saveSubscriptionToServer(sub);
+      setBoundProfileId(profileId);
+      log("Subscription saved and bound to profile:", profileId);
+
+      await showLocalToast(
+        reg,
+        "Notifications ready",
+        "This device is linked to your account."
+      );
+
+      return true;
+    } catch (e) {
+      if (!silent) err("ensureSubscribedForCurrentUser error:", e);
+      return false;
+    }
+  }
+
+  // public API for the button
   window.enableNotifications = async function enableNotifications() {
     try {
       if (!("Notification" in window))
@@ -101,12 +186,9 @@
       if (!("serviceWorker" in navigator))
         throw new Error("Service Worker not supported");
 
-      log(
-        "Clicked enableNotificationsBtn; permission =",
-        Notification.permission
-      );
+      log("Enable clicked; permission =", Notification.permission);
 
-      // ask permission
+      // ask permission if needed
       let perm = Notification.permission;
       if (perm === "default") {
         perm = await Notification.requestPermission();
@@ -114,11 +196,9 @@
       }
       if (perm !== "granted") throw new Error("User denied notifications");
 
-      // get sw registration
       const reg = await getRegistration();
-      log("getRegistration() -> found");
 
-      // ensure pushsubscription
+      // always (re)bind to the current user when the user explicitly clicks
       let sub = await reg.pushManager.getSubscription();
       if (!sub) {
         sub = await subscribeBrowser(reg);
@@ -127,11 +207,19 @@
         log("pushManager.getSubscription() -> existing");
       }
 
-      // save to our backend table
-      const resp = await saveSubscriptionToServer(sub);
-      log("subscribe API ->", resp);
+      await saveSubscriptionToServer(sub);
+
+      const pid = getCurrentProfileId();
+      if (pid) setBoundProfileId(pid);
 
       await showLocalToast(reg);
+
+      // fade away prompt only on success
+      const box = document.getElementById("notificationPrompt");
+      if (box) {
+        box.classList.add("opacity-0");
+        setTimeout(() => box.remove(), 600);
+      }
 
       return true;
     } catch (e) {
@@ -140,37 +228,50 @@
     }
   };
 
-  // wire the enable button if present
+  // UI wiring
+
+  function shouldHidePrompt() {
+    const pid = getCurrentProfileId();
+    const bound = getBoundProfileId();
+    return (
+      Notification?.permission === "granted" && pid && bound && pid === bound
+    );
+  }
+
   function wireButton() {
     const btn = document.getElementById("enableNotificationsBtn");
     const promptBox = document.getElementById("notificationPrompt");
-    if (!btn) return;
-    if (Notification && Notification.permission === "granted" && promptBox) {
+    if (!btn || !promptBox) return;
+
+    if (shouldHidePrompt()) {
       promptBox.classList.add("opacity-0");
       setTimeout(() => promptBox.remove(), 600);
       return;
     }
-    if (btn.dataset.wired) return;
-    btn.dataset.wired = "1";
-    btn.addEventListener("click", async () => {
-      try {
-        await window.enableNotifications();
-        // fade away
-        const box = document.getElementById("notificationPrompt");
-        if (box) {
-          box.classList.add("opacity-0");
-          setTimeout(() => box.remove(), 600);
-        }
-      } catch (_) {}
-    });
+
+    //update subscription
+    if (Notification?.permission === "granted") {
+      btn.textContent = "Enable notifications for this account";
+    }
+
+    if (!btn.dataset.wired) {
+      btn.dataset.wired = "1";
+      btn.addEventListener("click", async () => {
+        try {
+          await window.enableNotifications();
+        } catch (_) {}
+      });
+    }
   }
 
   // init
+
   (async function init() {
     log(
       "notifications.js loaded; permission =",
       typeof Notification !== "undefined" ? Notification.permission : "n/a"
     );
+
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.ready.then((reg) => {
         console.log(
@@ -180,10 +281,25 @@
         );
       });
     }
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", wireButton, { once: true });
-    } else {
+
+    const onReady = async () => {
       wireButton();
+      // if permission is already granted, try silently to re-bind subscription
+      // to the currently logged-in user
+      if (Notification?.permission === "granted") {
+        const bound = await ensureSubscribedForCurrentUser(true);
+        // re-evaluate UI after silent bind
+        wireButton();
+        if (!bound) {
+          //if not bound, keepm button visible but a rare case
+        }
+      }
+    };
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", onReady, { once: true });
+    } else {
+      onReady();
     }
   })();
 })();

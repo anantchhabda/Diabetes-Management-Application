@@ -45,7 +45,7 @@ export default function RemindersPage() {
 
           {/* bump version to defeat caching*/}
           <Script src="/js/reminders.js?v=3" strategy="afterInteractive" />
-          <Script src="/js/notifications.js?v=2" strategy="afterInteractive" />
+          <Script src="/js/notifications.js?v=3" strategy="afterInteractive" />
 
           {/* localize static chrome + fade prompt when granted */}
           <Script id="reminders-static-i18n" strategy="afterInteractive">
