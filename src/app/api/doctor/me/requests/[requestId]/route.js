@@ -14,12 +14,14 @@ export async function DELETE(req, {params}) {
         return NextResponse.json({ error: 'Doctor profile not found'}, {status: 404});
     }
 
+    const { requestId } = await params;
+
     const deleted = await LinkRequest.findOneAndDelete({ 
-        _id: params.requestId,
+        _id: requestId,
         requesterUser: doctor.profileId,
         requesterRole: 'Doctor',
         status: 'Pending'
-    }).select(_id);
+    });
 
     if (!deleted) {
         return NextResponse.json({ error: 'Pending request not found or not yours'}, {status: 404});
