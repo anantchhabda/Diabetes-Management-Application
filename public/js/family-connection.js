@@ -1,5 +1,4 @@
 (function () {
-  let currentPatient = null;
 
   const $ = (id) => document.getElementById(id);
   const show = (el) => el && el.classList.remove("hidden");
@@ -16,54 +15,29 @@
       container.appendChild(empty);
     }
   }
+
+  function bySel(selector, parent = document) {
+    return parent.querySelector(selector);
+  }
+
+  function clearChildren(el) {
+    while (el.firstChild) el.removeChild(el.firstChild);
+  }
+
   function removeEmptyMessage(id) {
     const el = $(id);
     if (el) el.remove();
   }
 
-  function renderOutgoingRequestRow(patient) {
-    const container = $("outgoingRequestsContainer");
-    const empty = $("noOutgoingRequests");
-    if (!container) return;
-    if (empty) empty.remove();
-
-    const row = document.createElement("div");
-    row.className = "grid grid-cols-[100px_1fr_auto] border border-black";
-
-    row.innerHTML = `
-      <div class="bg-[var(--color-secondary)] text-white font-semibold flex items-center justify-center px-2 py-2">
-        Patient
-      </div>
-      <div class="bg-gray-200 text-[var(--color-textBlack)] flex items-center px-3 font-semibold justify-start">
-        ${patient.name}
-      </div>
-      <button class="bg-red-600 text-white font-bold px-3 py-1 m-1 rounded hover:opacity-90">
-        Remove
-      </button>
-    `;
-
-    const removeBtn = row.querySelector("button");
-    removeBtn.addEventListener("click", () => {
-      container.removeChild(row);
-      if (!container.children.length) {
-        const emptyMsg = document.createElement("div");
-        emptyMsg.id = "noOutgoingRequests";
-        emptyMsg.className = "text-sm text-gray-600 italic";
-        emptyMsg.textContent = "No outgoing requests yet.";
-        container.appendChild(emptyMsg);
-      }
-    });
-
-    container.appendChild(row);
+  function fadeOutAndRemove(el, cb) {
+    el.classList.add("opacity-0");
+    setTimeout(() => {
+      if (el.parentNode) el.parentNode.removeChild(el);
+      if (typeof cb === "function") cb();
+    }, 300);
   }
 
-  // render a new connection
-  function renderCurrentConnection({ name, id }) {
-    const container = $("currentConnectionsContainer");
-    if (!container) return;
-
-    removeEmptyMessage("noCurrentConnections");
-
+  function currentConnectionRow({name, patientID}) {
     const row = document.createElement("div");
     row.className = "grid grid-cols-[100px_1fr_auto_auto] border border-black";
 
@@ -81,28 +55,165 @@
         Remove
       </button>
     `;
+    row.dataset.patientId = patientID;
+    return row;
+  }
 
-    const viewBtn = row.querySelector(".view-btn");
-    const removeBtn = row.querySelector(".remove-btn");
+  function outgoingRequestRow({requestId, patientName}) {
+    const row = document.createElement("div");
+    row.className = "grid grid-cols-[100px_1fr_auto] border border-black";
 
-    viewBtn.addEventListener("click", () => {
-      // adam to route this
-      const target = `/patient-overview?id=${encodeURIComponent(id || "")}`;
-      window.location.assign(target);
-    });
+    row.innerHTML = `
+      <div class="bg-[var(--color-secondary)] text-white font-semibold flex items-center justify-center px-2 py-2">
+        Patient
+      </div>
+      <div class="bg-gray-200 text-[var(--color-textBlack)] flex items-center px-3 font-semibold justify-start">
+        ${patientName}
+      </div>
+      <button class="cancel-btn bg-red-600 text-white font-bold px-3 py-1 m-1 rounded hover:opacity-90">
+        Cancel
+      </button>
+    `;
+    row.dataset.requestId = requestId;
+    return row;
+  }
 
-    removeBtn.addEventListener("click", () => {
-      container.removeChild(row);
-      if (!container.children.length) {
+  //render outgoing requests
+  let isRenderingRequest = false;
+  async function renderOutgoingRequest() {
+    if (isRenderingRequest) return;
+    isRenderingRequest = true;
+
+    const container = $("outgoingRequestsContainer");
+    if (!container) return;
+    clearChildren(container);
+
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) return console.warn("Session expired, please login again");
+
+      const res = await fetch("/api/family/me/requests", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Cache-Control": "no-cache",
+        },
+      });
+
+      if (!res.ok) throw new Error(`Load requests failed (${res.status})`);
+      const data = await res.json();
+      const requests = data.requests || [];
+
+      if (!requests.length) {
+        ensureEmptyMessage(
+          "outgoingRequestsContainer",
+          "noOutgoingRequests",
+          "No pending requests."
+        );
+        return;
+      }
+
+      requests.forEach((req) => {
+        const row = outgoingRequestRow({
+          patientName: req.patientName,
+          requestId: req._id,
+        });
+
+        const cancelBtn = bySel(".cancel-btn", row);
+        cancelBtn.addEventListener('click', async () => {
+          try {
+            const delRes = await fetch(`/api/family/me/requests/${req._id}`, {
+              method: "DELETE",
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!delRes.ok) throw new Error("Failed to cancel request");
+            fadeOutAndRemove(row, () => {
+              if (!container.children.length)
+                ensureEmptyMessage(
+                  "outgoingRequestsContainer",
+                  "noOutgoingRequests",
+                  "No pending requests."
+                );
+            });
+          } catch (err) {
+            console.error("Error cancelling request:", err);
+          }
+        });
+
+        container.appendChild(row);
+      });
+    } catch (err) {
+      console.error("Error loading outgoing requests", err);
+    } finally {
+      isRenderingRequest = false;
+    }
+  }
+
+  //render current connections
+  let isRenderingConnection = false;
+  async function renderCurrentConnection() {
+    if (isRenderingConnection) return;
+    isRenderingConnection = true;
+
+    const container = $("currentConnectionsContainer");
+    if (!container) return;
+    clearChildren(container);
+
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) return console.warn("Session expired, please login again");
+
+      const res = await fetch("/api/family/me/connection", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Cache-Control": "no-cache",
+        },
+      });
+
+      if (!res.ok) throw new Error(`Load current connections failed (${res.status})`);
+      const data = await res.json();
+      const connections = data.connections || [];
+
+      if (!connections.length) {
         ensureEmptyMessage(
           "currentConnectionsContainer",
           "noCurrentConnections",
           "No current connections yet."
         );
+        return;
       }
-    });
 
-    container.appendChild(row);
+      connections.forEach((conn) => {
+        const row = currentConnectionRow({
+          name: conn.patientName,
+          patientID: conn.patient,
+        });
+        const removeBtn = bySel(".remove-btn", row);
+        removeBtn.addEventListener("click", async() => {
+          try {
+            const delRes = await fetch(`/api/auth/me/patient/${conn.patient}/link`, {
+              method: "DELETE",
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!delRes.ok) throw new Error("Failed to remove connection");
+            fadeOutAndRemove(row, () => {
+              if (!container.children.length)
+                ensureEmptyMessage(
+                  "currentConnectionsContainer",
+                  "noCurrentConnections",
+                  "No current connections yet."
+                );
+            });
+          } catch (err) {
+            console.error("Error removing connection:", err);
+          }
+        });
+        container.appendChild(row);
+      });
+    } catch (err) {
+      console.error("Error loading connections", err);
+    } finally {
+      isRenderingConnection = false;
+    }
   }
 
   async function lookupPatientById(patientId) {
@@ -143,7 +254,7 @@
   window.addCurrentConnection = function addCurrentConnection(conn) {
     try {
       if (!conn || !conn.name) return;
-      renderCurrentConnection({ name: conn.name, id: conn.id });
+      renderCurrentConnection({ patientName: conn.name, patient: conn.id });
     } catch (e) {
       console.error("[family-connection] addCurrentConnection error:", e);
     }
@@ -166,6 +277,8 @@
     const sendRequestBtn = $("sendRequestBtn");
 
     if (!openSearchBtn || !searchPopup) return;
+
+    let selectedPatient = null;
 
     // open modal
     openSearchBtn.addEventListener("click", () => {
@@ -197,14 +310,14 @@
 
       try {
         const patient = await lookupPatientById(id);
-        currentPatient = patient;
+        selectedPatient = patient;
         confirmPatientName.textContent = patient.name;
         confirmPatientId.textContent = patient.id;
         hide(searchView);
         show(confirmView);
       } catch (e) {
         searchError.textContent = "Invalid ID. Patient not found.";
-        currentPatient = null;
+        selectedPatient = null;
       } finally {
         confirmSearchBtn.disabled = false;
         confirmSearchBtn.textContent = oldText;
@@ -213,7 +326,7 @@
 
     // back
     backToSearchBtn.addEventListener("click", () => {
-      currentPatient = null;
+      selectedPatient = null;
       patientIdInput.value = "";
       hide(confirmView);
       show(searchView);
@@ -222,15 +335,20 @@
 
     // send renders in outgoing request
     sendRequestBtn.addEventListener("click", async () => {
-      if (!currentPatient) return;
-      renderOutgoingRequestRow(currentPatient);
-      await sendConnectionRequest(currentPatient.id);
+      if (!selectedPatient) return;
+      
+      await sendConnectionRequest(selectedPatient.id);
       hide(searchPopup);
-      currentPatient = null;
+      selectedPatient = null;
       patientIdInput.value = "";
       hide(confirmView);
       show(searchView);
+
+      await renderOutgoingRequest();
     });
+
+    renderCurrentConnection();
+    renderOutgoingRequest();
   }
 
   if (document.readyState === "loading") {

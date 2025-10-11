@@ -17,12 +17,12 @@
   }
 
   function bySel(selector, parent = document) {
-  return parent.querySelector(selector);
-}
+    return parent.querySelector(selector);
+  }
 
-function clearChildren(el) {
-  while (el.firstChild) el.removeChild(el.firstChild);
-}
+  function clearChildren(el) {
+    while (el.firstChild) el.removeChild(el.firstChild);
+  }
 
   function removeEmptyMessage(id) {
     const el = $(id);
