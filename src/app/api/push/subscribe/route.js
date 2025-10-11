@@ -39,16 +39,20 @@ export async function POST(req) {
       );
     }
 
-    // single subscription per user irrespective of devices, it will update to latest device
+    // Single active subscription per patient: "latest device wins"
+    // 1) Find any subscription by endpoint (could belong to another patient)
+    const byEndpoint = await PushSubscription.findOne({ endpoint }); // doc (not lean)
 
-    const byEndpoint = await PushSubscription.findOne({ endpoint }).lean();
+    // 2) Find existing subs for this patient (newest first)
     const existingForPatient = await PushSubscription.find({ patientID }).sort({
       updatedAt: -1,
     });
 
+    // choose a primary doc for this patient (most recent)
     let primary = existingForPatient[0] || null;
 
-    // resole endpoint conflict
+    // If we found a doc with this endpoint but it's NOT the same as the chosen primary doc,
+    // remove the endpoint doc to avoid unique endpoint conflicts before writing the new one.
     if (
       byEndpoint &&
       (!primary || String(byEndpoint._id) !== String(primary._id))
@@ -57,7 +61,7 @@ export async function POST(req) {
     }
 
     if (primary) {
-      // Update the primary with the latest device and endpoint
+      // Update the primary with latest endpoint/keys/device
       primary.endpoint = endpoint;
       primary.keys = keys;
       primary.enabled = true;
@@ -66,7 +70,7 @@ export async function POST(req) {
       primary.patientID = patientID;
       await primary.save();
 
-      // remove duplicates
+      // Remove other duplicates for this patient
       const otherIds = existingForPatient
         .filter((d) => String(d._id) !== String(primary._id))
         .map((d) => d._id);
@@ -74,7 +78,7 @@ export async function POST(req) {
         await PushSubscription.deleteMany({ _id: { $in: otherIds } });
       }
     } else {
-      // create fresh subsciprtion if none exits
+      // No existing sub for this patient — create a fresh one
       const created = await PushSubscription.create({
         endpoint,
         keys,
@@ -86,7 +90,7 @@ export async function POST(req) {
       primary = created;
     }
 
-    // clean up disabled leftovers
+    // Clean up any disabled leftovers for this patient (except the active primary)
     await PushSubscription.deleteMany({
       patientID,
       enabled: false,
