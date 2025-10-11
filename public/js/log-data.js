@@ -252,6 +252,223 @@
     }
   }
 
+  // --- Offline / Queue helpers -----------------------------------------------
+  const Q_DB   = 'dm_queue_v1';
+  const Q_STORE= 'mutations';
+  let   qdb;
+
+  /** Open (or create) the queue DB */
+  function qOpen() {
+    return new Promise((resolve, reject) => {
+      if (qdb) return resolve(qdb);
+      const req = indexedDB.open(Q_DB, 1);
+      req.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(Q_STORE)) {
+          const os = db.createObjectStore(Q_STORE, { keyPath: 'id' });
+          os.createIndex('by_status', 'status', { unique: false });
+          os.createIndex('by_created', 'createdAt', { unique: false });
+        }
+      };
+      req.onsuccess = () => { qdb = req.result; resolve(qdb); };
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  function qTx(mode='readonly') {
+    return qOpen().then(db => db.transaction(Q_STORE, mode));
+  }
+
+  /** Enqueue a mutation {resource, date, type?, value?, comment?} */
+  async function enqueueMutation(mut) {
+    const id = crypto.randomUUID();
+    const rec = {
+      id,
+      status: 'pending',
+      createdAt: Date.now(),
+      attempts: 0,
+      // include an idempotency key the server can accept or echo back
+      idem: crypto.randomUUID(),
+      ...mut
+    };
+    const tx = await qTx('readwrite');
+    await new Promise((res, rej) => {
+      const req = tx.objectStore(Q_STORE).put(rec);
+      req.onsuccess = () => res();
+      req.onerror = () => rej(req.error);
+    });
+    return rec;
+  }
+
+  /** Read a batch of pending */
+  async function qReadPending(limit=30) {
+    const tx = await qTx('readonly');
+    const store = tx.objectStore(Q_STORE);
+    const idx = store.index('by_status');
+    const out = [];
+    return new Promise((res, rej) => {
+      const req = idx.openCursor('pending');
+      req.onsuccess = (e) => {
+        const cur = e.target.result;
+        if (!cur || out.length >= limit) return res(out);
+        out.push(cur.value);
+        cur.continue();
+      };
+      req.onerror = () => rej(req.error);
+    });
+  }
+
+/** Mark as done */
+async function qMarkDone(id) {
+  const tx = await qTx('readwrite');
+  const store = tx.objectStore(Q_STORE);
+  const rec = await new Promise((res, rej) => {
+    const get = store.get(id);
+    get.onsuccess = () => res(get.result);
+    get.onerror = () => rej(get.error);
+  });
+  if (!rec) return;
+  rec.status = 'synced';
+  rec.syncedAt = Date.now();
+  await new Promise((res, rej) => {
+    const put = store.put(rec);
+    put.onsuccess = () => res();
+    put.onerror = () => rej(put.error);
+  });
+}
+
+/** Bump attempts (backoff-friendly) */
+async function qBumpAttempts(id) {
+  const tx = await qTx('readwrite');
+  const store = tx.objectStore(Q_STORE);
+  const rec = await new Promise((res, rej) => {
+    const get = store.get(id);
+    get.onsuccess = () => res(get.result);
+    get.onerror = () => rej(get.error);
+  });
+  if (!rec) return;
+  rec.attempts = (rec.attempts || 0) + 1;
+  await new Promise((res, rej) => {
+    const put = store.put(rec);
+    put.onsuccess = () => res();
+    put.onerror = () => rej(put.error);
+  });
+}
+
+function isOnline() { return navigator.onLine; }
+
+/** Try to push one mutation to the API using your existing endpoints */
+async function pushOne(mut) {
+  // IMPORTANT: server must treat "idem" as idempotency key if possible (optional).
+  const headers = { ...authHeader(), 'X-Idempotency-Key': mut.idem };
+
+  if (mut.resource === 'glucose') {
+    // PATCH then POST-if-404 exactly like your save code
+    try {
+      const r = await fetch(`/api/patient/me/glucoselog?date=${encodeURIComponent(mut.date)}`, {
+        method: 'PATCH', headers, body: JSON.stringify({ type: mut.type, glucoseLevel: mut.value })
+      });
+      if (r.status === 404 && mut.value !== '' && mut.value != null) {
+        await fetch(`/api/patient/me/glucoselog`, {
+          method: 'POST', headers, body: JSON.stringify({ date: mut.date, type: mut.type, glucoseLevel: mut.value })
+        });
+      } else if (!r.ok && r.status !== 404) {
+        const j = await r.json().catch(()=>({}));
+        const err = new Error(j.error || j.message || `HTTP ${r.status}`);
+        err.status = r.status;
+        throw err;
+      }
+      return;
+    } catch (e) { throw e; }
+  }
+
+  if (mut.resource === 'insulin') {
+    try {
+      const r = await fetch(`/api/patient/me/insulinlog?date=${encodeURIComponent(mut.date)}`, {
+        method: 'PATCH', headers, body: JSON.stringify({ type: mut.type, dose: mut.value })
+      });
+      if (r.status === 404 && mut.value !== '' && mut.value != null) {
+        await fetch(`/api/patient/me/insulinlog`, {
+          method: 'POST', headers, body: JSON.stringify({ date: mut.date, type: mut.type, dose: mut.value })
+        });
+      } else if (!r.ok && r.status !== 404) {
+        const j = await r.json().catch(()=>({}));
+        const err = new Error(j.error || j.message || `HTTP ${r.status}`);
+        err.status = r.status;
+        throw err;
+      }
+      return;
+    } catch (e) { throw e; }
+  }
+
+  if (mut.resource === 'comments') {
+    try {
+      const r = await fetch(`/api/patient/me/generallog?date=${encodeURIComponent(mut.date)}`, {
+        method: 'PATCH', headers, body: JSON.stringify({ comment: mut.comment ?? '' })
+      });
+      if (r.status === 404 && (mut.comment ?? '').trim() !== '') {
+        await fetch(`/api/patient/me/generallog`, {
+          method: 'POST', headers, body: JSON.stringify({ date: mut.date, comment: mut.comment ?? '' })
+        });
+      } else if (!r.ok && r.status !== 404) {
+        const j = await r.json().catch(()=>({}));
+        const err = new Error(j.error || j.message || `HTTP ${r.status}`);
+        err.status = r.status;
+        throw err;
+      }
+      return;
+    } catch (e) { throw e; }
+  }
+
+  throw new Error('Unknown mutation type');
+}
+
+/** Flush queue: stop on 401 (needs re-login), or when offline */
+let __flushing = false;
+async function flushQueue() {
+  if (__flushing) return;
+  if (!isOnline()) return;
+  __flushing = true;
+  try {
+    const batch = await qReadPending(30);
+    for (const m of batch) {
+      try {
+        await pushOne(m);
+        await qMarkDone(m.id);
+      } catch (err) {
+        // If unauthorized, stop and ask the user to re-login
+        if (err && (err.status === 401 || err.status === 403)) {
+          console.warn('[queue] auth error; will retry after login');
+          showBanner('Session expired. Your offline changes are saved and will sync after you sign in.');
+          break;
+        }
+        // Network/server hiccup: bump attempts and stop this round
+        await qBumpAttempts(m.id);
+        console.warn('[queue] push failed; will retry later', err);
+        break;
+      }
+    }
+  } finally {
+    __flushing = false;
+  }
+}
+
+// Subtle UI banner (reuse your saveNotice style or create a tiny inline toast)
+function showBanner(msg) {
+  try {
+    const el = document.getElementById('saveNotice');
+    if (el) {
+      el.textContent = msg;
+      el.classList.remove('hidden');
+      setTimeout(()=> el.classList.add('hidden'), 2500);
+    } else {
+      console.log('[banner]', msg);
+    }
+  } catch (_) {}
+}
+// ---------------------------------------------------------------------------
+
+
   // loading strategy
   window.addEventListener(
     "load",
@@ -617,6 +834,14 @@
         ensurePendingDraft().comments = state.comments || "";
     });
 
+    // Auto-flush when app becomes online/visible/opened
+    window.addEventListener('online', () => flushQueue());
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') flushQueue();
+    });
+    // Also try once on load
+    flushQueue();
+
     // save
     saveBtn?.addEventListener("click", async () => {
       const hasDate = !!(dateInput && dateInput.value);
@@ -640,18 +865,35 @@
       dateInput?.classList.remove("ring-2", "ring-red-500", "border-red-500");
       dateWarning?.classList.add("hidden");
 
-      try {
-        await saveAllToBackend(dateInput.value, GLUCOSE_ROWS, INSULIN_ROWS, state, currentTab, commentsInput, canEdit);
+      const theDate = dateInput.value;
 
+      //If offline: enqueue and show banner
+      if (!navigator.onLine) {
+        await enqueueForCurrentTabOffline(theDate);
+        saveToStorage();
+        showBanner(t(
+          "saved_offline", "Saved offline. Will sync when you're online."
+        ));
+        return;
+      }
+
+      //Online: try save to backend; on failure, enqueue
+      try {
+        await saveAllToBackend(theDate, GLUCOSE_ROWS, INSULIN_ROWS, state, currentTab, commentsInput, canEdit);
         saveToStorage();
         if (saveNotice) {
           saveNotice.textContent = t("saved_successfully", "Saved successfully");
           saveNotice.classList.remove("hidden");
           setTimeout(() => saveNotice.classList.add("hidden"), 1500);
         }
+        flushQueue();
       } catch (err) {
-        console.error(err);
-        alert(err.message || "Save failed. Please try again.");
+        console.warn("[save] online save failed, enqueuing", err);
+        await enqueueForCurrentTabOffline(theDate);
+        saveToStorage();
+        showBanner(t(
+          "saved_offline", "Saved offline. Will sync when you're online."
+        ));
       }
     });
 
@@ -717,7 +959,7 @@
       for (const log of logs) {
         if (log && typeof log.type === "string") {
           if (Object.prototype.hasOwnProperty.call(log, "glucoseLevel")) {
-            out.glucose[log.type] = (log.glucoseLevell ?? "").toString();
+            out.glucose[log.type] = (log.glucoseLevel ?? "").toString();
           }
           if (Object.prototype.hasOwnProperty.call(log, "dose")) {
             out.insulin[log.type] = (log.dose ?? "").toString();
@@ -872,6 +1114,46 @@
             throw err; 
           }
         }
+        return;
+      }
+    }
+
+    async function enqueueForCurrentTabOffline(theDate) {
+      if (!canEdit) return;
+
+      if (currentTab === 'glucose') {
+        for (const label of GLUCOSE_ROWS) {
+          const raw = (state.glucose[label] ?? '').toString().trim();
+          await enqueueMutation({
+            resource: 'glucose',
+            date: theDate,
+            type: label,
+            value: raw === '' ? '' : Number(raw)
+          });
+        }
+        return;
+      }
+
+      if (currentTab === 'insulin') {
+        for (const label of INSULIN_ROWS) {
+          const raw = (state.insulin[label] ?? '').toString().trim();
+          await enqueueMutation({
+            resource: 'insulin',
+            date: theDate,
+            type: label,
+            value: raw === '' ? '' : Number(raw)
+          });
+        }
+        return;
+      }
+
+      if (currentTab === 'comments') {
+        const rawComment = (state.comments ?? '').trim();
+        await enqueueMutation({
+          resource: 'comments',
+          date: theDate,
+          comment: rawComment
+        });
         return;
       }
     }
