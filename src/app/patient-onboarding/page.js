@@ -1,5 +1,3 @@
-"use client";
-
 import Script from "next/script";
 
 // reusable Tailwind classes
@@ -130,7 +128,7 @@ export default function Page() {
             id="fullAddress"
             name="fullAddress"
             rows={3}
-            placeholder="Street, City, Country, Postcode"
+            placeholder="Street, City, Country"
             className={textAreaBase}
             data-i18n-placeholder="address_placeholder"
           />

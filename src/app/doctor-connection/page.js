@@ -5,40 +5,53 @@ export default function DoctorConnections() {
     <div className="min-h-screen bg-[var(--color-background)]">
       <main className="flex flex-col items-center p-6">
         <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6 mt-6 text-center border border-black">
-          {/* search bar*/}
-          <h2 className="text-2xl font-semibold mb-4 text-[var(--color-textBlack)]">
+          {/* search bar */}
+          <h2
+            className="text-2xl font-semibold mb-4 text-[var(--color-textBlack)]"
+            data-i18n="search_connections"
+          >
             Search for Connections
           </h2>
+
           <div className="flex justify-center mb-6">
             <button
               id="openSearchBtn"
               className="w-2/3 bg-gray-200 text-gray-700 border border-black rounded-lg py-2 hover:bg-gray-300 transition text-sm font-medium"
+              data-i18n="search_by_id"
             >
               🔍 Search by ID
             </button>
           </div>
 
-          {/* dynamic current connections*/}
-          <h2 className="text-2xl font-semibold mb-4 mt-6 text-[var(--color-textBlack)]">
+          {/* current connections */}
+          <h2
+            className="text-2xl font-semibold mb-4 mt-6 text-[var(--color-textBlack)]"
+            data-i18n="current_connections"
+          >
             Current Connections
           </h2>
           <div id="currentConnectionsContainer" className="space-y-2">
             <div
               id="noCurrentConnections"
               className="text-sm text-gray-600 italic"
+              data-i18n="no_current_connections"
             >
               No current connections yet.
             </div>
           </div>
 
-          {/* dynamic outgoing requests */}
-          <h2 className="text-2xl font-semibold mt-10 mb-4 text-[var(--color-textBlack)]">
+          {/* outgoing */}
+          <h2
+            className="text-2xl font-semibold mt-10 mb-4 text-[var(--color-textBlack)]"
+            data-i18n="outgoing_requests"
+          >
             Outgoing Requests
           </h2>
           <div id="outgoingRequestsContainer" className="space-y-2">
             <div
               id="noOutgoingRequests"
               className="text-sm text-gray-600 italic"
+              data-i18n="no_outgoing_requests"
             >
               No outgoing requests yet.
             </div>
@@ -46,16 +59,19 @@ export default function DoctorConnections() {
         </div>
       </main>
 
-      {/* search pop up */}
+      {/* search popup */}
       <div
         id="searchPopup"
         className="hidden fixed inset-0 z-50 bg-black/40 flex items-center justify-center"
         suppressHydrationWarning
       >
         <div className="bg-gray-100 rounded-lg shadow-lg p-6 w-[90%] max-w-sm text-center border border-black">
-          {/* search by patient ID */}
+          {/* Search view */}
           <div id="searchView">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">
+            <h3
+              className="text-xl font-semibold text-gray-800 mb-4"
+              data-i18n="search_patient_by_id"
+            >
               Search Patient by ID
             </h3>
 
@@ -63,6 +79,7 @@ export default function DoctorConnections() {
               <label
                 htmlFor="patientIdInput"
                 className="block text-sm font-medium text-gray-700 mb-1"
+                data-i18n="patient_id_label"
               >
                 Patient ID:
               </label>
@@ -80,49 +97,65 @@ export default function DoctorConnections() {
               <button
                 id="cancelSearchBtn"
                 className="bg-gray-400 text-white px-3 py-1 rounded hover:opacity-90"
+                data-i18n="cancel"
               >
                 Cancel
               </button>
               <button
                 id="confirmSearchBtn"
                 className="bg-[var(--color-primary)] text-white px-3 py-1 rounded hover:opacity-90"
+                data-i18n="next"
               >
                 Next
               </button>
             </div>
           </div>
 
-          {/* Confirm */}
-          <div id="confirmView" className="hidden">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">
+          {/* Confirm view */}
+          <div id="confirmView" className="hidden" data-pid="" data-pname="">
+            <h3
+              className="text-xl font-semibold text-gray-800 mb-4"
+              data-i18n="confirm_connection_request"
+            >
               Confirm Connection Request
             </h3>
 
             <div className="flex flex-col items-center bg-white border border-gray-300 rounded-lg p-3 mb-4">
               <p className="text-sm text-gray-700">
-                <span className="font-semibold">Patient Name:</span>{" "}
+                <span className="font-semibold" data-i18n="patient_name_label">
+                  Patient Name:
+                </span>{" "}
                 <span id="confirmPatientName">—</span>
               </p>
               <p className="text-sm text-gray-700">
-                <span className="font-semibold">Patient ID:</span>{" "}
+                <span
+                  className="font-semibold"
+                  data-i18n="patient_id_label_confirm"
+                >
+                  Patient ID:
+                </span>{" "}
                 <span id="confirmPatientId">—</span>
               </p>
-              <p className="text-sm text-gray-800 mt-3 font-semibold">
+              <p
+                className="text-sm text-gray-800 mt-3 font-semibold"
+                data-i18n="confirm_request"
+              >
                 Confirm Request
               </p>
             </div>
 
-            {/* center buttons */}
             <div className="flex justify-center gap-3">
               <button
                 id="backToSearchBtn"
                 className="bg-red-600 text-white px-3 py-1 rounded hover:opacity-90"
+                data-i18n="cancel"
               >
                 Cancel
               </button>
               <button
                 id="sendRequestBtn"
                 className="bg-green-600 text-white px-3 py-1 rounded hover:opacity-90"
+                data-i18n="send"
               >
                 Send
               </button>
@@ -131,8 +164,11 @@ export default function DoctorConnections() {
         </div>
       </div>
 
-      {/* external js*/}
-      <Script src="/js/doctor-connection.js?v=3" strategy="afterInteractive" />
+      <Script
+        id="doctor-connection-script"
+        src="/js/doctor-connection.js?v=5"
+        strategy="afterInteractive"
+      />
     </div>
   );
 }

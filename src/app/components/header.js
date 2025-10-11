@@ -79,31 +79,40 @@ export default function Header() {
       >
         ← <span data-i18n="back">Back</span>
       </button>
-
       <script
         dangerouslySetInnerHTML={{
           __html: `
-            // Reveal only after full load, via inline style (avoids className mismatch)
-            window.addEventListener('load', function () {
-              var backBtn = document.getElementById('backButton');
-              if (!backBtn) return;
+      // Reveal only after full load, via inline style (avoids className mismatch)
+      window.addEventListener('load', function () {
+        var backBtn = document.getElementById('backButton');
+        if (!backBtn) return;
 
-              var path = window.location.pathname;
-              var shouldShow = !(path === '/homepage' || path === '/') && (window.history.length > 1);
+        var path = window.location.pathname;
 
-              if (shouldShow) {
-                backBtn.style.display = ''; // unhide
-              }
+        // Do not show back button on any homepage routes
+        var homepagePaths = [
+          '/',
+          '/homepage',
+          '/patient-homepage',
+          '/doctor-homepage',
+          '/family-homepage'
+        ];
 
-              backBtn.addEventListener('click', function () {
-                if (window.history.length > 1) {
-                  window.history.back();
-                } else {
-                  window.location.href = '/homepage';
-                }
-              });
-            }, { once: true });
-          `,
+        var shouldShow = !homepagePaths.includes(path) && (window.history.length > 1);
+
+        if (shouldShow) {
+          backBtn.style.display = ''; // unhide
+        }
+
+        backBtn.addEventListener('click', function () {
+          if (window.history.length > 1) {
+            window.history.back();
+          } else {
+            window.location.href = '/homepage';
+          }
+        });
+      }, { once: true });
+    `,
         }}
       />
     </>
