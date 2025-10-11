@@ -90,10 +90,10 @@ export default function Page() {
         <div className="flex gap-4">
           <button
             type="button"
-            id="cancelBtn"
+            id="logoutBtn"
             className="flex-1 py-3 bg-gray-500 text-white text-lg rounded-md hover:opacity-90 transition"
           >
-            Cancel
+            Log Out
           </button>
           <button
             type="submit"

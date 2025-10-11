@@ -24,6 +24,8 @@ async function getCurrentUserRole() {
     }
 
     const data = await response.json();
+    console.log("User data from API:", data); // Debug log
+    console.log("User role:", data.role, "Type:", typeof data.role); // Debug log
     return data.role; // Returns "Patient", "Doctor", or "Family Member"
   } catch (error) {
     console.error("Error fetching user role:", error);
@@ -33,8 +35,12 @@ async function getCurrentUserRole() {
 
 async function navigateToHomepage() {
   const role = await getCurrentUserRole();
+  console.log("Navigating to homepage with role:", role); // Debug log
   
-  switch (role) {
+  // Normalize role string (trim whitespace and handle case)
+  const normalizedRole = role ? role.trim() : null;
+  
+  switch (normalizedRole) {
     case "Patient":
       window.location.href = "/patient-homepage";
       break;
@@ -45,14 +51,19 @@ async function navigateToHomepage() {
       window.location.href = "/family-homepage";
       break;
     default:
+      console.log("Unknown role or no role, redirecting to home:", normalizedRole);
       window.location.href = "/";
   }
 }
 
 async function navigateToSettings() {
   const role = await getCurrentUserRole();
+  console.log("Navigating to settings with role:", role); // Debug log
   
-  switch (role) {
+  // Normalize role string (trim whitespace and handle case)
+  const normalizedRole = role ? role.trim() : null;
+  
+  switch (normalizedRole) {
     case "Patient":
       window.location.href = "/patient-settings"; 
       break;
@@ -63,6 +74,7 @@ async function navigateToSettings() {
       window.location.href = "/family-settings"; 
       break;
     default:
+      console.log("Unknown role or no role, redirecting to home:", normalizedRole);
       window.location.href = "/";
   }
 }
