@@ -55,10 +55,10 @@
   "address_label": "पूरा ठेगाना*",
   "address_placeholder": "मार्ग, शहर, देश",
 
-  "yod_label": "निदान भएको वर्ष*",
+  "yod_label": "निदान भएको वर्ष",
   "yod_placeholder": "निदान भएको वर्ष",
 
-  "diagnosisType_label": "निदानको प्रकार*",
+  "diagnosisType_label": "निदानको प्रकार",
   "diag_type1": "टाइप १",
   "diag_type2": "टाइप २",
   "diag_gestational": "गर्भावस्थामा हुने",

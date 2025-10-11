@@ -1,3 +1,4 @@
+"use client";
 import Script from "next/script";
 
 // reusable Tailwind classes
@@ -67,7 +68,7 @@ export default function Page() {
           <p id="error-phone" className="hidden text-red-600 text-sm"></p>
         </div>
 
-        {/* Full Name */}
+        {/* Full Name (required) */}
         <Field
           labelKey="fullName_label"
           labelFallback="Full Name*"
@@ -77,7 +78,7 @@ export default function Page() {
         />
         <p id="error-fullName" className="hidden text-red-600 text-sm"></p>
 
-        {/* Date of Birth */}
+        {/* Date of Birth (required) */}
         <Field
           labelKey="dob_label"
           labelFallback="Date of Birth*"
@@ -86,7 +87,7 @@ export default function Page() {
         />
         <p id="error-dateOfBirth" className="hidden text-red-600 text-sm"></p>
 
-        {/* Sex */}
+        {/* Sex (required) */}
         <div>
           <label
             htmlFor="sex"
@@ -115,7 +116,7 @@ export default function Page() {
           <p id="error-sex" className="hidden text-red-600 text-sm"></p>
         </div>
 
-        {/* Full Address */}
+        {/* Full Address (required) */}
         <div>
           <label
             htmlFor="fullAddress"
@@ -135,10 +136,10 @@ export default function Page() {
           <p id="error-fullAddress" className="hidden text-red-600 text-sm"></p>
         </div>
 
-        {/* Year of Diagnosis */}
+        {/* Year of Diagnosis (optional now) */}
         <Field
           labelKey="yod_label"
-          labelFallback="Year of Diagnosis*"
+          labelFallback="Year of Diagnosis"
           id="yearOfDiagnosis"
           type="number"
           placeholderKey="yod_placeholder"
@@ -149,19 +150,18 @@ export default function Page() {
           className="hidden text-red-600 text-sm"
         ></p>
 
-        {/* Diagnosis Type */}
+        {/* Diagnosis Type (optional now) */}
         <div>
           <label
             htmlFor="diagnosisType"
             className="block text-lg font-semibold text-slate-800 mb-2"
             data-i18n="diagnosisType_label"
           >
-            Type of Diagnosis*
+            Type of Diagnosis
           </label>
           <select
             id="diagnosisType"
             name="diagnosisType"
-            required
             className={selectBase}
           >
             <option value="" data-i18n="select_placeholder">
@@ -196,12 +196,12 @@ export default function Page() {
         </button>
       </form>
 
-      <Script src="/js/patient-onboarding.js" strategy="afterInteractive" />
+      <Script src="/js/patient-onboarding.js?v=5" strategy="afterInteractive" />
     </main>
   );
 }
 
-/** Wrapper for i18l */
+/** wrapper for i18l */
 function Field({
   labelKey,
   labelFallback,
