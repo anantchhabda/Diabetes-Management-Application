@@ -105,49 +105,38 @@
     container.appendChild(row);
   }
 
-  // fake patient support
-  function tryLocalFakePatient(patientId) {
-    if (patientId.toUpperCase() === "123456A") {
-      return { id: "123456A", name: "Azz" };
-    }
-    return null;
-  }
-
   async function lookupPatientById(patientId) {
-    const local = tryLocalFakePatient(patientId);
-    if (local) return local;
-
-    // backend to look up patient ID
     const token = localStorage.getItem("authToken") || "";
-    const res = await fetch("/api/connections/lookup", {
-      method: "POST",
+    const res = await fetch(`/api/auth/me/patient/${patientId}/link`, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
-      body: JSON.stringify({ patientId }),
       cache: "no-store",
     });
 
     if (!res.ok) throw new Error(`Lookup failed (${res.status})`);
-    const data = await res.json();
-    if (!data || !data.id || !data.name)
+
+    const {patient} = await res.json();
+    if (!patient || !patient.profileId || !patient.name)
       throw new Error("Invalid response shape");
-    return data;
+    return { id: patient.profileId, name: patient.name };
   }
 
-  async function sendConnectionRequest(patient) {
+  async function sendConnectionRequest(patientId) {
     const token = localStorage.getItem("authToken") || "";
     try {
-      await fetch("/api/connections/request", {
+      await fetch(`/api/auth/me/patient/${patientId}/link`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ patientId: patient.id }),
+        }
       });
-    } catch (_) {}
+    } catch (err) {
+      console.error('Failed to send connection request:', err);
+    }
   }
 
   //public hook should be called when patient accepts request
@@ -235,7 +224,7 @@
     sendRequestBtn.addEventListener("click", async () => {
       if (!currentPatient) return;
       renderOutgoingRequestRow(currentPatient);
-      await sendConnectionRequest(currentPatient);
+      await sendConnectionRequest(currentPatient.id);
       hide(searchPopup);
       currentPatient = null;
       patientIdInput.value = "";

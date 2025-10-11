@@ -21,7 +21,10 @@
     if (el) el.remove();
   }
 
-  function renderOutgoingRequestRow(patient) {
+  let isRenderingRequest = false;
+  async function renderOutgoingRequestRow(patient) {
+    if (isRenderingRequest) return; //prevent duplicate render
+    isRenderingRequest = true;
     const container = $("outgoingRequestsContainer");
     const empty = $("noOutgoingRequests");
     if (!container) return;
@@ -43,19 +46,38 @@
     `;
 
     const removeBtn = row.querySelector("button");
-    removeBtn.addEventListener("click", () => {
-      container.removeChild(row);
-      if (!container.children.length) {
-        const emptyMsg = document.createElement("div");
-        emptyMsg.id = "noOutgoingRequests";
-        emptyMsg.className = "text-sm text-gray-600 italic";
-        emptyMsg.textContent = "No outgoing requests yet.";
-        container.appendChild(emptyMsg);
+    removeBtn.addEventListener("click", async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token) return;
+        const res = await fetch(`/api/auth/me/patient/${patient.id}/link`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          console.error("Failed to remove request:", errData.message || res.statusText);
+          return;
+        }
+
+        container.removeChild(row);
+
+        if (!container.children.length) {
+          const emptyMsg = document.createElement("div");
+          emptyMsg.id = "noOutgoingRequests";
+          emptyMsg.className = "text-sm text-gray-600 italic";
+          emptyMsg.textContent = "No outgoing requests yet.";
+          container.appendChild(emptyMsg);
+        }
+      } catch (err) {
+        console.error("Error removing outgoing request:", err);
+      } finally {
+        isRenderingCurrent = false
       }
     });
 
     container.appendChild(row);
-  }
+  } 
 
   // render a current connection
   function renderCurrentConnection({ name, id }) {
@@ -106,49 +128,39 @@
     container.appendChild(row);
   }
 
-  // Fake patient lookup
-  function tryLocalFakePatient(patientId) {
-    if (patientId.toUpperCase() === "123456A") {
-      return { id: "123456A", name: "Azz" };
-    }
-    return null;
-  }
-
   async function lookupPatientById(patientId) {
-    const local = tryLocalFakePatient(patientId);
-    if (local) return local;
 
     const token = localStorage.getItem("authToken") || "";
-    const res = await fetch("/api/connections/lookup", {
-      method: "POST",
+    const res = await fetch(`/api/auth/me/patient/${patientId}/link`, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
-      body: JSON.stringify({ patientId }),
       cache: "no-store",
     });
 
     if (!res.ok) throw new Error(`Lookup failed (${res.status})`);
 
-    const data = await res.json();
-    if (!data || !data.id || !data.name)
+    const {patient} = await res.json();
+    if (!patient || !patient.profileId || !patient.name)
       throw new Error("Invalid response shape");
-    return data;
+    return { id: patient.profileId, name: patient.name };
   }
 
-  async function sendConnectionRequest(patient) {
+  async function sendConnectionRequest(patientId) {
     const token = localStorage.getItem("authToken") || "";
     try {
-      await fetch("/api/connections/request", {
+      await fetch(`/api/auth/me/patient/${patientId}/link`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ patientId: patient.id }),
+        }
       });
-    } catch (_) {}
+    } catch (err) {
+      console.error('Failed to send connection request:', err);
+    }
   }
 
   //public hook - this should be called when patient accepts a request
@@ -229,7 +241,7 @@
     sendRequestBtn.addEventListener("click", async () => {
       if (!currentPatient) return;
       renderOutgoingRequestRow(currentPatient);
-      await sendConnectionRequest(currentPatient);
+      await sendConnectionRequest(currentPatient.id);
       hide(searchPopup);
       currentPatient = null;
       patientIdInput.value = "";

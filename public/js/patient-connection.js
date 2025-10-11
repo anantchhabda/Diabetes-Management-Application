@@ -59,12 +59,6 @@
     }
   }
 
-  // simple in memory list
-  const state = {
-    current: [], 
-    requests: [], 
-  };
-
   // empty messages
   function ensureEmptyMessage(containerId, emptyId, msgKey, fallback) {
     const container = $(containerId);
@@ -102,7 +96,7 @@
     return row;
   }
 
-  function requestRow({ role, name, id }) {
+  function requestRow({ id, role, name }) {
     const row = document.createElement("div");
     row.className =
       "grid grid-cols-[100px_1fr_auto_auto] border border-black transition-all duration-300";
@@ -126,102 +120,180 @@
   }
 
   // render functions
-  function renderCurrentConnections() {
+  let isRenderingCurrent = false; //global flag for both renders
+  async function renderCurrentConnections() {
+    if (isRenderingCurrent) return; //prevent duplicate render
+    isRenderingCurrent = true;
+
     const container = $("currentConnectionsContainer");
     if (!container) return;
     clearChildren(container);
 
-    state.current.forEach((conn) => {
-      const row = currentConnectionRow(conn);
-      const removeBtn = bySel(".remove-btn", row);
-      removeBtn.addEventListener("click", () => {
-        // remove button functionality 
-        const idx = state.current.findIndex(
-          (c) => c.role === conn.role && c.name === conn.name
-        );
-        if (idx >= 0) state.current.splice(idx, 1);
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        console.warn('Session expired, please login again');
+        return;
+      }
+      // fetch current connections from backend
+      const res = await fetch('/api/patient/me/connection', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Cache-Control": "no-cache",
+        },
+      });
+      
+      if (!res.ok) throw new Error(`Load connections failed (${res.status})`);
+      const data = await res.json();
 
-        fadeOutAndRemove(row, () => {
-          if (!state.current.length) {
-            ensureEmptyMessage(
-              "currentConnectionsContainer",
-              "noCurrentConnections",
-              "no_current_connections",
-              "No current connections yet."
-            );
+      const connections = (data.connections || []).map(conn => ({
+        role: conn.role,
+        name: conn.name,
+        requesterID: conn.requesterID,
+      }));
+      
+      if (!connections.length) {
+        ensureEmptyMessage(
+          "currentConnectionsContainer",
+          "noCurrentConnections",
+          "no_current_connections",
+          "No current connections yet."
+        );
+        return;
+      }
+      //render each connection row
+      const seenIDs = new Set();
+      connections.forEach(conn => {
+        if (conn.requesterID && seenIDs.has(conn.requesterID)) return;
+        if (conn.requesterID) seenIDs.add(conn.requesterID);
+        const row = currentConnectionRow(conn);
+        const removeBtn = bySel(".remove-btn", row);
+        //remove button functionality
+        removeBtn.addEventListener('click', async () => {
+          if (!conn.requesterID) return;
+          try {
+            const delRes = await fetch (`/api/patient/me/connection/${conn.requesterID}`, {
+              method: 'DELETE',
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Cache-Control": "no-cache",
+              },
+            });
+            if (!delRes.ok) {
+              const errData = await delRes.json().catch(() => ({}));
+              console.error('Failed to remove connection:', errData.message || delRes.statusText);
+              return;
+            }
+            //fade out row
+            fadeOutAndRemove(row, () => {
+              if (container.children.length === 0) {
+                ensureEmptyMessage(
+                  "currentConnectionsContainer",
+                  "noCurrentConnections",
+                  "no_current_connections",
+                  "No current connections yet."
+                );
+              }
+            });
+          } catch (err) {
+            console.error('Error removing connection', err);
           }
         });
+        container.appendChild(row);
       });
-
-      container.appendChild(row);
-    });
-
-    if (!state.current.length) {
-      ensureEmptyMessage(
-        "currentConnectionsContainer",
-        "noCurrentConnections",
-        "no_current_connections",
-        "No current connections yet."
-      );
+    } catch (err) {
+      console.error('Error loading current connections', err);
+    } finally {
+      isRenderingCurrent = false
     }
   }
 
-  function renderConnectionRequests() {
+  let isRenderingRequest = false;
+  async function renderConnectionRequests() {
+    if (isRenderingRequest) return; //prevent duplicate render
+    isRenderingRequest = true;
     const container = $("connectionRequestsContainer");
     if (!container) return;
     clearChildren(container);
 
-    state.requests.forEach((req) => {
-      const row = requestRow(req);
-      const acceptBtn = bySel(".accept-btn", row);
-      const declineBtn = bySel(".decline-btn", row);
-
-      acceptBtn.addEventListener("click", async () => {
-        // backend accepts would go here
-        const idx = state.requests.findIndex((r) => r.id === req.id);
-        if (idx >= 0) state.requests.splice(idx, 1);
-        state.current.push({ role: req.role, name: req.name });
-
-        fadeOutAndRemove(row, () => {
-          if (!state.requests.length) {
-            ensureEmptyMessage(
-              "connectionRequestsContainer",
-              "noConnectionRequests",
-              "no_connection_requests",
-              "No connection requests yet."
-            );
-          }
-          renderCurrentConnections();
-        });
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        console.warn('Session expired, please login again');
+        return;
+      }
+      const res = await fetch('/api/patient/me/request', {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          "Cache-Control": "no-cache",
+        },
       });
+      if (!res.ok) throw new Error(`Load requests failed (${res.status})`);
+      const data = await res.json();
+      const requests = (data.requests || []).map((r) => ({
+        id: r._id,
+        role: r.requesterRole,
+        requesterID: r.requesterUser,
+        name: r.requesterName
+      }));
+      if (!requests.length) {
+        ensureEmptyMessage(
+          "connectionRequestsContainer",
+          "noConnectionRequests",
+          "no_connection_requests",
+          "No connection requests yet."
+        );
+        return;
+      }
+      const seenIDs = new Set();
+      requests.forEach((req) => {
+        if (req.id && seenIDs.has(req.id)) return;
+        if (req.id) seenIDs.add(req.id);
+        const row = requestRow(req);
+        const acceptBtn = bySel(".accept-btn", row);
+        const declineBtn = bySel(".decline-btn", row);
 
-      declineBtn.addEventListener("click", async () => {
-        // backend declines would go here
-        const idx = state.requests.findIndex((r) => r.id === req.id);
-        if (idx >= 0) state.requests.splice(idx, 1);
-
-        fadeOutAndRemove(row, () => {
-          if (!state.requests.length) {
-            ensureEmptyMessage(
-              "connectionRequestsContainer",
-              "noConnectionRequests",
-              "no_connection_requests",
-              "No connection requests yet."
-            );
+        acceptBtn.addEventListener("click", async () => {
+          try {
+            const res = await fetch(`/api/patient/me/request/${req.id}/accept`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                "Cache-Control": "no-cache",
+              },
+            });
+            if (!res.ok) throw new Error('Failed to accept request');
+            fadeOutAndRemove(row);
+            await renderCurrentConnections();
+          } catch (err) {
+            console.error('Error accepting request:', err);
           }
         });
+
+        declineBtn.addEventListener("click", async () => {
+          try {
+            const res = await fetch(`/api/patient/me/request/${req.id}/reject`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                "Cache-Control": "no-cache",
+              },
+            });
+            if (!res.ok) throw new Error('Failed to reject request');
+            fadeOutAndRemove(row);
+          } catch (err) {
+            console.error('Error rejecting request:', err);
+          }
+        });
+
+        container.appendChild(row);
       });
-
-      container.appendChild(row);
-    });
-
-    if (!state.requests.length) {
-      ensureEmptyMessage(
-        "connectionRequestsContainer",
-        "noConnectionRequests",
-        "no_connection_requests",
-        "No connection requests yet."
-      );
+    } catch (err) {
+      console.error('Error loading connection requests', err)
+    } finally {
+      isRenderingRequest = false;
     }
   }
 
@@ -247,30 +319,10 @@
     }, 300);
   }
 
-  // public hook for backend
-  window.enqueueConnectionRequest = function enqueueConnectionRequest(req) {
-    try {
-      if (!req || !req.role || !req.name) return;
-      if (!req.id)
-        req.id = String(Date.now()) + Math.random().toString(36).slice(2);
-
-      // add to state then render
-      state.requests.push({ id: req.id, role: req.role, name: req.name });
-      renderConnectionRequests();
-    } catch (e) {
-      console.error("[patient-connection] enqueueConnectionRequest error:", e);
-    }
-  };
-
   //init
-  function init() {
-    // demo row for testing
-    state.requests.push({ role: "Doctor", name: "Azz", id: "seed-azz" });
+  async function init() {
+    await whenI18nReady(renderAll); // only render after i18n is ready
 
-    // initial renderi
-    renderAll();
-
-    // re-render after language switches
     observeLangChanges(() => {
       whenI18nReady(renderAll);
     });

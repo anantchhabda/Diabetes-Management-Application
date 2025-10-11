@@ -38,14 +38,14 @@ const PatientSchema = new mongoose.Schema({
         enum: ["Type 1", "Type 2", "Gestational"],
         required: true
     },
-    doctorID: {
+    doctorID: [{
         type: String,
         ref: 'Doctor'
-    },
-    familyID: {
+    }],
+    familyID: [{
         type: String,
         ref: 'FamilyMember'
-    }
+    }]
 });
 
 export default mongoose.models.Patient || mongoose.model('Patient', PatientSchema);

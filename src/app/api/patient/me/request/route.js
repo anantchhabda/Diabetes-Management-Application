@@ -15,8 +15,8 @@ export async function GET(req) {
     )
 
     const requests = await LinkRequest
-        .find({patient: me.profileId})
-        .select('_id requesterRole requesterName status');
+        .find({patient: me.profileId, status: 'Pending'})
+        .select('_id requesterRole requesterName requesterUser');
 
     return NextResponse.json({requests}, {status: 200});
 }
