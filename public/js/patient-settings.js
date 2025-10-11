@@ -146,11 +146,16 @@
     }
   });
 
-  // Handle cancel button
-  const cancelBtn = document.getElementById("cancelBtn");
-  if (cancelBtn) {
-    cancelBtn.addEventListener("click", function () {
-      window.location.href = "/patient-homepage";
+  // Handle logout button
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", function () {
+      // Remove auth token and any other user data
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("userData");
+      localStorage.removeItem("userRole");
+      // Redirect to login page
+      window.location.href = "/login";
     });
   }
 
