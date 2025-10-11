@@ -10,49 +10,44 @@ function todayYMD(tz) {
   return d.toISOString().slice(0, 10);
 }
 
+// store default system reminders with Nepali names so notifications are always Nepali.
 async function ensureDefaultReminders(patientID) {
   const sub = await PushSubscription.findOne({ patientID, enabled: true })
     .sort({ updatedAt: -1 })
     .lean();
   const tz = sub?.timezone || "Australia/Perth";
-  const start = todayYMD(tz);
-  const dow = new Date(new Date().toLocaleString("en-US", { timeZone: tz }));
-  const delta = (1 - dow.getDay() + 7) % 7; // next Monday
-  const nextMon = new Date(dow);
-  nextMon.setDate(dow.getDate() + delta);
-  const nextMonYMD = new Date(nextMon).toISOString().slice(0, 10);
 
-  const defaults = [
+  const start = todayYMD(tz);
+
+  const nowTZ = new Date(new Date().toLocaleString("en-US", { timeZone: tz }));
+  const delta = (1 - nowTZ.getDay() + 7) % 7; // next Monday
+  const nextMon = new Date(nowTZ);
+  nextMon.setDate(nowTZ.getDate() + delta);
+  const nextMonYMD = nextMon.toISOString().slice(0, 10);
+
+  // nepali strings (DB storage)
+  const NE_CHECK_LOG = "चिनी जाँच गर्नुस् र रेकर्ड गर्नुस् :)";
+  const NE_CARE_FOOD_EYES_TEETH = "आहार, आँखाको र दाँतको हेरचाह गर्नुस् :)";
+
+  // match system reminders by interval + time + system:true
+  const wanted = [
+    { interval: "Daily", time: "10:00", startDate: start, name: NE_CHECK_LOG },
+    { interval: "Daily", time: "18:00", startDate: start, name: NE_CHECK_LOG },
     {
-      name: "Remember to check your sugar and log it :)",
-      interval: "Daily",
-      time: "10:00",
-      startDate: start,
-    },
-    {
-      name: "Remember to check your sugar and log it :)",
-      interval: "Daily",
-      time: "18:00",
-      startDate: start,
-    },
-    {
-      name: "Take care of your food, eyes and teeth :)",
       interval: "Weekly",
       time: "09:00",
       startDate: nextMonYMD,
+      name: NE_CARE_FOOD_EYES_TEETH,
     },
   ];
 
-  for (const def of defaults) {
+  for (const w of wanted) {
     await Reminder.updateOne(
+      { patientID, interval: w.interval, time: w.time, system: true },
       {
-        patientID,
-        name: def.name,
-        time: def.time,
-        interval: def.interval,
-        system: true,
+        $set: { name: w.name, timezone: tz }, // keep Nepali name
+        $setOnInsert: { patientID, startDate: w.startDate, system: true },
       },
-      { $setOnInsert: { ...def, patientID, timezone: tz, system: true } },
       { upsert: true }
     );
   }
@@ -67,13 +62,15 @@ export async function GET(req) {
     const patient = await Patient.findOne({
       user: roleCheck.payload.sub,
     }).select("profileId");
-    if (!patient)
+    if (!patient) {
       return NextResponse.json(
         { error: "Patient profile not found" },
         { status: 404 }
       );
+    }
 
     await ensureDefaultReminders(patient.profileId);
+
     let reminders = await Reminder.find({ patientID: patient.profileId }).sort({
       createdAt: 1,
     });
@@ -100,6 +97,7 @@ export async function GET(req) {
         await r.save();
       }
     }
+
     return NextResponse.json({ reminders }, { status: 200 });
   } catch (err) {
     console.error(err);
@@ -119,18 +117,20 @@ export async function POST(req) {
     const patient = await Patient.findOne({
       user: roleCheck.payload.sub,
     }).select("profileId");
-    if (!patient)
+    if (!patient) {
       return NextResponse.json(
         { error: "Patient profile not found" },
         { status: 404 }
       );
+    }
 
     const { name, date, time, interval, timezone } = await req.json();
-    if (!name || !date || !time || !interval)
+    if (!name || !date || !time || !interval) {
       return NextResponse.json(
         { message: "All fields are required" },
         { status: 400 }
       );
+    }
 
     const reminder = await Reminder.create({
       patientID: patient.profileId,
@@ -142,10 +142,7 @@ export async function POST(req) {
     });
 
     return NextResponse.json(
-      {
-        message: "Reminder created successfully",
-        reminderID: reminder._id,
-      },
+      { message: "Reminder created successfully", reminderID: reminder._id },
       { status: 200 }
     );
   } catch (err) {
