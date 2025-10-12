@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import Script from "next/script";
 import styles from "../styles/header.module.css";
 
@@ -30,22 +29,19 @@ export default function Header() {
 
           {/* centered logo */}
           <div className="w-1/3 flex justify-center">
-            <Link href="/homepage" className={styles.logoLink} aria-label="Home">
-              <Image
-                src="/logos/DMA-logo-green.png"
-                alt="Diabetes Management Logo"
-                id="homeBtn"              
-                width={60}
-                height={60}
-                priority
-              />
-            </Link>
+            <Image
+              src="/logos/DMA-logo-green.png"
+              alt="Diabetes Management Logo"
+              id="homeBtn"              
+              width={60}
+              height={60}
+              priority
+            />
           </div>
 
           {/* settings */}
           <div className="w-1/3 flex items-center justify-end">
-            <Link
-              href="/settings"
+            <button
               id="settingsBtn"           
               className="rounded-full bg-gray-200/90 p-2 hover:bg-gray-300 transition cursor-pointer"
               aria-label="Settings"
@@ -63,7 +59,7 @@ export default function Header() {
               >
                 <path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Z" />
               </svg>
-            </Link>
+            </button>
 
             {/* header logic */}
             <Script
@@ -99,7 +95,6 @@ export default function Header() {
               // Do not show back button on any homepage routes
               var homepagePaths = [
                 '/',
-                '/homepage',
                 '/patient-homepage',
                 '/doctor-homepage',
                 '/family-homepage'
@@ -114,8 +109,7 @@ export default function Header() {
               backBtn.addEventListener('click', function () {
                 if (window.history.length > 1) {
                   window.history.back();
-                } else {
-                  window.location.href = '/homepage';
+                } else {;
                 }
               });
             }, { once: true });
