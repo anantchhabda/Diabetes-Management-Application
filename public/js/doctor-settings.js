@@ -28,19 +28,21 @@
 
       const result = await response.json();
       const userData = result.profile;
-      
+      const phoneNumber = result.phoneNumber;
+
       // Populate form fields with existing data
       const fields = {
         doctorId: userData.profileId,
         fullName: userData.name,
-        dateOfBirth: userData.dob,
+        dateOfBirth: userData.dob ? userData.dob.slice(0, 10) : "",
         clinicAddress: userData.clinicAddress,
-        clinicName: userData.clinicName
+        clinicName: userData.clinicName,
+        phone: phoneNumber
       };
 
       Object.entries(fields).forEach(([fieldId, value]) => {
         const element = document.getElementById(fieldId);
-        if (element && value) {
+        if (element && value !== undefined && value !== null) {
           element.value = value;
         }
       });
@@ -100,9 +102,6 @@
 
     if (Object.keys(errors).length > 0) return;
 
-    console.log("Submitting doctor settings form...");
-    console.log("Form data:", data);
-
     try {
       const token = localStorage.getItem("authToken");
       if (!token) {
@@ -126,7 +125,6 @@
       });
 
       const ct = res.headers.get?.("content-type") || "";
-      console.log("settings response:", res.status, ct);
       const { data: result, text } = await readResponseSafe(res);
 
       if (!res.ok) {
@@ -148,19 +146,15 @@
     }
   });
 
-  // Handle logout button
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", function () {
-      // Remove auth token and any other user data
       localStorage.removeItem("authToken");
       localStorage.removeItem("userData");
       localStorage.removeItem("userRole");
-      // Redirect to login page
       window.location.href = "/";
     });
   }
 
-  // Load user data when page loads
   loadUserData();
 })();

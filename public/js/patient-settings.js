@@ -157,17 +157,15 @@
     }
   });
 
-  // Handle logout button
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", function () {
       localStorage.removeItem("authToken");
       localStorage.removeItem("userData");
       localStorage.removeItem("userRole");
-      window.location.href = "/login";
+      window.location.href = "/";
     });
   }
 
-  // Load user data when page loads
   loadUserData();
 })();
