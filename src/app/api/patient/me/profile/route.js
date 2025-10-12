@@ -1,5 +1,6 @@
 import dbConnect from '../../../../lib/db';
 import Patient from '../../../../lib/models/Patient';
+import User from '../../../../lib/models/User';
 import {NextResponse} from "next/server";
 import {requireRole} from '../../../../lib/auth';
 
@@ -9,11 +10,12 @@ export async function GET(req) {
     if (roleCheck.error) return roleCheck.error;
 
     const patient = await Patient.findOne({ user: roleCheck.payload.sub }).select('profileId name dob sex address yearOfDiag typeOfDiag');
+    const user = await User.findById(roleCheck.payload.sub).select('phoneNumber');
     if (!patient) return NextResponse.json(
         {message: 'Profile not found'},
         {status: 404}
     );
-    return NextResponse.json({profile: patient}, {status: 200});
+    return NextResponse.json({profile: patient, phoneNumber: user.phoneNumber}, {status: 200});
 }
 
 export async function PUT(req) {

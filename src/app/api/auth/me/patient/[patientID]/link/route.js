@@ -99,45 +99,57 @@ export async function POST(req, {params}) {
     }
 }
 
+//delete current connection
 export async function DELETE(req, { params }) {
     await dbConnect();
-    const { payload, error } = requireRole(req, ['Doctor', 'Family Member']);
-    if (error) return error;
-
-    const {patientID} = await params;
-    const patient = await Patient.findOne({ profileId: patientID }).select('doctorID');
-    if (!patient) {
-        return NextResponse.json({ error: 'Patient not found'}, {status: 404});
-    }
-
-    if (payload.role === 'Doctor') {
-        const doctor = await Doctor.findOne({ user: payload.sub }).select('profileId');
-        if (!doctor) {
-            return NextResponse.json({ error: 'Doctor/Family Memver profile not found'}, {status: 404});
-        }
-        //Only unlink if this doctor is linked to this patient
-        if (String(patient.doctorID) !== String(doctor.profileId)) {
-            return NextResponse.json({ error: 'You are not linked to this patient'}, {status: 403});
-        }
-        //Unlink by deleting doctorID
-        patient.doctorID = null;
-        await patient.save();
-        return NextResponse.json({ message: 'Unlinked succesfully'}, {status: 200});
-    }
-
-    if (payload.role === 'Family Member') {
-        const family = await FamilyMember.findOne({ user: payload.sub }).select('profileId');
-        if (!family) {
-            return NextResponse.json({ error: 'Family profile not found'}, {status: 404});
-        }
-        //Only unlink if this doctor is linked to this patient
-        if (String(patient.familyID) !== String(family.profileId)) {
-            return NextResponse.json({ error: 'You are not linked to this patient'}, {status: 403});
-        }
+    const roleCheck = requireRole(req, ['Doctor', 'Family Member']);
+    if (roleCheck.error) return roleCheck.error;
     
-        //Unlink by deleting familyID
-        patient.familyID = null;
-        await patient.save();
-        return NextResponse.json({ message: 'Unlinked succesfully'}, {status: 200});
+    const {patientID} = await params;
+    if (!patientID) {
+        return NextResponse.json({ error: 'Missing patientID' }, { status: 400 });
     }
+    
+    const patient = await Patient.findOne({profileId: patientID}).select('profileId doctorID familyID');
+    if (!patient) return NextResponse.json(
+        {error: 'Patient profile not found'}, {status: 404}
+    );
+    
+    let removed = false;
+    let requester;
+    if (roleCheck.payload.role === 'Doctor') {
+        requester = await Doctor.findOne({user: roleCheck.payload.sub}).select('profileId');
+    } else {
+        requester = await FamilyMember.findOne({user: roleCheck.payload.sub}).select('profileId');
+    }
+    //remove from doctorID if exists
+    if (patient.doctorID.includes(requester.profileId)) {
+        patient.doctorID = patient.doctorID.filter(id => id !== requester.profileId);
+        removed = true;
+    }
+    //remove from familyID if exists
+    if (patient.familyID.includes(requester.profileId)) {
+        patient.familyID = patient.familyID.filter(id => id !== requester.profileId);
+        removed = true;
+    }
+    
+    if (!removed) {
+        return NextResponse.json(
+            {message: 'Connection not found'}, {status: 404}
+        );
+    }
+        
+    await patient.save()
+    
+    //delete accepted link request
+    await LinkRequest.deleteOne({
+        patient: patient.profileId,
+        requesterUser: requester.profileId,
+        status: 'Accepted'
+    });
+   
+    return NextResponse.json(
+        { message: 'Connection and accepted link request removed successfully' },
+        { status: 200 }
+    );
 }

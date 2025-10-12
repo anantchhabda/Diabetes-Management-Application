@@ -11,7 +11,7 @@ export async function PUT(req, {params}) {
     const roleCheck = requireRole(req, ['Patient']);
     if (roleCheck.error) return roleCheck.error;
 
-    const {requestID} = params;
+    const {requestID} = await params;
     const request = await LinkRequest.findById(requestID)
         .select('_id patient requesterRole requesterUser status');
     
@@ -37,12 +37,22 @@ export async function PUT(req, {params}) {
         const d = await Doctor.findOne({profileId: request.requesterUser}).select('profileId');
         if(!d) return NextResponse.json(
             {error: 'Doctor profile not found'}, {status: 404});
-        mePatient.doctorID = d.profileId;
+        if (!Array.isArray(mePatient.doctorID)) mePatient.doctorID = [];
+
+        // Prevent duplicate connections
+        if (!mePatient.doctorID.includes(d.profileId)) {
+            mePatient.doctorID.push(d.profileId);
+        }
     } else if (request.requesterRole === 'Family Member') {
         const f = await FamilyMember.findOne({profileId: request.requesterUser}).select('profileId');
         if (!f) return NextResponse.json(
             {error: ' Family profile not found'}, {status: 404});
-        mePatient.familyID = f.profileId;
+        if (!Array.isArray(mePatient.familyID)) mePatient.familyID = [];
+
+        // Prevent duplicate connections
+        if (!mePatient.familyID.includes(f.profileId)) {
+            mePatient.familyID.push(f.profileId);
+        }
     } else {
         return NextResponse.json(
             {error: 'Unknown requesterRole'}, {status: 400}
