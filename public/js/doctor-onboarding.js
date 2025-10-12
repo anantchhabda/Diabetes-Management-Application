@@ -1,9 +1,31 @@
 (function () {
   const form = document.getElementById("onboardingForm");
   const savedMsg = document.getElementById("savedMsg");
-  const currentYear = new Date().getFullYear();
+  const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
 
   if (!form) return;
+
+  // clear pre filled texts
+  if (savedMsg) savedMsg.textContent = "";
+
+  // avoid double submits
+  let inFlight = false;
+
+  function t(key, fallback) {
+    try {
+      const dict = (window.__i18n && window.__i18n.dict) || {};
+      if (key in dict) return String(dict[key]);
+    } catch (_) {}
+    return fallback != null ? String(fallback) : key;
+  }
+
+  function tMulti(keys, fallback) {
+    for (const k of keys) {
+      const val = t(k, null);
+      if (val && val !== k) return val;
+    }
+    return fallback != null ? String(fallback) : keys[0] || "";
+  }
 
   async function readResponseSafe(response) {
     const ct =
@@ -25,49 +47,78 @@
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
 
-    // clear previous saved message
-    if (savedMsg) savedMsg.textContent = "";
+    if (inFlight) return;
+    inFlight = true;
 
-    const data = Object.fromEntries(new FormData(form));
+    // clear msg and disable button
+    if (savedMsg) savedMsg.textContent = "";
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.setAttribute("aria-busy", "true");
+    }
+
+    const raw = Object.fromEntries(new FormData(form));
+    // trim strings
+    const data = Object.fromEntries(
+      Object.entries(raw).map(([k, v]) => [
+        k,
+        typeof v === "string" ? v.trim() : v,
+      ])
+    );
+
     const errors = {};
 
-    // required fields, skipping readonly fields 
-    [
-      "fullName",
-      "dateOfBirth",
-      "clinicAddress",
-      "clinicName",
-    ].forEach((f) => {
-      if (!data[f] || data[f].trim() === "") {
-        errors[f] = "Required";
+    const required = [
+      ["fullName", ["error_fullName", "error_required"]],
+      ["dateOfBirth", ["error_dateOfBirth", "error_dob", "error_required"]],
+      [
+        "clinicAddress",
+        ["error_clinicAddress", "error_address", "error_required"],
+      ],
+      ["clinicName", ["error_clinicName", "error_required"]],
+    ];
+
+    required.forEach(([field, keys]) => {
+      if (!data[field] || String(data[field]).trim() === "") {
+        errors[field] = tMulti(keys, "This field is required.");
       }
     });
 
-    // reset all previous error messages
+    // reset previous error messages
     form
       .querySelectorAll("p[id^='error-']")
       .forEach((p) => (p.textContent = ""));
 
     // show new errors
-    Object.entries(errors).forEach(([key, msg]) => {
-      const el = document.getElementById(`error-${key}`);
+    Object.entries(errors).forEach(([field, msg]) => {
+      const el = document.getElementById(`error-${field}`);
       if (el) el.textContent = msg;
     });
 
-    // stop if errors
-    if (Object.keys(errors).length > 0) return;
+    if (Object.keys(errors).length > 0) {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.removeAttribute("aria-busy");
+      }
+      inFlight = false;
+      return;
+    }
 
     try {
-      const token = localStorage.getItem('onboardingToken');
+      const token = localStorage.getItem("onboardingToken");
       if (!token) {
         if (savedMsg)
-          savedMsg.textContent = 'Session expired, please register again';
+          savedMsg.textContent = t(
+            "error_session_expired",
+            "Session expired, please register again"
+          );
         return;
       }
-      const res = await fetch('/api/auth/onboarding', {
-        method: 'POST',
+
+      const res = await fetch("/api/auth/onboarding", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
@@ -77,23 +128,46 @@
           clinicAddress: data.clinicAddress,
         }),
       });
-      const {data: result, text} = await readResponseSafe(res);
+
+      const { data: result, text } = await readResponseSafe(res);
+
       if (!res.ok) {
-        const msg =
+        const serverMsg =
           (result && (result.error || result.message)) ||
           (text && text.trim()) ||
-          'Onboarding failed';
-        if (savedMsg) savedMsg.textContent = msg;
+          null;
+        if (savedMsg)
+          savedMsg.textContent =
+            serverMsg || t("onboarding_failed", "Onboarding failed");
         return;
       }
+
       const authToken = result && (result.authToken || result.token);
-      if (authToken) localStorage.setItem('authToken', authToken);
+      if (authToken) localStorage.setItem("authToken", authToken);
+
       if (savedMsg)
-        savedMsg.textContent = 'Onboarding successful! Redirecting to hompage';
-      window.location.href = "/doctor-homepage";
+        savedMsg.textContent = t(
+          "onboarding_success_redirect",
+          "Onboarding successful! Redirecting to homepage"
+        );
+
+      // show message briefly, then redirect
+      setTimeout(() => {
+        window.location.href = "/doctor-homepage";
+      }, 900);
     } catch (err) {
-      console.error('Onboarding fetch error:', err);
-      if (savedMsg) savedMsg.textContent = 'Error, please try again';
+      console.error("Onboarding fetch error:", err);
+      if (savedMsg)
+        savedMsg.textContent = t(
+          "error_network",
+          "Network error, please try again."
+        );
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.removeAttribute("aria-busy");
+      }
+      inFlight = false;
     }
   });
 })();
