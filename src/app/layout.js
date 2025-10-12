@@ -43,6 +43,9 @@ export default function RootLayout({ children }) {
 
         {/* page content */}
         {children}
+        <Script src="/js/offline.js" strategy="beforeInteractive" />
+        <Script src="/js/log-data.js" strategy="afterInteractive" />
+        <Script src="/js/reminders.js" strategy="afterInteractive" />
 
         {/* load i18n after page hydrated */}
         <Script src="/js/i18n.js" strategy="lazyOnload" />

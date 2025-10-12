@@ -1,4 +1,4 @@
-const VERSION = "v1.0.5"; // bumped for SW update
+const VERSION = "v1.0.6"; // bumped for SW update
 const STATIC_CACHE = `static-${VERSION}`;
 const RUNTIME_CACHE = `runtime-${VERSION}`;
 
@@ -7,10 +7,16 @@ const APP_SHELL = [
   "/login",
   "/register",
   "/patient-onboarding",
-  "/patient-homepage",
+  "/patient-homepage",  
+  "/patient-connection",
   "/log-data",
   "/reminders",
-  "/patient-connection",
+  "/doctor-onboarding",
+  "/doctor-homepage",
+  "/doctor-connection",
+  "/family-onboarding",
+  "/family-homepage",
+  "/family-connection",
   "/offline.html",
   "/manifest.webmanifest",
   "/icons/icon-192.png",
@@ -263,3 +269,5 @@ self.addEventListener("notificationclick", (event) => {
     })()
   );
 });
+
+

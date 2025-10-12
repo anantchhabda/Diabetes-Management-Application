@@ -1,4 +1,88 @@
-(async function () {
+(function () {
+  // ---------- Register pushers (same pattern as log-data.js) ----------
+  (function registerReminderPushers() {
+    function ready(fn) {
+      if (window.__offline && window.__offline.register) return fn();
+      const iv = setInterval(() => {
+        if (window.__offline && window.__offline.register) { clearInterval(iv); fn(); }
+      }, 50);
+      setTimeout(() => clearInterval(iv), 5000);
+    }
+
+    ready(() => {
+      if (window.__REM_PUSHERS_READY__) return;
+      window.__REM_PUSHERS_READY__ = true;
+
+      // CREATE
+      window.__offline.register("reminder:create", async (mut, { authHeader }) => {
+        const headers = { ...authHeader(), "X-Idempotency-Key": mut.idem };
+        const res = await fetch("/api/patient/me/reminder", {
+          method: "POST",
+          headers,
+          body: JSON.stringify(mut.payload), // { name, date, time, interval, timezone }
+        });
+        if (!res.ok) {
+          const j = await res.json().catch(()=>({}));
+          const e = new Error(j.error || j.message || `HTTP ${res.status}`); 
+          e.status = res.status; throw e;
+        }
+      });
+
+      // UPDATE
+      window.__offline.register("reminder:update", async (mut, { authHeader }) => {
+        const headers = { ...authHeader(), "X-Idempotency-Key": mut.idem };
+        const res = await fetch(`/api/patient/me/reminder/${encodeURIComponent(mut.reminderID)}`, {
+          method: "PATCH",
+          headers,
+          body: JSON.stringify(mut.payload),
+        });
+        if (!res.ok) {
+          const j = await res.json().catch(()=>({}));
+          const e = new Error(j.error || j.message || `HTTP ${res.status}`); 
+          e.status = res.status; throw e;
+        };
+      });
+
+      // DELETE
+      window.__offline.register("reminder:delete", async (mut, { authHeader }) => {
+        const headers = { ...authHeader(), "X-Idempotency-Key": mut.idem };
+        const res = await fetch(`/api/patient/me/reminder/${encodeURIComponent(mut.reminderID)}`, {
+          method: "DELETE",
+          headers,
+        });
+        if (!res.ok) {
+          const j = await res.json().catch(()=>({}));
+          const e = new Error(j.error || j.message || `HTTP ${res.status}`); 
+          e.status = res.status; throw e;
+        }
+      });
+      setTimeout(() => { try { window.__offline?.flush?.(); } catch {} }, 0);
+      });
+   })();
+
+
+  // 2) Attach GLOBAL flush triggers (❗outside route guard + not in init)
+  (function attachGlobalFlushers(){
+    if (window.__REM_GLOBAL_FLUSHERS__) return;
+    window.__REM_GLOBAL_FLUSHERS__ = true;
+
+    const tryFlush = () => window.__offline?.flush();
+
+    // once after DOM is ready (or immediately if already ready)
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", tryFlush, { once: true });
+    } else {
+      setTimeout(tryFlush, 0);
+    }
+
+    // flush on connectivity / visibility / focus
+    window.addEventListener("online", tryFlush);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") tryFlush();
+    });
+    window.addEventListener("focus", tryFlush);
+  })();   
+
   const app = document.getElementById("remindersApp");
   if (!app) return;
 
@@ -37,6 +121,29 @@
         attributeFilter: ["lang"],
       });
     } catch (_) {}
+  }
+
+  function isOnline() { return navigator.onLine; }
+  function toast(msg) {
+    const el = document.getElementById('saveNotice');
+    if (el) { el.textContent = msg; el.classList.remove('hidden'); setTimeout(()=>el.classList.add('hidden'), 1600); }
+    else { console.warn(msg); }
+  }
+  const MSG_ONLINE_ONLY_UPDATE = () => t("need_online_update", "Please go online to update.");
+  const MSG_ONLINE_ONLY_DELETE = () => t("need_online_delete", "Please go online to delete.");
+
+
+  function onReady(fn){
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fn, { once: true });
+    } else {
+      fn();
+    }
+  }
+
+  async function safeRender() {
+    try { await renderReminders(); }
+    catch (e) { console.error('[reminders] initial render failed:', e); }
   }
 
   // Nepali digits
@@ -94,7 +201,34 @@
     return { data: null, text: null };
   }
 
+    // ---------------- Local cache for reminders (for offline list) ----------------
+  const REM_CACHE_KEY = "reminders_cache_v1";
+  function readRemindersCache() {
+    try { return JSON.parse(localStorage.getItem(REM_CACHE_KEY) || "[]"); } catch { return []; }
+  }
+  function writeRemindersCache(list) {
+    try { localStorage.setItem(REM_CACHE_KEY, JSON.stringify(list || [])); } catch {}
+  }
+  function optimisticCacheAdd(rem) {
+    const cur = readRemindersCache();
+    cur.push(rem); writeRemindersCache(cur);
+  }
+  function optimisticCacheUpdate(id, updates) {
+    writeRemindersCache(readRemindersCache().map(r => (r._id === id ? { ...r, ...updates } : r)));
+  }
+  function optimisticCacheDelete(id) { 
+    writeRemindersCache(readRemindersCache().filter(r => r._id !== id)); 
+  }
+
+
+  // ---------------- API wrappers (online-first with offline fallback) ----------------
   async function fetchReminders() {
+    if (!window.__offline?.isOnline?.()) {
+      return readRemindersCache();
+    }
+
+    try { await window.__offline?.flush?.(); } catch (_) {}
+
     try {
       const token = getAuthToken();
       const res = await fetch("/api/patient/me/reminder", {
@@ -106,14 +240,26 @@
       });
       const { data } = await readResponseSafe(res);
       if (!res.ok) throw new Error(data?.error || "Failed to fetch reminders");
-      return data?.reminders || [];
+      const list = data?.reminders || [];
+      writeRemindersCache(list);
+      return list;
     } catch (err) {
       console.error(err);
-      return [];
+      return readRemindersCache();
     }
   }
 
   async function createReminder(reminder) {
+    if (!window.__offline?.isOnline?.()) {
+      optimisticCacheAdd({
+        ...reminder,
+        _id: `tmp_${crypto.randomUUID()}`,
+        system: false
+      });
+      await window.__offline?.enqueue("reminder:create", { payload: reminder });
+      window.__offline?.showBanner(t("saved_offline", "Saved offline. Will sync when you're online."));
+      return { offline: true };
+    }
     const token = getAuthToken();
     const res = await fetch("/api/patient/me/reminder", {
       method: "POST",
@@ -124,12 +270,17 @@
       body: JSON.stringify(reminder),
     });
     const { data, text } = await readResponseSafe(res);
-    if (!res.ok)
-      throw new Error(data?.error || text || "Failed to create reminder");
+    if (!res.ok) {
+      await window.__offline?.enqueue("reminder:create", { payload: reminder });
+      window.__offline?.showBanner(t("saved_offline", "Saved offline. Will sync when you're online."));
+      return { offline: true };
+    }
+    try { await window.__offline?.flush?.(); } catch (_) {}
     return data;
   }
 
   async function updateReminder(reminderID, updateData) {
+    if (!isOnline()) throw new Error("OFFLINE_UPDATE");
     const token = getAuthToken();
     const res = await fetch(`/api/patient/me/reminder/${reminderID}`, {
       method: "PATCH",
@@ -141,22 +292,22 @@
       body: JSON.stringify(updateData),
     });
     const { data, text } = await readResponseSafe(res);
-    if (!res.ok)
-      throw new Error(data?.error || text || "Failed to update reminder");
+    if (!res.ok) throw new Error(data?.error || text || "Failed to update reminder");
     return data;
   }
 
   async function deleteReminder(reminderID) {
+    if (!isOnline()) throw new Error("OFFLINE_DELETE");
     const token = getAuthToken();
     const res = await fetch(`/api/patient/me/reminder/${reminderID}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });
     const { data, text } = await readResponseSafe(res);
-    if (!res.ok)
-      throw new Error(data?.error || text || "Failed to delete reminder");
+    if (!res.ok) throw new Error(data?.error || text || "Failed to delete reminder");
     return data;
   }
+
 
   // date/time helpers 
   function getTodayYMD() {
@@ -635,7 +786,12 @@
         app.classList.remove("reminder-blur");
         await renderReminders();
       } catch (err) {
-        console.error(err);
+        if (err && err.message === "OFFLINE_UPDATE") {
+          toast(MSG_ONLINE_ONLY_UPDATE());
+        } else {
+          console.error(err);
+          toast(t("error_generic", "Something went wrong."))
+        }
       }
     };
 
@@ -689,7 +845,12 @@
         app.classList.remove("reminder-blur");
         await renderReminders();
       } catch (err) {
-        console.error("Error deleting reminder:", err);
+        if (err && err.message === "OFFLINE_DELETE") {
+          toast(MSG_ONLINE_ONLY_DELETE());
+        } else {
+          console.error("Error deleting reminder:", err);
+          toast(t("error_generic", "Something went wrong."));
+        }
       }
     };
 
@@ -710,29 +871,39 @@
   }
 
   // wire
-  await renderReminders();
 
-  document
-    .getElementById("addReminderBtn")
-    ?.addEventListener("click", () => showReminderPopup());
+  onReady(async () => {
+    await safeRender();
 
-  document.addEventListener("click", async function (e) {
-    if (e.target.classList.contains("editReminderBtn")) {
-      const reminderID = e.target.dataset.id;
-      const all = await fetchReminders();
-      const reminder = all.find((r) => r._id === reminderID);
-      if (reminder) showReminderPopup(reminder, reminderID);
-    }
-    if (e.target.classList.contains("removeReminderBtn")) {
-      const reminderID = e.target.dataset.id;
-      showDeletePopup(reminderID);
-    }
-  });
+    const addBtn = document.getElementById('addReminderBtn');
+    if (addBtn && !addBtn.dataset.wired) {
+      addBtn.dataset.wired = '1';
+      addBtn.addEventListener('click', () => showReminderPopup());
+    } 
 
-  window.addEventListener("DOMContentLoaded", () => {
-    whenI18nReady(renderReminders);
-  });
-  observeLangChanges(() => {
-    whenI18nReady(renderReminders);
+    // keep your existing edit/delete delegates
+    document.addEventListener("click", async function (e) {
+      if (e.target.classList.contains("editReminderBtn")) {
+        const reminderID = e.target.dataset.id;
+        const all = await fetchReminders();
+        const reminder = all.find((r) => r._id === reminderID);
+        if (reminder) showReminderPopup(reminder, reminderID);
+      }
+      if (e.target.classList.contains("removeReminderBtn")) {
+        const reminderID = e.target.dataset.id;
+        showDeletePopup(reminderID);
+      }
+    });
+
+    // flush + re-render hooks
+    window.addEventListener('online', () => window.__offline?.flush?.());
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') window.__offline?.flush?.();
+    });
+
+    // first render when i18n finishes loading, and on language swaps
+    whenI18nReady(safeRender);
+    observeLangChanges(() => whenI18nReady(safeRender));
   });
 })();
+

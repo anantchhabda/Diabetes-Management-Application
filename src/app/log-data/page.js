@@ -1,3 +1,5 @@
+import Script from "next/script";
+
 export default function LogDataPage() {
   const GLUCOSE_ROWS = [
     "Before Breakfast",
@@ -210,7 +212,8 @@ export default function LogDataPage() {
       </div>
 
       {/* loading strategy deferred */}
-      <script src="/js/log-data.js?v=19" defer></script>
+      <Script src="/js/offline.js?v=19" strategy="beforeInteractive" />
+      <Script src="/js/log-data.js?v=19" strategy="afterInteractive" />
     </div>
   );
 }
