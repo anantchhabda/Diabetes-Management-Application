@@ -81,21 +81,19 @@
       const data = Object.fromEntries(new FormData(form));
       const errors = {};
 
-      // Required fields (skip readonly fields)
+      // Required fields (skip readonly fields). YOD/diagnosisType are OPTIONAL now.
       [
         "fullName",
         "dateOfBirth",
         "sex",
         "fullAddress",
-        "yearOfDiagnosis",
-        "diagnosisType",
       ].forEach((f) => {
         if (!data[f] || String(data[f]).trim() === "") {
           errors[f] = "Required";
         }
       });
 
-      // Year validation
+      // Year validation (only if provided)
       if (data.yearOfDiagnosis) {
         const y = Number(data.yearOfDiagnosis);
         if (!Number.isInteger(y) || y < 1900 || y > currentYear) {
@@ -107,7 +105,7 @@
       Object.entries(errors).forEach(([k, v]) => showError(k, v));
       if (Object.keys(errors).length > 0) return;
 
-      // Submit
+      // submit
       try {
         const token = localStorage.getItem("onboardingToken");
         if (!token) {
@@ -116,20 +114,23 @@
           return;
         }
 
+        // build payload with optional fields only if present
+        const payload = {
+          name: data.fullName,
+          dob: data.dateOfBirth,
+          sex: data.sex,
+          address: data.fullAddress,
+        };
+        if (data.yearOfDiagnosis) payload.yearOfDiag = Number(data.yearOfDiagnosis);
+        if (data.diagnosisType) payload.typeOfDiag = data.diagnosisType;
+
         const res = await fetch("/api/auth/onboarding", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            name: data.fullName,
-            dob: data.dateOfBirth,
-            sex: data.sex,
-            address: data.fullAddress,
-            yearOfDiag: Number(data.yearOfDiagnosis),
-            typeOfDiag: data.diagnosisType,
-          }),
+          body: JSON.stringify(payload),
         });
 
         const { data: result, text } = await readResponseSafe(res);

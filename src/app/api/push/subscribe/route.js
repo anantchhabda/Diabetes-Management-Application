@@ -1,7 +1,6 @@
-// src/app/api/push/subscribe/route.js
 import { NextResponse } from "next/server";
 import dbConnect from "../../../lib/db";
-import PushSubscription from "../../../lib/models/pushSubscription"; // match actual filename
+import PushSubscription from "../../../lib/models/pushSubscription";
 import Patient from "../../../lib/models/Patient";
 import { verifyJwt } from "../../../lib/auth";
 
@@ -11,7 +10,7 @@ export async function POST(req) {
 
     const body = await req.json();
 
-    // authenticate via your existing helper (reads Authorization header internally)
+    // authenticate
     const auth = verifyJwt(req);
     if (!auth) {
       return NextResponse.json(
@@ -40,16 +39,20 @@ export async function POST(req) {
       );
     }
 
-    // ---- Single-subscription-per-patient strategy ----
-    // Keep exactly ONE doc per patientID; newest device overwrites the previous
-    const byEndpoint = await PushSubscription.findOne({ endpoint }).lean();
+    // Single active subscription per patient: "latest device wins"
+    // 1) Find any subscription by endpoint (could belong to another patient)
+    const byEndpoint = await PushSubscription.findOne({ endpoint }); // doc (not lean)
+
+    // 2) Find existing subs for this patient (newest first)
     const existingForPatient = await PushSubscription.find({ patientID }).sort({
       updatedAt: -1,
     });
 
+    // choose a primary doc for this patient (most recent)
     let primary = existingForPatient[0] || null;
 
-    // If another doc already has this endpoint (from older/stale), remove it to avoid unique conflicts
+    // If we found a doc with this endpoint but it's NOT the same as the chosen primary doc,
+    // remove the endpoint doc to avoid unique endpoint conflicts before writing the new one.
     if (
       byEndpoint &&
       (!primary || String(byEndpoint._id) !== String(primary._id))
@@ -58,7 +61,7 @@ export async function POST(req) {
     }
 
     if (primary) {
-      // Update the primary with the latest device and endpoint
+      // Update the primary with latest endpoint/keys/device
       primary.endpoint = endpoint;
       primary.keys = keys;
       primary.enabled = true;
@@ -67,7 +70,7 @@ export async function POST(req) {
       primary.patientID = patientID;
       await primary.save();
 
-      // Remove any other duplicates for this patient to enforce single doc
+      // Remove other duplicates for this patient
       const otherIds = existingForPatient
         .filter((d) => String(d._id) !== String(primary._id))
         .map((d) => d._id);
@@ -75,7 +78,7 @@ export async function POST(req) {
         await PushSubscription.deleteMany({ _id: { $in: otherIds } });
       }
     } else {
-      // No existing subscription for this patient — create fresh
+      // No existing sub for this patient — create a fresh one
       const created = await PushSubscription.create({
         endpoint,
         keys,
@@ -87,7 +90,7 @@ export async function POST(req) {
       primary = created;
     }
 
-    // Optional: belt & braces cleanup of disabled leftovers
+    // Clean up any disabled leftovers for this patient (except the active primary)
     await PushSubscription.deleteMany({
       patientID,
       enabled: false,

@@ -1,10 +1,8 @@
-
-// merging to preserve backend functionality + language translations + reactivity
 (async function () {
   const app = document.getElementById("remindersApp");
   if (!app) return;
 
-  // i18n helpers preserved from main
+  // i18n helpers 
   function getDict() {
     const d = window.__i18n && window.__i18n.dict;
     return typeof d === "function" ? d() : d || {};
@@ -41,7 +39,7 @@
     } catch (_) {}
   }
 
-  // map nepalese digits
+  // Nepali digits
   const NE_DIG = {
     0: "०",
     1: "१",
@@ -59,7 +57,7 @@
     return String(str).replace(/[0-9]/g, (d) => NE_DIG[d] || d);
   }
 
-  // detect user timezone (used for reminders)
+  // timezone
   function getUserTimezone() {
     try {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -69,12 +67,12 @@
     }
   }
 
-  // BACKEND api preserved
+  // backend logic
   function getAuthToken() {
     const token = localStorage.getItem("authToken");
     if (!token)
       throw new Error(
-        t("session_expired", "Session expired, please register again")
+        t("error_session_expired", "Session expired, please register again")
       );
     return token;
   }
@@ -96,22 +94,6 @@
     return { data: null, text: null };
   }
 
-  async function createReminder(reminder) {
-    const token = getAuthToken();
-    const res = await fetch("/api/patient/me/reminder", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(reminder),
-    });
-    const { data, text } = await readResponseSafe(res);
-    if (!res.ok)
-      throw new Error(data?.error || text || "Failed to create reminder");
-    return data;
-  }
-
   async function fetchReminders() {
     try {
       const token = getAuthToken();
@@ -129,6 +111,22 @@
       console.error(err);
       return [];
     }
+  }
+
+  async function createReminder(reminder) {
+    const token = getAuthToken();
+    const res = await fetch("/api/patient/me/reminder", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(reminder),
+    });
+    const { data, text } = await readResponseSafe(res);
+    if (!res.ok)
+      throw new Error(data?.error || text || "Failed to create reminder");
+    return data;
   }
 
   async function updateReminder(reminderID, updateData) {
@@ -160,7 +158,7 @@
     return data;
   }
 
-  // date/time helper functions
+  // date/time helpers 
   function getTodayYMD() {
     const d = new Date();
     const yyyy = d.getFullYear();
@@ -170,6 +168,15 @@
   }
   function setDateDefaultIfEmpty(input) {
     if (input && !input.value) input.value = getTodayYMD();
+  }
+
+  function ordinalEn(n) {
+    const mod10 = n % 10,
+      mod100 = n % 100;
+    if (mod10 === 1 && mod100 !== 11) return `${n}st`;
+    if (mod10 === 2 && mod100 !== 12) return `${n}nd`;
+    if (mod10 === 3 && mod100 !== 13) return `${n}rd`;
+    return `${n}th`;
   }
 
   function formatTimeDisplay(time24) {
@@ -206,41 +213,56 @@
     }
   }
 
-  // language translation helpers for date, time
+  // map system reminders to i18n keys so UI text can flip b/w languages
+  function systemKeyFor(rem) {
+    if (!rem.system) return null;
+    if (
+      rem.interval === "Daily" &&
+      (rem.time === "10:00" || rem.time === "18:00")
+    )
+      return "sys_check_log";
+    if (rem.interval === "Weekly" && rem.time === "09:00")
+      return "sys_care_food_eyes_teeth";
+    return null;
+  }
+
   function formatReminderSchedule(rem) {
     const timeText = formatTimeDisplay(rem.time);
     if (rem.interval === "Daily") {
       return t("schedule_daily", "Daily {time}").replace("{time}", timeText);
     }
     if (rem.interval === "Weekly") {
-      const wk = weekdayLong(rem.date);
+      const wk = weekdayLong(rem.startDate || rem.date);
       return t("schedule_weekly", "Weekly {weekday} {time}")
         .replace("{weekday}", wk)
         .replace("{time}", timeText);
     }
     if (rem.interval === "Monthly") {
-      const day = rem.date ? rem.date.slice(8, 10) : "";
-      const dayOut = currentLang() === "ne" ? toNepaliDigits(day) : day;
+      const base = rem.startDate || rem.date || "";
+      const dayStr = base ? base.slice(8, 10) : "";
+      const dayNum = Number(dayStr || "0");
+      let dayOut;
+      if (currentLang() === "en") dayOut = ordinalEn(dayNum);
+      else if (currentLang() === "ne") dayOut = toNepaliDigits(dayNum);
+      else dayOut = String(dayNum);
       return t("schedule_monthly", "Monthly {day} {time}")
         .replace("{day}", dayOut)
         .replace("{time}", timeText);
     }
-    const d = formatDateForDisplay(rem.date);
+    const d = formatDateForDisplay(rem.startDate || rem.date);
     return t("schedule_onetime", "{date} {time}")
       .replace("{date}", d)
       .replace("{time}", timeText);
   }
 
-  // custom time picker
+  // time picker
   function createTimePicker(initialTime = "") {
     const [initialHour, initialMinute] = initialTime
       ? initialTime.split(":")
       : ["12", "00"];
     return `
       <div class="custom-time-picker relative w-full">
-        <input type="text"
-               name="time"
-               readonly
+        <input type="text" name="time" readonly
                placeholder="${t("tp_select_time", "Select time...")}"
                class="w-full rounded px-2 py-1 bg-transparent border border-[var(--color-textWhite)] text-[var(--color-textWhite)] placeholder-[var(--color-textWhite)] cursor-pointer time-input"
                value="${initialTime ? formatTimeDisplay(initialTime) : ""}"
@@ -346,7 +368,7 @@
     });
   }
 
-  // nepalese date overlay
+  // Nepali date overlay
   function updateDateOverlay(input, overlay) {
     if (!input || !overlay) return;
     input.setAttribute("lang", currentLang());
@@ -362,7 +384,6 @@
       overlay.textContent = "";
     }
   }
-
   function wireDateOverlay(popupRoot) {
     const wrap = popupRoot.querySelector(".date-wrap");
     if (!wrap) return;
@@ -380,7 +401,7 @@
     });
   }
 
-  // rendering backend + lang translation
+  // render 
   async function renderReminders() {
     let container = document.getElementById("remindersList");
     if (!container) {
@@ -393,36 +414,59 @@
     }
 
     const reminders = await fetchReminders();
+
     container.innerHTML = reminders
       .map((r) => {
+        const sysKey = systemKeyFor(r);
+        const displayName = sysKey
+          ? t(
+              sysKey,
+              sysKey === "sys_check_log"
+                ? "चिनी जाँच गर्नुस् र रेकर्ड गर्नुस् :)"
+                : "आहार, आँखाको र दाँतको हेरचाह गर्नुस् :)"
+            )
+          : r.name || "";
+
         const schedule = formatReminderSchedule({
           name: r.name,
           date: r.date || r.startDate || "",
           time: r.time || "",
           interval: r.interval || "",
+          system: r.system,
         });
+
+        const isSystem = !!r.system;
+        const buttons = isSystem
+          ? ""
+          : `<div class="flex gap-1">
+             <button class="bg-[var(--color-tertiary)] text-[var(--color-textWhite)] px-2 py-1 rounded font-semibold text-xs editReminderBtn" data-id="${
+               r._id
+             }">${t("edit", "Edit")}</button>
+             <button class="bg-[var(--color-delete)] text-[var(--color-textWhite)] px-2 py-1 rounded font-semibold text-xs removeReminderBtn" data-id="${
+               r._id
+             }">${t("remove", "Remove")}</button>
+           </div>`;
+
         return `
-        <div class="flex border rounded overflow-hidden w-full h-20">
-          <div class="bg-[var(--color-secondary)] text-[var(--color-textWhite)] flex items-center justify-center px-4 w-32 text-sm font-bold text-center">${
-            r.name || ""
-          }</div>
+        <div class="flex border rounded overflow-hidden w-full min-h-[5rem]">
+          <div class="bg-[var(--color-secondary)] text-[var(--color-textWhite)] flex flex-col items-center justify-center px-4 w-32 text-sm font-bold text-center">
+            <span>${displayName}</span>
+            ${
+              isSystem
+                ? '<span class="text-[10px] font-normal opacity-80 mt-0">(auto)</span>'
+                : ""
+            }
+          </div>
           <div class="flex-1 flex flex-col justify-center px-3 py-2" style="background:#1b7fa6;">
             <span class="text-[var(--color-textWhite)] text-sm mb-1">${schedule}</span>
-            <div class="flex gap-1">
-              <button class="bg-[var(--color-tertiary)] text-[var(--color-textWhite)] px-2 py-1 rounded font-semibold text-xs editReminderBtn" data-id="${
-                r._id
-              }">${t("edit", "Edit")}</button>
-              <button class="bg-[var(--color-delete)] text-[var(--color-textWhite)] px-2 py-1 rounded font-semibold text-xs removeReminderBtn" data-id="${
-                r._id
-              }">${t("remove", "Remove")}</button>
-            </div>
+            ${buttons}
           </div>
         </div>`;
       })
       .join("");
   }
 
-  // open pop up on lang switch
+  // popup: create / edit
   function relocalizeOpenPopup(popup) {
     if (!popup || !popup.isConnected) return;
     const h2 = popup.querySelector("h2");
@@ -493,7 +537,6 @@
     if (saveBtn) saveBtn.textContent = t("save", "Save");
   }
 
-  // pop ups create + edit
   function showReminderPopup(reminder = {}, reminderID = null) {
     document.getElementById("reminderPopup")?.remove();
     app.classList.add("reminder-blur");
@@ -532,10 +575,10 @@
               "interval_placeholder",
               "Interval/Repeat"
             )}</option>
-            <option value="Daily" ${
+            <option value="Daily"   ${
               reminder.interval === "Daily" ? "selected" : ""
             }>${t("interval_daily", "Daily")}</option>
-            <option value="Weekly" ${
+            <option value="Weekly"  ${
               reminder.interval === "Weekly" ? "selected" : ""
             }>${t("interval_weekly", "Weekly")}</option>
             <option value="Monthly" ${
@@ -557,19 +600,16 @@
     `;
     document.body.appendChild(popup);
 
-    // default date + overlays + time picker events
     const dateInputInit = popup.querySelector("input[name='date']");
     if (dateInputInit) setDateDefaultIfEmpty(dateInputInit);
     wireDateOverlay(popup);
     setupTimePickerEvents(popup);
 
-    // close
     document.getElementById("cancelReminderBtn").onclick = () => {
       popup.remove();
       app.classList.remove("reminder-blur");
     };
 
-    // submit backend logic
     document.getElementById("reminderForm").onsubmit = async function (e) {
       e.preventDefault();
       const fd = new FormData(this);
@@ -578,15 +618,19 @@
       const timeInput = this.querySelector(".time-input");
       const time = timeInput?.dataset?.time || timeInput?.value || "";
       const interval = fd.get("interval");
-
-      // include timezone detection
       const timezone = getUserTimezone();
       const payload = { name, date, time, interval, timezone };
 
       try {
-        if (reminderID) await updateReminder(reminderID, payload);
-        else await createReminder(payload);
-
+        if (reminderID) {
+          if (reminder.system) {
+            console.error("System reminders cannot be edited.");
+            return;
+          }
+          await updateReminder(reminderID, payload);
+        } else {
+          await createReminder(payload);
+        }
         popup.remove();
         app.classList.remove("reminder-blur");
         await renderReminders();
@@ -595,7 +639,6 @@
       }
     };
 
-    // relocalize while open
     observeLangChanges(() => {
       relocalizeOpenPopup(popup);
       wireDateOverlay(popup);
@@ -666,7 +709,7 @@
     });
   }
 
-  // wire events backend logic
+  // wire
   await renderReminders();
 
   document
@@ -689,8 +732,6 @@
   window.addEventListener("DOMContentLoaded", () => {
     whenI18nReady(renderReminders);
   });
-
-  // re-render list after language switches
   observeLangChanges(() => {
     whenI18nReady(renderReminders);
   });
