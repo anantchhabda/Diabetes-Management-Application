@@ -11,7 +11,7 @@ export async function PUT(req, {params}) {
     const roleCheck = requireRole(req, ['Patient']);
     if (roleCheck.error) return roleCheck.error;
 
-    const {requestID} = params;
+    const {requestID} = await params;
     const request = await LinkRequest.findById(requestID)
         .select('_id patient requesterRole requesterUser status');
     
