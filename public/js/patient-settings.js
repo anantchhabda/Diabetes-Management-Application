@@ -83,12 +83,12 @@
 
     // required fields, skipping readonly fields 
     [
-      "fullName",
-      "dateOfBirth",
+      "name",
+      "dob",
       "sex",
-      "fullAddress",
-      "yearOfDiagnosis",
-      "diagnosisType"
+      "address",
+      "yearOfDiag",
+      "typeOfDiag"
     ].forEach((f) => {
       if (!data[f] || data[f].trim() === "") {
         errors[f] = "Required";
