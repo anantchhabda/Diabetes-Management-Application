@@ -78,6 +78,7 @@
   "doctorId_title": "Read-only doctor identifier",
 
   "clinicAddress_label": "Clinic Address*",
+  "clinicAddress_placeholder": "Street, City, Country",
   "clinicName_label": "Clinic Name*",
   "clinicName_placeholder": "Clinic Name",
 
@@ -116,6 +117,7 @@
   "warn_numbers_only": "⚠️ Please enter numbers only",
   "warn_valid_numeric": "Please enter a valid numeric value (decimals allowed).",
   "unit_mgdl": "mg/dL",
+  "saved_offline": "Saved offline. Will sync when you're online.",
 
   "row_before_breakfast": "Before Breakfast",
   "row_after_breakfast": "After Breakfast",

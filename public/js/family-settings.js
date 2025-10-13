@@ -1,101 +1,82 @@
 (function () {
   const form = document.getElementById("settingsForm");
   const savedMsg = document.getElementById("savedMsg");
-
   if (!form) return;
 
-  // Load existing family member data when page loads
+  // --- Load existing family data ---
   async function loadUserData() {
     try {
       const token = localStorage.getItem("authToken");
-      if (!token) {
-        console.error("No auth token found");
-        return;
-      }
+      if (!token) return console.error("No auth token found");
 
-      const response = await fetch("/api/family/me/profile", {
+      const res = await fetch("/api/family/me/profile", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
+      if (!res.ok) return console.error("Failed to fetch:", res.status);
 
-      if (!response.ok) {
-        console.error("Failed to fetch user data:", response.status);
-        return;
-      }
-
-      const result = await response.json();
-      const userData = result.profile;
+      const result = await res.json();
+      const profile = result.profile;
       const phoneNumber = result.phoneNumber;
 
-      // Populate form fields with existing data
       const fields = {
-        familyId: userData.profileId,
-        fullName: userData.name,
-        dateOfBirth: userData.dob ? userData.dob.slice(0, 10) : "",
-        fullAddress: userData.address,
-        phone: phoneNumber
+        familyId: profile.profileId,
+        fullName: profile.name,
+        dateOfBirth: profile.dob ? profile.dob.slice(0, 10) : "",
+        fullAddress: profile.address,
+        phone: phoneNumber,
       };
 
-      Object.entries(fields).forEach(([fieldId, value]) => {
-        const element = document.getElementById(fieldId);
-        if (element && value !== undefined && value !== null) {
-          element.value = value;
-        }
+      Object.entries(fields).forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (el && val != null) el.value = val;
       });
-
-    } catch (error) {
-      console.error("Error loading user data:", error);
+    } catch (err) {
+      console.error("Error loading family data:", err);
     }
   }
 
-  async function readResponseSafe(response) {
-    const ct =
-      (response.headers &&
-        response.headers.get &&
-        response.headers.get("content-type")) ||
-      "";
+  async function readResponseSafe(res) {
+    const ct = res.headers.get?.("content-type") || "";
     if (ct.includes("application/json")) {
       try {
-        return { data: await response.json(), text: null };
-      } catch (_) {}
+        return { data: await res.json(), text: null };
+      } catch {}
     }
     try {
-      return { data: null, text: await response.text() };
-    } catch (_) {}
+      return { data: null, text: await res.text() };
+    } catch {}
     return { data: null, text: null };
   }
 
-  // Handle form submission
-  form.addEventListener("submit", async function (e) {
+  // --- Form submission handler ---
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
-
-    // clear previous saved message
     if (savedMsg) savedMsg.textContent = "";
 
     const data = Object.fromEntries(new FormData(form));
     const errors = {};
 
-    // required fields, skipping readonly fields 
-    [
-      "fullName",
-      "dateOfBirth",
-      "fullAddress",
-    ].forEach((f) => {
-      if (!data[f] || data[f].trim() === "") {
-        errors[f] = "Required";
-      }
+    ["fullName", "dateOfBirth", "fullAddress"].forEach((f) => {
+      if (!data[f] || data[f].trim() === "") errors[f] = "Required";
     });
 
-    form
-      .querySelectorAll("p[id^='error-']")
-      .forEach((p) => (p.textContent = ""));
+    // Clear old errors & hide them
+    form.querySelectorAll("p[id^='error-']").forEach((p) => {
+      p.textContent = "";
+      p.classList.add("hidden");
+    });
 
+    // Show new errors
     Object.entries(errors).forEach(([key, msg]) => {
       const el = document.getElementById(`error-${key}`);
-      if (el) el.textContent = msg;
+      if (el) {
+        el.textContent = msg;
+        el.classList.remove("hidden");
+      }
     });
 
     if (Object.keys(errors).length > 0) return;
@@ -121,9 +102,7 @@
         }),
       });
 
-      const ct = res.headers.get?.("content-type") || "";
       const { data: result, text } = await readResponseSafe(res);
-
       if (!res.ok) {
         const msg =
           (result && (result.error || result.message)) ||
@@ -137,17 +116,16 @@
         savedMsg.textContent = "Settings updated successfully!";
         window.location.href = "/family-homepage";
       }
-
     } catch (err) {
       console.error("Family settings update error:", err);
       if (savedMsg) savedMsg.textContent = "Error, please try again";
     }
   });
 
-  // Handle logout button
+  // --- Logout button handler ---
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
-    logoutBtn.addEventListener("click", function () {
+    logoutBtn.addEventListener("click", () => {
       localStorage.removeItem("authToken");
       localStorage.removeItem("userData");
       localStorage.removeItem("userRole");
@@ -156,4 +134,37 @@
   }
 
   loadUserData();
+
+  // --- Touched-field live validation ---
+  (function () {
+    const fields = [
+      { id: "fullName", err: "error-fullName" },
+      { id: "dateOfBirth", err: "error-dateOfBirth" },
+      { id: "fullAddress", err: "error-fullAddress" },
+    ];
+
+    const touched = Object.create(null);
+    const required = (v) => v != null && String(v).trim() !== "";
+
+    function validateOne(fid, eid) {
+      const f = document.getElementById(fid);
+      const e = document.getElementById(eid);
+      if (!f || !e) return true;
+      const ok = required(f.value);
+      e.classList.toggle("hidden", !touched[fid] || ok);
+      return ok;
+    }
+
+    fields.forEach(({ id, err }) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const mark = () => {
+        touched[id] = true;
+        validateOne(id, err);
+      };
+      el.addEventListener("blur", mark);
+      el.addEventListener("input", () => validateOne(id, err));
+      el.addEventListener("change", () => validateOne(id, err));
+    });
+  })();
 })();

@@ -43,6 +43,9 @@ export default function RemindersPage() {
 
           <div id="remindersList" className="w-full max-w-md mt-2" />
 
+          {/* ADD: offline.js must loaf BEFORE reminders.js */}
+          <Script src="/js/offline.js?v=3" strategy="beforeInteractive" />
+          
           {/* bump version to defeat caching*/}
           <Script src="/js/reminders.js?v=3" strategy="afterInteractive" />
           <Script src="/js/notifications.js?v=3" strategy="afterInteractive" />

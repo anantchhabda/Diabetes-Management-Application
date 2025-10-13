@@ -36,6 +36,7 @@ export default function Header() {
               width={60}
               height={60}
               priority
+              unoptimized
             />
           </div>
 
@@ -63,8 +64,27 @@ export default function Header() {
 
             {/* header logic */}
             <Script
-              src={`/js/header-script.js?v=${Date.now()}`}
+              src={"/js/header-script.js"}
               strategy="afterInteractive"
+            />
+            <Script
+              id="settings-visibility"
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `
+                  (function () {
+                    var settingsBtn = document.getElementById("settingsBtn");
+                    if (!settingsBtn) return;
+                    var allowed = new Set([
+                      '/patient-homepage',
+                      '/doctor-homepage',
+                      '/family-homepage'
+                    ]);
+                    var path = window.location.pathname;
+                    settingsBtn.style.display = allowed.has(path) ? '' : 'none';
+                  })();
+                `,
+              }}
             />
           </div>
         </div>
