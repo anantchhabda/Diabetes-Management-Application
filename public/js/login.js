@@ -25,13 +25,34 @@
       : t("hide", "Hide");
   }
 
+  // purge any cached log-data drafts & viewer context
+  function purgeLogDrafts() {
+    try {
+      // viewer context
+      sessionStorage.removeItem("viewerPatientID");
+      // log-data drafts / old keys
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const k = localStorage.key(i);
+        if (
+          k &&
+          (k.startsWith("logdata:v2:") ||
+            k.startsWith("__logdata_") ||
+            k === "__active_profile_id__")
+        ) {
+          localStorage.removeItem(k);
+        }
+      }
+    } catch {}
+  }
+
   // hard clear of any prior session artifacts
   function clearAuth() {
     try {
       localStorage.removeItem("authToken");
       localStorage.removeItem("onboardingToken");
+      localStorage.removeItem("userData");
+      localStorage.removeItem("userRole");
       sessionStorage.removeItem("viewerPatientID");
-      // if you set an auth cookie on the server, clear it too:
       document.cookie = "auth=; Max-Age=0; path=/";
     } catch (_) {}
   }
@@ -62,9 +83,10 @@
       // always clear any stale tokens BEFORE we attempt a new login
       clearAuth();
 
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch(`/api/auth/login?_=${Date.now()}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        cache: "no-store",
         body: JSON.stringify({ phoneNumber: phone, password }),
       });
 
@@ -80,10 +102,9 @@
 
       // If user must complete onboarding:
       if (data.token) {
-        // make absolutely sure no stale authToken remains
         localStorage.removeItem("authToken");
         localStorage.setItem("onboardingToken", data.token);
-        // route by role
+        purgeLogDrafts(); // reset session artifacts on account switch
         if (data.role === "Patient") {
           window.location.href = "/patient-onboarding";
           return;
@@ -100,10 +121,10 @@
 
       // Fully onboarded -> got final session token
       if (data.authToken) {
-        // ensure onboarding token is gone
         localStorage.removeItem("onboardingToken");
         localStorage.setItem("authToken", data.authToken);
-        // route by role
+        localStorage.setItem("userRole", data.role || "");
+        purgeLogDrafts(); // reset drafts for new user
         if (data.role === "Patient") {
           window.location.href = "/patient-homepage";
           return;

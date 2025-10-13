@@ -1,9 +1,26 @@
 (function () {
-  // i18n helper 
+  // i18n helper
   function t(key, fallback) {
     const d = window.__i18n && window.__i18n.dict;
     const dict = typeof d === "function" ? d() : d || {};
     return dict[key] ?? fallback ?? key;
+  }
+
+  function purgeLogDrafts() {
+    try {
+      sessionStorage.removeItem("viewerPatientID");
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const k = localStorage.key(i);
+        if (
+          k &&
+          (k.startsWith("logdata:v2:") ||
+            k.startsWith("__logdata_") ||
+            k === "__active_profile_id__")
+        ) {
+          localStorage.removeItem(k);
+        }
+      }
+    } catch {}
   }
 
   // Cache DOM by ID
@@ -37,7 +54,7 @@
     btn.textContent = isHidden ? t("show", "Show") : t("hide", "Hide");
   }
 
-  // Submit 
+  // Submit
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
     setError("");
@@ -78,9 +95,10 @@
     }
 
     try {
-      const res = await fetch("/api/auth/register", {
+      const res = await fetch(`/api/auth/register?_=${Date.now()}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        cache: "no-store",
         body: JSON.stringify({ phoneNumber: phone, password, role }),
       });
 
@@ -99,6 +117,9 @@
       if (data.token) {
         localStorage.setItem("onboardingToken", data.token);
       }
+
+      // new account -> purge any stale drafts
+      purgeLogDrafts();
 
       const byRole = {
         Patient: "/patient-onboarding",
@@ -126,7 +147,7 @@
     setToggleLabel(toggleConfirmBtn, confirmInput);
   });
 
-  // Phone digits-only 
+  // Phone digits-only
   phoneInput.addEventListener("input", function () {
     const start = phoneInput.selectionStart;
     const end = phoneInput.selectionEnd;

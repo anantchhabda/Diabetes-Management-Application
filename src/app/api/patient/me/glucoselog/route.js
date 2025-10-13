@@ -28,10 +28,15 @@ export async function POST(req) {
         { status: 404 }
       );
     }
-    const { type, glucoseLevel, date } = await req.json();
-    if (!type || !glucoseLevel || !date) {
+
+    const payload = await req.json();
+    const type = payload.type;
+    const date = payload.date;
+    const glucoseLevel = payload.glucoseLevel ?? payload.glucose; // accept either name
+
+    if (!type || glucoseLevel == null || !date) {
       return NextResponse.json(
-        { message: "Type, glucose level and date are required" },
+        { message: "Type, glucose, and date required" },
         { status: 400 }
       );
     }
@@ -40,7 +45,7 @@ export async function POST(req) {
       patient: patient.profileId,
       type,
       glucoseLevel,
-      date: new Date(date), //automatically stored at midnight of that date
+      date: new Date(date),
     });
 
     return NextResponse.json(
@@ -75,13 +80,15 @@ export async function GET(req) {
         { status: 404 }
       );
     }
+
     const url = new URL(req.url);
     const date = url.searchParams.get("date");
-    if (!date)
+    if (!date) {
       return NextResponse.json(
         { message: "Date is required" },
         { status: 400 }
       );
+    }
 
     const startDate = new Date(date);
     const nextDate = new Date(startDate);
@@ -89,7 +96,7 @@ export async function GET(req) {
 
     const logs = await GlucoseLog.find({
       patient: patient.profileId,
-      date: { $gte: startDate, $lt: nextDate }, //all documents for a single day (before 00:00 of the next day)
+      date: { $gte: startDate, $lt: nextDate },
     });
     return NextResponse.json({ logs });
   } catch (err) {
@@ -136,12 +143,15 @@ export async function PATCH(req) {
     const nextDate = new Date(startDate);
     nextDate.setDate(nextDate.getDate() + 1);
 
-    const { type, glucoseLevel } = await req.json();
+    const payload = await req.json();
+    const type = payload.type;
+    const glucoseLevel = payload.glucoseLevel ?? payload.glucose; // accept either
+
     if (!type) {
       return NextResponse.json({ error: "Type is required" }, { status: 400 });
     }
 
-    if (glucoseLevel == null || glucoseLevel == "") {
+    if (glucoseLevel == null || glucoseLevel === "") {
       await GlucoseLog.deleteOne({
         patient: patient.profileId,
         date: { $gte: startDate, $lt: nextDate },
@@ -178,6 +188,7 @@ export async function PATCH(req) {
       { status: 200 }
     );
   } catch (err) {
+    console.error(err);
     return NextResponse.json(
       { error: "Updating glucose log failed", details: err.message },
       { status: 500 }

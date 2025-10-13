@@ -13,7 +13,7 @@ export async function GET(req, ctx) {
   const { payload, error } = requireRole(req, ["Doctor", "Family Member"]);
   if (error) return error;
 
-  const { patientID } = await ctx.params; // Patient.profileId
+  const { patientID } = await ctx.params;
   if (!patientID) {
     return NextResponse.json({ error: "Missing patientID" }, { status: 400 });
   }
@@ -25,7 +25,7 @@ export async function GET(req, ctx) {
     return NextResponse.json({ error: "Patient not found" }, { status: 404 });
   }
 
-  // resolve requester profileId
+  // Who is requesting?
   let requesterProfileId = null;
   if (payload.role === "Doctor") {
     const me = await Doctor.findOne({ user: payload.sub }).select("profileId");
@@ -40,7 +40,7 @@ export async function GET(req, ctx) {
     return NextResponse.json({ error: "Requester not found" }, { status: 404 });
   }
 
-  // ✅ authorize via LinkRequest Accepted
+  // Authorization: Accepted link, or fallback to array check
   const accepted = await LinkRequest.findOne({
     patient: patient.profileId,
     requesterUser: requesterProfileId,
@@ -48,7 +48,6 @@ export async function GET(req, ctx) {
     status: "Accepted",
   }).select("_id");
 
-  // fallback to array check if needed
   const arrayOK =
     payload.role === "Doctor"
       ? Array.isArray(patient.doctorID) &&
@@ -73,7 +72,7 @@ export async function GET(req, ctx) {
   const logs = await GlucoseLog.find({
     patient: patient.profileId,
     date: { $gte: start, $lt: end },
-  }).select("_id type glucoseLevel date");
+  }).select("_id type glucoseLevel date flag");
 
   return NextResponse.json({ logs }, { status: 200 });
 }

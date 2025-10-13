@@ -20,15 +20,21 @@
       // Glucose rows
       window.__offline.register("glucose", async (mut, { authHeader }) => {
         const headers = { ...authHeader(), "X-Idempotency-Key": mut.idem };
+        // Try PATCH first
         const r = await fetch(
           `/api/patient/me/glucoselog?date=${encodeURIComponent(mut.date)}`,
           {
             method: "PATCH",
             headers,
-            body: JSON.stringify({ type: mut.type, glucoseLevel: mut.value }),
+            body: JSON.stringify({
+              type: mut.type,
+              glucoseLevel: mut.value,
+              glucose: mut.value, // <- send both names for compatibility
+            }),
           }
         );
         if (r.status === 404 && mut.value !== "" && mut.value != null) {
+          // Create if not exists
           const r2 = await fetch(`/api/patient/me/glucoselog`, {
             method: "POST",
             headers,
@@ -36,6 +42,7 @@
               date: mut.date,
               type: mut.type,
               glucoseLevel: mut.value,
+              glucose: mut.value, // <- send both
             }),
           });
           if (!r2.ok) {
@@ -65,7 +72,13 @@
             body: JSON.stringify({ type: mut.type, dose: mut.value }),
           }
         );
-        if (r.status === 404 && mut.value !== "" && mut.value != null) {
+
+        // If row doesn't exist:
+        if (r.status === 404) {
+          // a) we were clearing an empty field -> nothing to do
+          if (mut.value === "" || mut.value == null) return;
+
+          // b) we were setting a value -> create it
           const r2 = await fetch(`/api/patient/me/insulinlog`, {
             method: "POST",
             headers,
@@ -83,7 +96,8 @@
           }
           return;
         }
-        if (!r.ok && r.status !== 404) {
+
+        if (!r.ok) {
           const j = await r.json().catch(() => ({}));
           const e = new Error(j.error || j.message || `HTTP ${r.status}`);
           e.status = r.status;
@@ -307,7 +321,7 @@
   };
 
   async function getMe() {
-    const res = await fetch("/api/auth/me", {
+    const res = await fetch(`/api/auth/me?_=${Date.now()}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -347,7 +361,7 @@
   })();
 
   // ---------------------------
-  // Safe JSON parser for APIs (handles empty 204/empty-body cases)
+  // Safe JSON parser for APIs
   // ---------------------------
   async function readJsonSafe(res) {
     if (res.status === 204) return {};
@@ -364,12 +378,14 @@
   }
 
   // ---------------------------
-  // Patient endpoints
+  // Patient endpoints (cache-busted GETs)
   // ---------------------------
   async function fetchPatientGlucoseLog(date) {
     const res = await fetch(
-      `/api/patient/me/glucoselog?date=${encodeURIComponent(date)}`,
-      { method: "GET", headers: authHeader() }
+      `/api/patient/me/glucoselog?date=${encodeURIComponent(
+        date
+      )}&_=${Date.now()}`,
+      { method: "GET", headers: authHeader(), cache: "no-store" }
     );
     if (!res.ok)
       throw new Error(
@@ -378,10 +394,11 @@
     return res.json();
   }
   async function createGlucoseLog(date, type, glucoseLevel) {
-    const res = await fetch(`/api/patient/me/glucoselog`, {
+    const res = await fetch(`/api/patient/me/glucoselog?_=${Date.now()}`, {
       method: "POST",
       headers: authHeader(),
-      body: JSON.stringify({ date, type, glucoseLevel }),
+      cache: "no-store",
+      body: JSON.stringify({ date, type, glucoseLevel, glucose: glucoseLevel }),
     });
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
@@ -389,22 +406,31 @@
     }
     return readJsonSafe(res);
   }
-
   async function updateOrDeleteGlucoseLog(date, type, glucoseLevel) {
+    // try patch
     const res = await fetch(
-      `/api/patient/me/glucoselog?date=${encodeURIComponent(date)}`,
+      `/api/patient/me/glucoselog?date=${encodeURIComponent(
+        date
+      )}&_=${Date.now()}`,
       {
         method: "PATCH",
         headers: authHeader(),
-        body: JSON.stringify({ type, glucoseLevel }),
+        cache: "no-store",
+        body: JSON.stringify({ type, glucoseLevel, glucose: glucoseLevel }),
       }
     );
 
     if (res.status === 404 && glucoseLevel !== "" && glucoseLevel != null) {
-      const r2 = await fetch(`/api/patient/me/glucoselog`, {
+      const r2 = await fetch(`/api/patient/me/glucoselog?_=${Date.now()}`, {
         method: "POST",
         headers: authHeader(),
-        body: JSON.stringify({ date, type, glucoseLevel }),
+        cache: "no-store",
+        body: JSON.stringify({
+          date,
+          type,
+          glucoseLevel,
+          glucose: glucoseLevel,
+        }),
       });
       if (!r2.ok) {
         const j = await r2.json().catch(() => ({}));
@@ -427,8 +453,10 @@
 
   async function fetchPatientInsulinLog(date) {
     const res = await fetch(
-      `/api/patient/me/insulinlog?date=${encodeURIComponent(date)}`,
-      { method: "GET", headers: authHeader() }
+      `/api/patient/me/insulinlog?date=${encodeURIComponent(
+        date
+      )}&_=${Date.now()}`,
+      { method: "GET", headers: authHeader(), cache: "no-store" }
     );
     if (!res.ok)
       throw new Error(
@@ -437,9 +465,10 @@
     return res.json();
   }
   async function createInsulinLog(date, type, dose) {
-    const res = await fetch(`/api/patient/me/insulinlog`, {
+    const res = await fetch(`/api/patient/me/insulinlog?_=${Date.now()}`, {
       method: "POST",
       headers: authHeader(),
+      cache: "no-store",
       body: JSON.stringify({ date, type, dose }),
     });
     if (!res.ok) {
@@ -451,18 +480,27 @@
 
   async function updateOrDeleteInsulinLog(date, type, dose) {
     const res = await fetch(
-      `/api/patient/me/insulinlog?date=${encodeURIComponent(date)}`,
+      `/api/patient/me/insulinlog?date=${encodeURIComponent(
+        date
+      )}&_=${Date.now()}`,
       {
         method: "PATCH",
         headers: authHeader(),
+        cache: "no-store",
         body: JSON.stringify({ type, dose }),
       }
     );
 
-    if (res.status === 404 && dose !== "" && dose != null) {
-      const r2 = await fetch(`/api/patient/me/insulinlog`, {
+    if (res.status === 404) {
+      // clearing an already-empty row → fine, nothing to delete
+      if (dose === "" || dose == null) {
+        return { message: "No existing log to clear" };
+      }
+      // creating a brand new row
+      const r2 = await fetch(`/api/patient/me/insulinlog?_=${Date.now()}`, {
         method: "POST",
         headers: authHeader(),
+        cache: "no-store",
         body: JSON.stringify({ date, type, dose }),
       });
       if (!r2.ok) {
@@ -471,7 +509,7 @@
         e.status = r2.status;
         throw e;
       }
-      return readJsonSafe(r2);
+      return (await r2.json().catch(() => ({}))) || {};
     }
 
     if (!res.ok) {
@@ -481,13 +519,15 @@
       throw e;
     }
 
-    return readJsonSafe(res);
+    return (await res.json().catch(() => ({}))) || {};
   }
 
   async function fetchPatientCommentLog(date) {
     const res = await fetch(
-      `/api/patient/me/generallog?date=${encodeURIComponent(date)}`,
-      { method: "GET", headers: authHeader() }
+      `/api/patient/me/generallog?date=${encodeURIComponent(
+        date
+      )}&_=${Date.now()}`,
+      { method: "GET", headers: authHeader(), cache: "no-store" }
     );
     if (!res.ok)
       throw new Error(
@@ -496,9 +536,10 @@
     return res.json();
   }
   async function createCommentLog(date, comment) {
-    const res = await fetch(`/api/patient/me/generallog`, {
+    const res = await fetch(`/api/patient/me/generallog?_=${Date.now()}`, {
       method: "POST",
       headers: authHeader(),
+      cache: "no-store",
       body: JSON.stringify({ date, comment }),
     });
     if (!res.ok) {
@@ -507,21 +548,24 @@
     }
     return readJsonSafe(res);
   }
-
   async function updateOrDeleteCommentLog(date, comment) {
     const res = await fetch(
-      `/api/patient/me/generallog?date=${encodeURIComponent(date)}`,
+      `/api/patient/me/generallog?date=${encodeURIComponent(
+        date
+      )}&_=${Date.now()}`,
       {
         method: "PATCH",
         headers: authHeader(),
+        cache: "no-store",
         body: JSON.stringify({ comment }),
       }
     );
 
     if (res.status === 404 && (comment ?? "").trim() !== "") {
-      const r2 = await fetch(`/api/patient/me/generallog`, {
+      const r2 = await fetch(`/api/patient/me/generallog?_=${Date.now()}`, {
         method: "POST",
         headers: authHeader(),
+        cache: "no-store",
         body: JSON.stringify({ date, comment }),
       });
       if (!r2.ok) {
@@ -544,15 +588,15 @@
   }
 
   // ---------------------------
-  // Viewer endpoints (Doctor/Family)
+  // Viewer endpoints (Doctor/Family) — cache-busted GETs
   // ---------------------------
   async function fetchViewerGlucoseLog(date, patientID) {
     if (!patientID) throw new Error("Missing patientID");
     const res = await fetch(
       `/api/auth/me/patient/${encodeURIComponent(
         patientID
-      )}/viewlog/glucoselog?date=${encodeURIComponent(date)}`,
-      { method: "GET", headers: authHeader() }
+      )}/viewlog/glucoselog?date=${encodeURIComponent(date)}&_=${Date.now()}`,
+      { method: "GET", headers: authHeader(), cache: "no-store" }
     );
     if (!res.ok) throw new Error("Failed to load logs");
     return res.json();
@@ -562,8 +606,8 @@
     const res = await fetch(
       `/api/auth/me/patient/${encodeURIComponent(
         patientID
-      )}/viewlog/insulinlog?date=${encodeURIComponent(date)}`,
-      { method: "GET", headers: authHeader() }
+      )}/viewlog/insulinlog?date=${encodeURIComponent(date)}&_=${Date.now()}`,
+      { method: "GET", headers: authHeader(), cache: "no-store" }
     );
     if (!res.ok) throw new Error("Failed to load logs");
     return res.json();
@@ -573,8 +617,8 @@
     const res = await fetch(
       `/api/auth/me/patient/${encodeURIComponent(
         patientID
-      )}/viewlog/generallog?date=${encodeURIComponent(date)}`,
-      { method: "GET", headers: authHeader() }
+      )}/viewlog/generallog?date=${encodeURIComponent(date)}&_=${Date.now()}`,
+      { method: "GET", headers: authHeader(), cache: "no-store" }
     );
     if (!res.ok) throw new Error("Failed to load logs");
     return res.json();

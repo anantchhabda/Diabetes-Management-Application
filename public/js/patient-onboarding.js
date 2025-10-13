@@ -7,6 +7,23 @@
     }
   }
 
+  function purgeLogDrafts() {
+    try {
+      sessionStorage.removeItem("viewerPatientID");
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const k = localStorage.key(i);
+        if (
+          k &&
+          (k.startsWith("logdata:v2:") ||
+            k.startsWith("__logdata_") ||
+            k === "__active_profile_id__")
+        ) {
+          localStorage.removeItem(k);
+        }
+      }
+    } catch {}
+  }
+
   onReady(function () {
     const form = document.getElementById("onboardingForm");
     const savedMsg = document.getElementById("savedMsg");
@@ -30,10 +47,12 @@
       console.error("Failed to read onboarding token", err);
     }
 
-    // utility
     async function readResponseSafe(response) {
       const ct =
-        (response.headers && response.headers.get("content-type")) || "";
+        (response.headers &&
+          response.headers.get &&
+          response.headers.get("content-type")) ||
+        "";
       if (ct.includes("application/json")) {
         try {
           return { data: await response.json(), text: null };
@@ -45,7 +64,6 @@
       return { data: null, text: null };
     }
 
-    // hide errors
     function resetErrors() {
       form.querySelectorAll("p[id^='error-']").forEach((p) => {
         p.textContent = "";
@@ -53,7 +71,6 @@
       });
     }
 
-    // show one field error
     function showError(field, msg) {
       const el = document.getElementById(`error-${field}`);
       if (el) {
@@ -62,7 +79,6 @@
       }
     }
 
-    // listen to input
     form.addEventListener("input", (e) => {
       const id = e.target && e.target.id;
       if (!id) return;
@@ -81,19 +97,12 @@
       const data = Object.fromEntries(new FormData(form));
       const errors = {};
 
-      // Required fields (skip readonly fields). YOD/diagnosisType are OPTIONAL now.
-      [
-        "fullName",
-        "dateOfBirth",
-        "sex",
-        "fullAddress",
-      ].forEach((f) => {
+      ["fullName", "dateOfBirth", "sex", "fullAddress"].forEach((f) => {
         if (!data[f] || String(data[f]).trim() === "") {
           errors[f] = "Required";
         }
       });
 
-      // Year validation (only if provided)
       if (data.yearOfDiagnosis) {
         const y = Number(data.yearOfDiagnosis);
         if (!Number.isInteger(y) || y < 1900 || y > currentYear) {
@@ -101,11 +110,9 @@
         }
       }
 
-      // Render errors
       Object.entries(errors).forEach(([k, v]) => showError(k, v));
       if (Object.keys(errors).length > 0) return;
 
-      // submit
       try {
         const token = localStorage.getItem("onboardingToken");
         if (!token) {
@@ -114,31 +121,32 @@
           return;
         }
 
-        // build payload with optional fields only if present
         const payload = {
           name: data.fullName,
           dob: data.dateOfBirth,
           sex: data.sex,
           address: data.fullAddress,
         };
-        if (data.yearOfDiagnosis) payload.yearOfDiag = Number(data.yearOfDiagnosis);
+        if (data.yearOfDiagnosis)
+          payload.yearOfDiag = Number(data.yearOfDiagnosis);
         if (data.diagnosisType) payload.typeOfDiag = data.diagnosisType;
 
-        const res = await fetch("/api/auth/onboarding", {
+        const res = await fetch(`/api/auth/onboarding?_=${Date.now()}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
+          cache: "no-store",
           body: JSON.stringify(payload),
         });
 
         const { data: result, text } = await readResponseSafe(res);
 
-        // handle 409
         if (res.status === 409) {
           if (savedMsg) savedMsg.textContent = "Onboarding already completed";
           // proceed to homepage anyway
+          purgeLogDrafts();
           window.location.href = "/patient-homepage";
           return;
         }
@@ -158,6 +166,7 @@
         if (savedMsg)
           savedMsg.textContent = "Onboarding successful! Redirecting...";
 
+        purgeLogDrafts();
         window.location.href = "/patient-homepage";
       } catch (err) {
         console.error("Onboarding fetch error:", err);

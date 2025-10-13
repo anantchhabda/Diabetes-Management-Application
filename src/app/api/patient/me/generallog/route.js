@@ -5,13 +5,8 @@ import { NextResponse } from "next/server";
 import { requireRole } from "../../../../lib/auth";
 
 export async function POST(req) {
-  // Reject writes when viewing read-only
-  const ro = req.headers.get("x-read-only");
-  if (ro === "1") {
-    return NextResponse.json(
-      { message: "Read-only view: writes are disabled." },
-      { status: 403 }
-    );
+  if (req.headers.get("x-read-only") === "1") {
+    return NextResponse.json({ message: "Read-only view" }, { status: 403 });
   }
 
   await dbConnect();
@@ -19,40 +14,36 @@ export async function POST(req) {
   if (roleCheck.error) return roleCheck.error;
 
   try {
+    const { comment, date } = await req.json();
+    if (!comment || !date)
+      return NextResponse.json(
+        { error: "Comment and date required" },
+        { status: 400 }
+      );
+
     const patient = await Patient.findOne({
       user: roleCheck.payload.sub,
     }).select("profileId");
-    if (!patient) {
+    if (!patient)
       return NextResponse.json(
         { error: "Patient profile not found" },
         { status: 404 }
       );
-    }
-    const { comment, date } = await req.json();
-    if (!comment || !date) {
-      return NextResponse.json(
-        { message: "Comment and date are required" },
-        { status: 400 }
-      );
-    }
 
     const log = await GeneralLog.create({
       patient: patient.profileId,
       comment,
-      date: new Date(date), //automatically stored at midnight of that date
+      date: new Date(date),
     });
 
     return NextResponse.json(
-      {
-        message: "General log created successfully",
-        generalLogID: log._id,
-      },
+      { message: "General log created", log },
       { status: 200 }
     );
   } catch (err) {
-    console.error(err);
+    console.error("[DMA] POST general log error:", err);
     return NextResponse.json(
-      { error: "Logging general comment failed", details: err.message },
+      { error: "General log create failed" },
       { status: 500 }
     );
   }
@@ -67,48 +58,35 @@ export async function GET(req) {
     const patient = await Patient.findOne({
       user: roleCheck.payload.sub,
     }).select("profileId");
-    if (!patient) {
-      return NextResponse.json(
-        { error: "Patient profile not found" },
-        { status: 404 }
-      );
-    }
-    const url = new URL(req.url);
-    const date = url.searchParams.get("date");
+    if (!patient)
+      return NextResponse.json({ error: "Patient not found" }, { status: 404 });
 
+    const date = new URL(req.url).searchParams.get("date");
     if (!date)
-      return NextResponse.json(
-        { message: "Date is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Date required" }, { status: 400 });
 
-    const startDate = new Date(date);
-    const nextDate = new Date(startDate);
-    nextDate.setDate(nextDate.getDate() + 1);
+    const start = new Date(date);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 1);
 
     const logs = await GeneralLog.find({
       patient: patient.profileId,
-      date: { $gte: startDate, $lt: nextDate }, //all documents for a single day (before 00:00 of the next day)
+      date: { $gte: start, $lt: end },
     });
 
     return NextResponse.json({ logs }, { status: 200 });
   } catch (err) {
-    console.error(err);
+    console.error("[DMA] GET general log error:", err);
     return NextResponse.json(
-      { error: "Viewing general comment log failed", details: err.message },
+      { error: "View general log failed" },
       { status: 500 }
     );
   }
 }
 
 export async function PATCH(req) {
-  // Reject writes when viewing read-only
-  const ro = req.headers.get("x-read-only");
-  if (ro === "1") {
-    return NextResponse.json(
-      { message: "Read-only view: writes are disabled." },
-      { status: 403 }
-    );
+  if (req.headers.get("x-read-only") === "1") {
+    return NextResponse.json({ message: "Read-only view" }, { status: 403 });
   }
 
   await dbConnect();
@@ -119,50 +97,32 @@ export async function PATCH(req) {
     const patient = await Patient.findOne({
       user: roleCheck.payload.sub,
     }).select("profileId");
-    if (!patient) {
-      return NextResponse.json(
-        { error: "Patient profile not found" },
-        { status: 404 }
-      );
-    }
+    if (!patient)
+      return NextResponse.json({ error: "Patient not found" }, { status: 404 });
 
-    const url = new URL(req.url);
-    const date = url.searchParams.get("date");
-    if (!date) {
-      return NextResponse.json({ error: "Date is required" }, { status: 400 });
-    }
-
-    const startDate = new Date(date);
-    const nextDate = new Date(startDate);
-    nextDate.setDate(nextDate.getDate() + 1);
-
+    const date = new URL(req.url).searchParams.get("date");
     const { comment } = await req.json();
-    if (comment == null || comment == "") {
-      //treat as delete if no comment provided
-      await GeneralLog.deleteOne({
-        patient: patient.profileId,
-        date: { $gte: startDate, $lt: nextDate },
-      });
-      return NextResponse.json({ message: "Log cleared" }, { status: 200 });
-    }
+    if (!date)
+      return NextResponse.json({ error: "Date required" }, { status: 400 });
+
+    const start = new Date(date);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 1);
 
     const updated = await GeneralLog.findOneAndUpdate(
-      { patient: patient.profileId, date: { $gte: startDate, $lt: nextDate } },
-      { $set: { comment } },
-      { new: true }
+      { patient: patient.profileId, date: { $gte: start, $lt: end } },
+      comment ? { $set: { comment } } : {},
+      { new: true, upsert: false }
     );
 
-    if (!updated) {
+    if (!updated)
       return NextResponse.json({ error: "Log not found" }, { status: 404 });
-    }
     return NextResponse.json(
-      { message: "General log updated", log: updated },
+      { message: "Updated", log: updated },
       { status: 200 }
     );
   } catch (err) {
-    return NextResponse.json(
-      { error: "Updating general comment failed", details: err.message },
-      { status: 500 }
-    );
+    console.error("[DMA] PATCH general log error:", err);
+    return NextResponse.json({ error: "Update failed" }, { status: 500 });
   }
 }

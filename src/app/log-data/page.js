@@ -212,10 +212,10 @@ export default function LogDataPage() {
       </div>
 
       {/* scripts */}
-      <Script src="/js/offline.js" strategy="beforeInteractive" />
-      <Script src="/js/readonly-view.js?v=11" strategy="afterInteractive" />
+      <Script src="/js/offline.js?v=3" strategy="beforeInteractive" />
+      <Script src="/js/readonly-view.js?v=13" strategy="afterInteractive" />
       {/* bump version so browser picks up the new file */}
-      <Script src="/js/log-data.js?v=35" strategy="afterInteractive" />
+      <Script src="/js/log-data.js?v=40" strategy="afterInteractive" />
     </div>
   );
 }

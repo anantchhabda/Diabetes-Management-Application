@@ -1,5 +1,5 @@
 (function () {
-  if (typeof document === 'undefined') return;
+  if (typeof document === "undefined") return;
 
   function t(key, fallback) {
     try {
@@ -15,6 +15,23 @@
       if (val && val !== k) return val;
     }
     return fallback != null ? String(fallback) : keys[0] || "";
+  }
+
+  function purgeLogDrafts() {
+    try {
+      sessionStorage.removeItem("viewerPatientID");
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const k = localStorage.key(i);
+        if (
+          k &&
+          (k.startsWith("logdata:v2:") ||
+            k.startsWith("__logdata_") ||
+            k === "__active_profile_id__")
+        ) {
+          localStorage.removeItem(k);
+        }
+      }
+    } catch {}
   }
 
   //decode JWT payload
@@ -69,7 +86,7 @@
   }
 
   //form handling
-  function setupForm () {
+  function setupForm() {
     const form = document.getElementById("onboardingForm");
     const savedMsg = document.getElementById("savedMsg");
     const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
@@ -78,7 +95,7 @@
 
     let inFlight = false;
 
-    form.addEventListener('submit', async function (e) {
+    form.addEventListener("submit", async function (e) {
       e.preventDefault();
       if (inFlight) return;
       inFlight = true;
@@ -97,7 +114,6 @@
       );
 
       const errors = {};
-
       const required = [
         ["fullName", ["error_fullName", "error_required"]],
         ["dateOfBirth", ["error_dateOfBirth", "error_dob", "error_required"]],
@@ -107,14 +123,12 @@
         ],
         ["clinicName", ["error_clinicName", "error_required"]],
       ];
-
       required.forEach(([field, keys]) => {
         if (!data[field] || String(data[field]).trim() === "") {
-            errors[field] = tMulti(keys, "This field is required.");
+          errors[field] = tMulti(keys, "This field is required.");
         }
       });
 
-      //reset previous messages
       form
         .querySelectorAll("p[id^='error-']")
         .forEach((p) => (p.textContent = ""));
@@ -143,12 +157,13 @@
           return;
         }
 
-        const res = await fetch("/api/auth/onboarding", {
+        const res = await fetch(`/api/auth/onboarding?_=${Date.now()}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
+          cache: "no-store",
           body: JSON.stringify({
             name: data.fullName,
             dob: data.dateOfBirth,
@@ -178,7 +193,8 @@
             "onboarding_success_redirect",
             "Onboarding successful! Redirecting to homepage"
           );
-        
+
+        purgeLogDrafts();
         window.location.href = "/doctor-homepage";
       } catch (err) {
         console.error("[doctor-onboarding] fetch error:", err);
@@ -189,8 +205,8 @@
           );
       } finally {
         if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.removeAttribute("aria-busy");
+          submitBtn.disabled = false;
+          submitBtn.removeAttribute("aria-busy");
         }
         inFlight = false;
       }

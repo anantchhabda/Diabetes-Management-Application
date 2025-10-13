@@ -1,7 +1,6 @@
 (function () {
   if (typeof document === "undefined") return;
 
-  // helpers
   function t(key, fallback) {
     try {
       const dict = (window.__i18n && window.__i18n.dict) || {};
@@ -17,7 +16,6 @@
     return fallback != null ? String(fallback) : keys[0] || "";
   }
 
-  // JWT payload decode
   function decodeJwtPayload(token) {
     try {
       const part = token.split(".")[1] || "";
@@ -31,7 +29,23 @@
     }
   }
 
-  // Prefill Family ID / Phone after DOM is ready
+  function purgeLogDrafts() {
+    try {
+      sessionStorage.removeItem("viewerPatientID");
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const k = localStorage.key(i);
+        if (
+          k &&
+          (k.startsWith("logdata:v2:") ||
+            k.startsWith("__logdata_") ||
+            k === "__active_profile_id__")
+        ) {
+          localStorage.removeItem(k);
+        }
+      }
+    } catch {}
+  }
+
   function prefillFromToken() {
     try {
       const token = localStorage.getItem("onboardingToken");
@@ -50,7 +64,6 @@
     }
   }
 
-  // form handling
   function setupForm() {
     const form = document.getElementById("onboardingForm");
     const savedMsg = document.getElementById("savedMsg");
@@ -117,12 +130,13 @@
           return;
         }
 
-        const res = await fetch("/api/auth/onboarding", {
+        const res = await fetch(`/api/auth/onboarding?_=${Date.now()}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
+          cache: "no-store",
           body: JSON.stringify({
             name: data.fullName,
             dob: data.dateOfBirth,
@@ -149,6 +163,7 @@
             "onboarding_success_redirect",
             "Onboarding successful! Redirecting to homepage"
           );
+        purgeLogDrafts();
         window.location.href = "/family-homepage";
       } catch (err) {
         console.error("[family-onboarding] fetch error:", err);
@@ -161,7 +176,6 @@
     });
   }
 
-  // init
   function init() {
     prefillFromToken();
     setupForm();
