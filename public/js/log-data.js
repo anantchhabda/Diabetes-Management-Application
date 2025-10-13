@@ -12,11 +12,7 @@
           fn();
         }
       }, 50);
-      setTimeout(() => {
-        clearInterval(iv);
-      }, 5000);
     }
-
     ready(() => {
       if (window.__LOG_PUSHERS_READY__) return;
       window.__LOG_PUSHERS_READY__ = true;
@@ -177,7 +173,7 @@
     }
   }
   // IMPORTANT: viewer URLs use ?patientID=GamMql&readonly=1
-  const VIEW_PATIENT = getParam("patientID"); // Patient.profileId of the patient being viewed
+  const VIEW_PATIENT = getParam("patientID"); // Patient.profileId
   const IS_READONLY = getParam("readonly") === "1";
 
   // Expose for other scripts (keeps params on links)
@@ -325,7 +321,7 @@
       err.status = res.status;
       throw err;
     }
-    return res.json(); // { userId, role, profile: { profileId, ... } }
+    return res.json();
   }
 
   // profile id resolver (stable per patient)
@@ -354,21 +350,19 @@
   // Safe JSON parser for APIs (handles empty 204/empty-body cases)
   // ---------------------------
   async function readJsonSafe(res) {
-    // Handle 204 and empty bodies gracefully
     if (res.status === 204) return {};
     const ct = (res.headers.get("content-type") || "").toLowerCase();
-    // If not JSON, don't try to parse
     if (!ct.includes("application/json")) {
       const txt = await res.text().catch(() => "");
       return txt ? { ok: true } : {};
     }
-    // If JSON, parse carefully
     try {
       return await res.json();
     } catch {
-      return {}; // treat empty/invalid as empty payload
+      return {};
     }
   }
+
   // ---------------------------
   // Patient endpoints
   // ---------------------------
@@ -389,17 +383,21 @@
       headers: authHeader(),
       body: JSON.stringify({ date, type, glucoseLevel }),
     });
-    if (!res.ok)
-      throw new Error(
-        (await res.json().catch(() => ({}))).message || "Create failed"
-      );
-    return res.json();
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      throw new Error(j.error || j.message || `HTTP ${res.status}`);
+    }
+    return readJsonSafe(res);
   }
 
   async function updateOrDeleteGlucoseLog(date, type, glucoseLevel) {
     const res = await fetch(
       `/api/patient/me/glucoselog?date=${encodeURIComponent(date)}`,
-      { method: "PATCH", headers: authHeader(), body: JSON.stringify({ type, glucoseLevel }) }
+      {
+        method: "PATCH",
+        headers: authHeader(),
+        body: JSON.stringify({ type, glucoseLevel }),
+      }
     );
 
     if (res.status === 404 && glucoseLevel !== "" && glucoseLevel != null) {
@@ -444,17 +442,21 @@
       headers: authHeader(),
       body: JSON.stringify({ date, type, dose }),
     });
-    if (!res.ok)
-      throw new Error(
-        (await res.json().catch(() => ({}))).message || "Create failed"
-      );
-    return res.json();
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      throw new Error(j.error || j.message || `HTTP ${res.status}`);
+    }
+    return readJsonSafe(res);
   }
 
   async function updateOrDeleteInsulinLog(date, type, dose) {
     const res = await fetch(
       `/api/patient/me/insulinlog?date=${encodeURIComponent(date)}`,
-      { method: "PATCH", headers: authHeader(), body: JSON.stringify({ type, dose }) }
+      {
+        method: "PATCH",
+        headers: authHeader(),
+        body: JSON.stringify({ type, dose }),
+      }
     );
 
     if (res.status === 404 && dose !== "" && dose != null) {
@@ -482,7 +484,6 @@
     return readJsonSafe(res);
   }
 
-
   async function fetchPatientCommentLog(date) {
     const res = await fetch(
       `/api/patient/me/generallog?date=${encodeURIComponent(date)}`,
@@ -500,17 +501,21 @@
       headers: authHeader(),
       body: JSON.stringify({ date, comment }),
     });
-    if (!res.ok)
-      throw new Error(
-        (await res.json().catch(() => ({}))).message || "Create failed"
-      );
-    return res.json();
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      throw new Error(j.error || j.message || `HTTP ${res.status}`);
+    }
+    return readJsonSafe(res);
   }
 
   async function updateOrDeleteCommentLog(date, comment) {
     const res = await fetch(
       `/api/patient/me/generallog?date=${encodeURIComponent(date)}`,
-      { method: "PATCH", headers: authHeader(), body: JSON.stringify({ comment }) }
+      {
+        method: "PATCH",
+        headers: authHeader(),
+        body: JSON.stringify({ comment }),
+      }
     );
 
     if (res.status === 404 && (comment ?? "").trim() !== "") {
@@ -1011,50 +1016,51 @@
       }
     });
 
-    // save button
+    // save button (resilient; no false "offline")
+    let isSaving = false;
     saveBtn?.addEventListener("click", async () => {
       if (IS_READONLY || !STORAGE_NS) {
         alert("You do not have permission to edit.");
         return;
       }
-      if (!dateInput || !dateInput.value) {
-        pendingDraft = {
-          glucose: { ...state.glucose },
-          insulin: { ...state.insulin },
-          comments: state.comments || "",
-        };
-        dateInput?.classList.add("ring-2", "ring-red-500", "border-red-500");
-        if (dateWarning) {
-          dateWarning.textContent = t(
-            "date_warning_select_date",
-            "Please select a date before saving."
-          );
-        }
-        dateWarning?.classList.remove("hidden");
-        dateInput?.focus();
-        return;
-      }
+      if (isSaving) return;
+      isSaving = true;
+      saveBtn.disabled = true;
 
-      dateInput.classList.remove("ring-2", "ring-red-500", "border-red-500");
-      dateWarning?.classList.add("hidden");
-
-      const theDate = dateInput.value;
-
-      // If offline: enqueue and show banner
-      if (!navigator.onLine) {
-        await enqueueForCurrentTabOffline(theDate);
-        saveToStorage();
-        window.__offline?.showBanner(
-          t(
-            "saved_offline",
-            "Saved offline. Will sync when you're online."
-          )
-        );
-        return;
-      }
-
-      // Online: try save to backend; on failure, enqueue
       try {
+        if (!dateInput || !dateInput.value) {
+          pendingDraft = {
+            glucose: { ...state.glucose },
+            insulin: { ...state.insulin },
+            comments: state.comments || "",
+          };
+          dateInput?.classList.add("ring-2", "ring-red-500", "border-red-500");
+          if (dateWarning) {
+            dateWarning.textContent = t(
+              "date_warning_select_date",
+              "Please select a date before saving."
+            );
+          }
+          dateWarning?.classList.remove("hidden");
+          dateInput?.focus();
+          return;
+        }
+
+        dateInput.classList.remove("ring-2", "ring-red-500", "border-red-500");
+        dateWarning?.classList.add("hidden");
+
+        const theDate = dateInput.value;
+
+        if (!navigator.onLine) {
+          await enqueueForCurrentTabOffline(theDate);
+          saveToStorage();
+          window.__offline?.showBanner(
+            t("saved_offline", "Saved offline. Will sync when you're online.")
+          );
+          return;
+        }
+
+        // Online save
         await saveAllToBackend(
           theDate,
           GLUCOSE_ROWS,
@@ -1063,15 +1069,8 @@
           currentTab
         );
         saveToStorage();
-        if (saveNotice) {
-          saveNotice.textContent = t(
-            "saved_successfully",
-            "Saved successfully"
-          );
-          saveNotice.classList.remove("hidden");
-          setTimeout(() => saveNotice.classList.add("hidden"), 1500);
-        }
 
+        // Refresh state from backend so patient immediately sees server truth
         await reloadFromBackend(
           theDate,
           GLUCOSE_ROWS,
@@ -1082,23 +1081,39 @@
           !IS_READONLY,
           IS_READONLY ? VIEW_PATIENT || getPatientIDFromURL() : null
         );
-
         if (currentTab === "comments") {
           commentsInput.value = state.comments || "";
         } else {
           renderRows(currentTab === "glucose" ? GLUCOSE_ROWS : INSULIN_ROWS);
         }
-        window.__offline?.flush();
+
+        if (saveNotice) {
+          saveNotice.textContent = t(
+            "saved_successfully",
+            "Saved successfully"
+          );
+          saveNotice.classList.remove("hidden");
+          setTimeout(() => saveNotice.classList.add("hidden"), 1500);
+        }
+
+        // Flush any queued ops (if any)
+        window.__offline?.flush?.();
       } catch (err) {
-        console.warn("[save] online save failed, enqueuing", err);
-        await enqueueForCurrentTabOffline(theDate);
-        saveToStorage();
-        window.__offline?.showBanner(
-          t(
-            "saved_offline",
-            "Saved offline. Will sync when you're online."
-          )
-        );
+        console.warn("[save] online save failed, will enqueue", err);
+        try {
+          const theDate = dateInput?.value;
+          if (theDate) {
+            await enqueueForCurrentTabOffline(theDate);
+            saveToStorage();
+          }
+        } finally {
+          window.__offline?.showBanner(
+            t("saved_offline", "Saved offline. Will sync when you're online.")
+          );
+        }
+      } finally {
+        isSaving = false;
+        saveBtn.disabled = false;
       }
     });
 

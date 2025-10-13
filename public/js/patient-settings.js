@@ -231,21 +231,42 @@
     { passive: true }
   );
 
-  // Logout (also make text translatable)
+  // --- Logout (translatable) ---
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
-    // Label (if your HTML doesn't already set data-i18n="logout")
-    whenI18nReady(() => {
-      logoutBtn.textContent = t("logout", "Logout");
-      logoutBtn.setAttribute("data-i18n", "logout");
-      logoutBtn.setAttribute("title", t("logout", "Logout"));
-      logoutBtn.setAttribute("data-i18n-title", "logout");
-    });
+    // make sure it uses the i18n key
+    logoutBtn.setAttribute("data-i18n", "logout");
+    logoutBtn.setAttribute("data-i18n-title", "logout");
 
-    logoutBtn.addEventListener("click", function () {
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("userData");
-      localStorage.removeItem("userRole");
+    // (optional) set the label immediately; your i18n script can overwrite later
+    logoutBtn.textContent = "Log Out";
+
+    logoutBtn.addEventListener("click", () => {
+      try {
+        // clear auth/session
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("userData");
+        localStorage.removeItem("userRole");
+
+        // clear viewer context (doctor/family read-only flows)
+        sessionStorage.removeItem("viewerPatientID");
+
+        // purge any cached log-data drafts so a new patient on the same device
+        // won't see the previous patient's values
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const k = localStorage.key(i);
+          if (
+            k &&
+            (k.startsWith("logdata:v2:") ||
+              k.startsWith("__logdata_") ||
+              k === "__active_profile_id__")
+          ) {
+            localStorage.removeItem(k);
+          }
+        }
+      } catch {}
+
+      // redirect to landing
       window.location.href = "/";
     });
   }

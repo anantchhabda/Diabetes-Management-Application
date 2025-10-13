@@ -146,9 +146,31 @@
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("userData");
-      localStorage.removeItem("userRole");
+      try {
+        // auth/session
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("userData");
+        localStorage.removeItem("userRole");
+
+        // viewer context (doctor/family viewing a patient)
+        sessionStorage.removeItem("viewerPatientID");
+
+        // purge any saved drafts/offline artifacts so a new patient on
+        // the same device won't see old data
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const k = localStorage.key(i);
+          if (
+            k &&
+            (k.startsWith("logdata:v2:") ||
+              k.startsWith("__logdata_") ||
+              k === "__active_profile_id__")
+          ) {
+            localStorage.removeItem(k);
+          }
+        }
+      } catch {}
+
+      // finally redirect
       window.location.href = "/";
     });
   }
