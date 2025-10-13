@@ -67,6 +67,25 @@ export default function Header() {
               src={"/js/header-script.js"}
               strategy="afterInteractive"
             />
+            <Script
+              id="settings-visibility"
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `
+                  (function () {
+                    var settingsBtn = document.getElementById("settingsBtn");
+                    if (!settingsBtn) return;
+                    var allowed = new Set([
+                      '/patient-homepage',
+                      '/doctor-homepage',
+                      '/family-homepage'
+                    ]);
+                    var path = window.location.pathname;
+                    settingsBtn.style.display = allowed.has(path) ? '' : 'none';
+                  })();
+                `,
+              }}
+            />
           </div>
         </div>
       </header>
