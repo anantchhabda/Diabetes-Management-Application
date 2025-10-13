@@ -6,7 +6,7 @@
   }
   function t(key, fallback) {
     const d = dict();
-    return (d && d[key]) != null ? String(d[key]) : (fallback ?? key);
+    return (d && d[key]) != null ? String(d[key]) : fallback ?? key;
   }
   function currentLang() {
     return (document.documentElement && document.documentElement.lang) || "en";
@@ -36,12 +36,24 @@
     } catch (_) {}
   }
 
+  // 🔐 wait for auth token on soft navigations
+  async function waitForToken(maxMs = 1500) {
+    const start = Date.now();
+    while (!localStorage.getItem("authToken") && Date.now() - start < maxMs) {
+      await new Promise((r) => setTimeout(r, 50));
+    }
+  }
+
   //  DOM utils
   const $ = (id) => document.getElementById(id);
   const bySel = (sel, root = document) => (root || document).querySelector(sel);
 
-  function show(el) { if (el) el.classList.remove("hidden"); }
-  function hide(el) { if (el) el.classList.add("hidden"); }
+  function show(el) {
+    if (el) el.classList.remove("hidden");
+  }
+  function hide(el) {
+    if (el) el.classList.add("hidden");
+  }
 
   function clearChildren(el) {
     while (el && el.firstChild) el.removeChild(el.firstChild);
@@ -71,10 +83,11 @@
     }, 300);
   }
 
-  // row builders 
+  // row builders
   function currentConnectionRow({ name, id }) {
     const row = document.createElement("div");
-    row.className = "grid grid-cols-[100px_1fr_auto_auto] border border-black transition-opacity duration-300";
+    row.className =
+      "grid grid-cols-[100px_1fr_auto_auto] border border-black transition-opacity duration-300";
     row.innerHTML = `
       <div class="bg-[var(--color-secondary)] text-white font-semibold flex items-center justify-center px-2 py-2"
            data-i18n="role_patient">
@@ -98,7 +111,8 @@
 
   function outgoingRequestRow({ requestId, patientName }) {
     const row = document.createElement("div");
-    row.className = "grid grid-cols-[100px_1fr_auto] border border-black transition-opacity duration-300";
+    row.className =
+      "grid grid-cols-[100px_1fr_auto] border border-black transition-opacity duration-300";
     row.innerHTML = `
       <div class="bg-[var(--color-secondary)] text-white font-semibold flex items-center justify-center px-2 py-2"
            data-i18n="role_patient">
@@ -136,7 +150,10 @@
     // popup copy
     const popTitleSearch = bySel("[data-i18n='search_patient_by_id']");
     if (popTitleSearch)
-      popTitleSearch.textContent = t("search_patient_by_id", "Search Patient by ID");
+      popTitleSearch.textContent = t(
+        "search_patient_by_id",
+        "Search Patient by ID"
+      );
 
     const lblPid = bySel("[data-i18n='patient_id_label']");
     if (lblPid) lblPid.textContent = t("patient_id_label", "Patient ID:");
@@ -153,7 +170,10 @@
 
     const popTitleConfirm = bySel("[data-i18n='confirm_connection_request']");
     if (popTitleConfirm)
-      popTitleConfirm.textContent = t("confirm_connection_request", "Confirm Connection Request");
+      popTitleConfirm.textContent = t(
+        "confirm_connection_request",
+        "Confirm Connection Request"
+      );
 
     const lblName = bySel("[data-i18n='patient_name_label']");
     if (lblName) lblName.textContent = t("patient_name_label", "Patient Name:");
@@ -175,32 +195,38 @@
     // empty states already in DOM
     const noCurr = $("noCurrentConnections");
     if (noCurr)
-      noCurr.textContent = t("no_current_connections", "No current connections yet.");
+      noCurr.textContent = t(
+        "no_current_connections",
+        "No current connections yet."
+      );
     const noOut = $("noOutgoingRequests");
     if (noOut)
-      noOut.textContent = t("no_outgoing_requests", "No outgoing requests yet.");
+      noOut.textContent = t(
+        "no_outgoing_requests",
+        "No outgoing requests yet."
+      );
   }
 
-  // backend lookups 
+  // backend lookups
   async function lookupPatientById(patientId) {
     const token = localStorage.getItem("authToken") || "";
-    const res = await fetch(`/api/auth/me/patient/${encodeURIComponent(patientId)}/link`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      cache: "no-store",
-    });
+    const res = await fetch(
+      `/api/auth/me/patient/${encodeURIComponent(patientId)}/link`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        cache: "no-store",
+      }
+    );
     if (!res.ok) throw new Error(`Lookup failed (${res.status})`);
     const data = await res.json();
-    // tolerate {id,name} if backend ever returns that
     const id =
-      (data && data.patient && data.patient.profileId) ||
-      (data && data.id);
+      (data && data.patient && data.patient.profileId) || (data && data.id);
     const name =
-      (data && data.patient && data.patient.name) ||
-      (data && data.name);
+      (data && data.patient && data.patient.name) || (data && data.name);
     if (!id || !name) throw new Error("Invalid response shape");
     return { id, name };
   }
@@ -208,19 +234,22 @@
   async function sendConnectionRequest(patientId) {
     const token = localStorage.getItem("authToken") || "";
     try {
-      await fetch(`/api/auth/me/patient/${encodeURIComponent(patientId)}/link`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      });
+      await fetch(
+        `/api/auth/me/patient/${encodeURIComponent(patientId)}/link`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        }
+      );
     } catch (err) {
       console.error("Failed to send connection request:", err);
     }
   }
 
-  // render: Outgoing Requests 
+  // render: Outgoing Requests
   let isRenderingRequest = false;
   async function renderOutgoingRequest() {
     if (isRenderingRequest) return;
@@ -267,10 +296,13 @@
         const cancelBtn = bySel(".cancel-btn", row);
         cancelBtn.addEventListener("click", async () => {
           try {
-            const delRes = await fetch(`/api/family/me/requests/${encodeURIComponent(req._id)}`, {
-              method: "DELETE",
-              headers: { Authorization: `Bearer ${token}` },
-            });
+            const delRes = await fetch(
+              `/api/family/me/requests/${encodeURIComponent(req._id)}`,
+              {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+              }
+            );
             if (!delRes.ok) throw new Error("Failed to cancel request");
             fadeOutAndRemove(row, () => {
               if (!container.children.length)
@@ -319,7 +351,8 @@
         },
       });
 
-      if (!res.ok) throw new Error(`Load current connections failed (${res.status})`);
+      if (!res.ok)
+        throw new Error(`Load current connections failed (${res.status})`);
       const data = await res.json();
       const connections = data.connections || [];
 
@@ -339,21 +372,31 @@
           id: conn.patient,
         });
 
-        // view → navigate
+        // view: navigate → to patient-homepage in read-only mode
         const viewBtn = bySel(".view-btn", row);
-        viewBtn.addEventListener("click", () => {
-          const target = `/patient-overview?id=${encodeURIComponent(conn.patient || "")}`;
-          window.location.assign(target);
-        });
+        if (viewBtn) {
+          viewBtn.addEventListener("click", () => {
+            const pid = conn.patient || row.dataset.patientId || "";
+            if (!pid) return;
+            // ✅ use patientID (not patient)
+            const target = `/patient-homepage?patientID=${encodeURIComponent(
+              pid
+            )}&readonly=1`;
+            window.location.assign(target);
+          });
+        }
 
         // remove → backend unlink
         const removeBtn = bySel(".remove-btn", row);
         removeBtn.addEventListener("click", async () => {
           try {
-            const delRes = await fetch(`/api/auth/me/patient/${encodeURIComponent(conn.patient)}/link`, {
-              method: "DELETE",
-              headers: { Authorization: `Bearer ${token}` },
-            });
+            const delRes = await fetch(
+              `/api/auth/me/patient/${encodeURIComponent(conn.patient)}/link`,
+              {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+              }
+            );
             if (!delRes.ok) throw new Error("Failed to remove connection");
             fadeOutAndRemove(row, () => {
               if (!container.children.length)
@@ -378,7 +421,7 @@
     }
   }
 
-  // public hooks 
+  // public hooks
   window.addCurrentConnection = async function addCurrentConnection(conn) {
     try {
       if (!conn || !conn.name || !conn.id) {
@@ -386,13 +429,15 @@
         return;
       }
       await renderCurrentConnection(); // refresh connections
-      await renderOutgoingRequest();   // remove accepted request from outgoing
+      await renderOutgoingRequest(); // remove accepted request from outgoing
     } catch (e) {
       console.error("[family-connection] addCurrentConnection error:", e);
     }
   };
 
-  window.removeOutgoingRequest = async function removeOutgoingRequest(requestId) {
+  window.removeOutgoingRequest = async function removeOutgoingRequest(
+    requestId
+  ) {
     try {
       console.log("[family-connection] Removing outgoing request:", requestId);
       await renderOutgoingRequest();
@@ -401,20 +446,28 @@
     }
   };
 
-  window.removeCurrentConnection = async function removeCurrentConnection(patientId) {
+  window.removeCurrentConnection = async function removeCurrentConnection(
+    patientId
+  ) {
     try {
-      console.log("[family-connection] Removing current connection:", patientId);
+      console.log(
+        "[family-connection] Removing current connection:",
+        patientId
+      );
       await renderCurrentConnection();
     } catch (e) {
       console.error("[family-connection] removeCurrentConnection error:", e);
     }
   };
 
-  // init 
-  function init() {
+  // init
+  async function init() {
     renderAllStaticText();
-    renderCurrentConnection();
-    renderOutgoingRequest();
+
+    // ✅ wait for auth token before first fetches
+    await waitForToken();
+    await renderCurrentConnection();
+    await renderOutgoingRequest();
 
     // on language change, re-label + re-render lists
     observeLangChanges(() =>
@@ -457,7 +510,10 @@
       const id = (patientIdInput && patientIdInput.value.trim()) || "";
       if (!id) {
         if (searchError)
-          searchError.textContent = t("please_enter_patient_id", "Please enter a Patient ID.");
+          searchError.textContent = t(
+            "please_enter_patient_id",
+            "Please enter a Patient ID."
+          );
         patientIdInput && patientIdInput.focus();
         return;
       }
@@ -477,7 +533,10 @@
         confirmView.dataset.pname = patient.name;
       } catch (e) {
         if (searchError)
-          searchError.textContent = t("invalid_id_patient_not_found", "Invalid ID. Patient not found.");
+          searchError.textContent = t(
+            "invalid_id_patient_not_found",
+            "Invalid ID. Patient not found."
+          );
       } finally {
         confirmSearchBtn.disabled = false;
         confirmSearchBtn.textContent = oldText;
@@ -508,10 +567,6 @@
       // refresh pending requests
       await renderOutgoingRequest();
     });
-
-    // initial lists
-    renderCurrentConnection();
-    renderOutgoingRequest();
   }
 
   if (typeof document === "undefined") return;

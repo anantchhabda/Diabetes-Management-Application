@@ -190,7 +190,10 @@
   "notif_enable_desc": "🔔 Enable notifications to receive reminder alerts even if the app is closed.",
   "sys_check_log": "Remember to check your sugar and log it :)",
   "sys_care_food_eyes_teeth": "Take care of your food, eyes and teeth :)",
-  "schedule_monthly": "Monthly {day} {time}"
+  "schedule_monthly": "Monthly {day} {time}",
+  "readonly_viewing_patient": "You’re viewing a patient page in read-only mode.",
+"readonly_edits_disabled": "Read-only view: edits are disabled."
+
 
 
 }

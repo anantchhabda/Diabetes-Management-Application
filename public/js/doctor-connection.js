@@ -6,7 +6,7 @@
   }
   function t(key, fallback) {
     const d = dict();
-    return (d && d[key]) != null ? String(d[key]) : (fallback ?? key);
+    return (d && d[key]) != null ? String(d[key]) : fallback ?? key;
   }
   function currentLang() {
     return (document.documentElement && document.documentElement.lang) || "en";
@@ -38,8 +38,7 @@
 
   // dom utils
   const $ = (id) => document.getElementById(id);
-  const bySel = (sel, root = document) =>
-    (root || document).querySelector(sel);
+  const bySel = (sel, root = document) => (root || document).querySelector(sel);
 
   function show(el) {
     if (el) el.classList.remove("hidden");
@@ -63,6 +62,14 @@
     if (el) el.remove();
   }
 
+  // 🔐 wait for auth token on soft navigations
+  async function waitForToken(maxMs = 1500) {
+    const start = Date.now();
+    while (!localStorage.getItem("authToken") && Date.now() - start < maxMs) {
+      await new Promise((r) => setTimeout(r, 50));
+    }
+  }
+
   // role labels
   function roleLabel(role) {
     switch (role) {
@@ -78,7 +85,7 @@
     }
   }
 
-  //empty state helper 
+  //empty state helper
   function ensureEmptyMessage(containerId, emptyId, msgKey, fallback) {
     const container = $(containerId);
     if (!container) return;
@@ -91,7 +98,7 @@
     }
   }
 
-  // Row builders with backendd logic preserved
+  // Row builders with backend logic preserved
   function currentConnectionRow({ name, id }) {
     const row = document.createElement("div");
     row.className =
@@ -252,23 +259,24 @@
   // backend lookups preserved
   async function lookupPatientById(patientId) {
     const token = localStorage.getItem("authToken") || "";
-    const res = await fetch(`/api/auth/me/patient/${encodeURIComponent(patientId)}/link`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      cache: "no-store",
-    });
+    const res = await fetch(
+      `/api/auth/me/patient/${encodeURIComponent(patientId)}/link`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        cache: "no-store",
+      }
+    );
     if (!res.ok) throw new Error(`Lookup failed (${res.status})`);
     const data = await res.json();
 
     const id =
-      (data && data.patient && data.patient.profileId) ||
-      (data && data.id);
+      (data && data.patient && data.patient.profileId) || (data && data.id);
     const name =
-      (data && data.patient && data.patient.name) ||
-      (data && data.name);
+      (data && data.patient && data.patient.name) || (data && data.name);
     if (!id || !name) throw new Error("Invalid response shape");
     return { id, name };
   }
@@ -276,13 +284,16 @@
   async function sendConnectionRequest(patientId) {
     const token = localStorage.getItem("authToken") || "";
     try {
-      await fetch(`/api/auth/me/patient/${encodeURIComponent(patientId)}/link`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      });
+      await fetch(
+        `/api/auth/me/patient/${encodeURIComponent(patientId)}/link`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        }
+      );
     } catch (err) {
       console.error("Failed to send connection request:", err);
     }
@@ -366,7 +377,7 @@
     }
   }
 
-  // rendering: Current Connections with backedn logic
+  // rendering: Current Connections with backend logic
   let isRenderingConnection = false;
   async function renderCurrentConnection() {
     if (isRenderingConnection) return;
@@ -410,14 +421,19 @@
           id: conn.patient,
         });
 
-        // view: navigate 
+        // view: navigate → to patient-homepage in read-only mode
         const viewBtn = bySel(".view-btn", row);
-        viewBtn.addEventListener("click", () => {
-          const target = `/patient-overview?id=${encodeURIComponent(
-            conn.patient || ""
-          )}`;
-          window.location.assign(target);
-        });
+        if (viewBtn) {
+          viewBtn.addEventListener("click", () => {
+            const pid = conn.patient || row.dataset.patientId || "";
+            if (!pid) return;
+            // ✅ use patientID (not patient)
+            const target = `/patient-homepage?patientID=${encodeURIComponent(
+              pid
+            )}&readonly=1`;
+            window.location.assign(target);
+          });
+        }
 
         // server-backed unlink then fade & empty state
         const removeBtn = bySel(".remove-btn", row);
@@ -469,7 +485,9 @@
     }
   };
 
-  window.removeOutgoingRequest = async function removeOutgoingRequest(requestId) {
+  window.removeOutgoingRequest = async function removeOutgoingRequest(
+    requestId
+  ) {
     try {
       console.log("[doctor-connection] Removing outgoing request:", requestId);
       await renderOutgoingRequest();
@@ -478,9 +496,14 @@
     }
   };
 
-  window.removeCurrentConnection = async function removeCurrentConnection(patientId) {
+  window.removeCurrentConnection = async function removeCurrentConnection(
+    patientId
+  ) {
     try {
-      console.log("[doctor-connection] Removing current connection:", patientId);
+      console.log(
+        "[doctor-connection] Removing current connection:",
+        patientId
+      );
       await renderCurrentConnection();
     } catch (e) {
       console.error("[doctor-connection] removeCurrentConnection error:", e);
@@ -488,11 +511,14 @@
   };
 
   //init / popup wiring
-  function init() {
-    // initial text + empties 
+  async function init() {
+    // initial text + empties
     renderAllStaticText();
-    renderCurrentConnection();
-    renderOutgoingRequest();
+
+    // ✅ wait for auth token on soft nav, then load lists
+    await waitForToken();
+    await renderCurrentConnection();
+    await renderOutgoingRequest();
 
     // observe lang changes → retranslate
     observeLangChanges(() =>

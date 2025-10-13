@@ -44,8 +44,11 @@ export default function HomePage() {
           View Connections
         </button>
 
+        {/* NEW: read-only helper must come BEFORE page logic */}
+        <Script src="/js/readonly-view.js?v=7" strategy="afterInteractive" />
+
         {/* external logic js */}
-        <Script src="/js/patient-homepage.js" strategy="afterInteractive" />
+        <Script src="/js/patient-homepage.js?v=3" strategy="afterInteractive" />
       </main>
     </div>
   );

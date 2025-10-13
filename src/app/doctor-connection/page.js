@@ -166,7 +166,7 @@ export default function DoctorConnections() {
 
       <Script
         id="doctor-connection-script"
-        src="/js/doctor-connection.js?v=5"
+        src="/js/doctor-connection.js?v=12"
         strategy="afterInteractive"
       />
     </div>

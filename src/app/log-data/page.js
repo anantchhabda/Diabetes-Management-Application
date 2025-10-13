@@ -209,8 +209,10 @@ export default function LogDataPage() {
         </div>
       </div>
 
+      <script src="/js/readonly-view.js?v=11" defer></script>
+
       {/* loading strategy deferred */}
-      <script src="/js/log-data.js?v=19" defer></script>
+      <script src="/js/log-data.js?v=31" defer></script>
     </div>
   );
 }
