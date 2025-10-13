@@ -20,7 +20,20 @@
 
   function setToggleLabel() {
     const isPasswordHidden = passwordInput.type === "password";
-    toggleBtn.textContent = isPasswordHidden ? t("show", "Show") : t("hide", "Hide");
+    toggleBtn.textContent = isPasswordHidden
+      ? t("show", "Show")
+      : t("hide", "Hide");
+  }
+
+  // hard clear of any prior session artifacts
+  function clearAuth() {
+    try {
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("onboardingToken");
+      sessionStorage.removeItem("viewerPatientID");
+      // if you set an auth cookie on the server, clear it too:
+      document.cookie = "auth=; Max-Age=0; path=/";
+    } catch (_) {}
   }
 
   // submit
@@ -31,9 +44,13 @@
     const phone = (phoneInput.value || "").trim();
     const password = passwordInput.value || "";
 
-    
     if (!/^\d{8,15}$/.test(phone)) {
-      setError(t("error_invalid_phone", "Please enter a valid phone number (8–15 digits)."));
+      setError(
+        t(
+          "error_invalid_phone",
+          "Please enter a valid phone number (8–15 digits)."
+        )
+      );
       return;
     }
     if (!password) {
@@ -42,36 +59,68 @@
     }
 
     try {
+      // always clear any stale tokens BEFORE we attempt a new login
+      clearAuth();
+
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phoneNumber: phone, password })
+        body: JSON.stringify({ phoneNumber: phone, password }),
       });
 
       const ct = res.headers.get("content-type") || "";
       const data = ct.includes("application/json") ? await res.json() : {};
 
       if (!res.ok) {
-        setError(data.error || data.message || t("error_generic", "Login failed"));
+        setError(
+          data.error || data.message || t("error_generic", "Login failed")
+        );
         return;
       }
 
-      // onboarding token
+      // If user must complete onboarding:
       if (data.token) {
+        // make absolutely sure no stale authToken remains
+        localStorage.removeItem("authToken");
         localStorage.setItem("onboardingToken", data.token);
-        if (data.role === "Patient")      { window.location.href = "/patient-onboarding"; return; }
-        if (data.role === "Doctor")       { window.location.href = "/doctor-onboarding";  return; }
-        if (data.role === "Family Member"){ window.location.href = "/family-onboarding";  return; }
+        // route by role
+        if (data.role === "Patient") {
+          window.location.href = "/patient-onboarding";
+          return;
+        }
+        if (data.role === "Doctor") {
+          window.location.href = "/doctor-onboarding";
+          return;
+        }
+        if (data.role === "Family Member") {
+          window.location.href = "/family-onboarding";
+          return;
+        }
       }
 
+      // Fully onboarded -> got final session token
       if (data.authToken) {
+        // ensure onboarding token is gone
+        localStorage.removeItem("onboardingToken");
         localStorage.setItem("authToken", data.authToken);
-        if (data.role === "Patient")      { window.location.href = "/patient-homepage"; return; }
-        if (data.role === "Doctor")       { window.location.href = "/doctor-homepage";  return; }
-        if (data.role === "Family Member"){ window.location.href = "/family-homepage";  return; }
+        // route by role
+        if (data.role === "Patient") {
+          window.location.href = "/patient-homepage";
+          return;
+        }
+        if (data.role === "Doctor") {
+          window.location.href = "/doctor-homepage";
+          return;
+        }
+        if (data.role === "Family Member") {
+          window.location.href = "/family-homepage";
+          return;
+        }
       }
 
-      setError(t("error_generic", "Unexpected server response, please try again"));
+      setError(
+        t("error_generic", "Unexpected server response, please try again")
+      );
     } catch (err) {
       console.error("Login fetch error:", err);
       setError(t("error_network", "Something went wrong, please try again"));
@@ -91,7 +140,9 @@
     const start = phoneInput.selectionStart;
     const end = phoneInput.selectionEnd;
     phoneInput.value = phoneInput.value.replace(/\D/g, "");
-    try { phoneInput.setSelectionRange(start, end); } catch (_) {}
+    try {
+      phoneInput.setSelectionRange(start, end);
+    } catch (_) {}
   });
 
   setToggleLabel();

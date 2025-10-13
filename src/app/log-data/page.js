@@ -43,13 +43,13 @@ export default function LogDataPage() {
                 title="Choose date"
                 data-i18n-title="choose_date"
               />
-              {/* overlay showing nepalese digits */}
+              {/* overlay showing nepali digits */}
               <span
                 id="dateOverlay"
                 className="pointer-events-none absolute inset-0 flex items-center justify-center font-bold text-gray-900 text-sm sm:text-base"
                 aria-hidden="true"
                 style={{ visibility: "hidden" }}
-              ></span>
+              />
             </div>
 
             <p
@@ -176,7 +176,7 @@ export default function LogDataPage() {
           <h3
             id="editorTitle"
             className="text-center text-lg font-bold text-gray-900 mb-3"
-          ></h3>
+          />
           <input
             id="editorInput"
             type="number"
@@ -189,7 +189,7 @@ export default function LogDataPage() {
           <p
             id="editorWarning"
             className="hidden text-xs sm:text-sm text-red-600 mb-3"
-          ></p>
+          />
           <div className="flex justify-end gap-2">
             <button
               id="editorCancel"
@@ -211,9 +211,10 @@ export default function LogDataPage() {
         </div>
       </div>
 
-      {/* loading strategy deferred */}
+      {/* scripts */}
       <Script src="/js/offline.js" strategy="beforeInteractive" />
-      <Script src="/js/log-data.js" strategy="afterInteractive" />
+      <Script src="/js/readonly-view.js?v=11" strategy="afterInteractive" />
+      <Script src="/js/log-data.js?v=31" strategy="afterInteractive" />
     </div>
   );
 }

@@ -26,7 +26,7 @@ export default function HomePage() {
         </button>
 
         {/* external js */}
-        <Script src="/js/doctor-homepage.js" strategy="afterInteractive" />
+        <Script src="/js/doctor-homepage.js?v=5" strategy="afterInteractive" />
       </main>
     </div>
   );

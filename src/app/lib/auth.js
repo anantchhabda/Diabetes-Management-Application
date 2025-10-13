@@ -1,39 +1,62 @@
 import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
+
 const SECRET = process.env.JWT_SECRET;
+
+// Prefer Authorization header. (TEMP: ignore cookies to prove the point)
+function getBearerFromHeader(req) {
+  const header =
+    req.headers.get("authorization") || req.headers.get("Authorization");
+  if (!header) return null;
+  const m = header.match(/^Bearer\s+(.+)$/i);
+  return m ? m[1].trim() : null;
+}
+
+// If you want fallback later, re-enable this, but KEEP header first.
+// function getTokenFromCookies(req) {
+//   try {
+//     const priorities = ["authToken", "token", "auth"];
+//     for (const name of priorities) {
+//       const v = req.cookies?.get?.(name)?.value;
+//       if (v) return v;
+//     }
+//   } catch (_) {}
+//   return null;
+// }
 
 export function signJwt(payload) {
   return jwt.sign(payload, SECRET, { expiresIn: "24h" });
 }
 
 export function verifyJwt(req) {
-  const header = req.headers.get("authorization");
-  if (!header) return null;
-  const token = header.replace(/^Bearer\s+/i, "");
+  // HEADER FIRST
+  let token = getBearerFromHeader(req);
+
+  // --- TEMP: comment OUT cookie fallback to prove the issue ---
+  // if (!token) token = getTokenFromCookies(req);
+
+  if (!token) return null;
+
   try {
+    console.log("[AUTH] using Authorization header token");
     return jwt.verify(token, SECRET);
   } catch {
     return null;
   }
 }
 
-// For compatibility with push/subscribe route
 export async function verifyAuth(authHeader) {
   try {
     if (!authHeader) throw new Error("Missing Authorization header");
-
     const token = authHeader.replace(/^Bearer\s+/i, "").trim();
     if (!token) throw new Error("No token found");
-
-    const decoded = jwt.verify(token, SECRET);
-    return decoded; 
+    return jwt.verify(token, SECRET);
   } catch (err) {
-    console.error("[DMA][verifyAuth] failed:", err.message);
+    console.error("[verifyAuth] failed:", err.message);
     return null;
   }
 }
 
-// Check if the request has a valid token
 export function requireAuth(req) {
   const payload = verifyJwt(req);
   if (!payload) {
@@ -44,19 +67,21 @@ export function requireAuth(req) {
   return { payload };
 }
 
-// Check if authenticated, then check if the role is in the allowed list
 export function requireRole(req, roles) {
-  const { payload, error } = requireAuth(req);
-  if (error) return { error };
-  if (!roles.includes(payload.role)) {
+  const out = requireAuth(req);
+  if (out.error) return out;
+  if (
+    Array.isArray(roles) &&
+    roles.length &&
+    !roles.includes(out.payload.role)
+  ) {
     return {
       error: NextResponse.json({ error: "Forbidden" }, { status: 403 }),
     };
   }
-  return { payload };
+  return out;
 }
 
-// Create profileId
 export function generateProfileId(length = 6) {
   const chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
