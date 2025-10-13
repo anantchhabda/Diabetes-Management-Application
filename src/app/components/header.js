@@ -36,6 +36,7 @@ export default function Header() {
               width={60}
               height={60}
               priority
+              unoptimized
             />
           </div>
 
