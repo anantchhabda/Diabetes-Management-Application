@@ -1,25 +1,6 @@
 import Script from "next/script";
 
 export default function Page() {
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("onboardingToken");
-    if (token) {
-      try {
-        const payloadBase64 = token.split(".")[1];
-        const payload = JSON.parse(atob(payloadBase64));
-        const profileId = payload.profileId;
-        const phone = payload.phoneNumber;
-
-        const doctorIdInput = document.getElementById("doctorId");
-        const phoneInput = document.getElementById("phone");
-        if (doctorIdInput) doctorIdInput.value = profileId || "";
-        if (phoneInput) phoneInput.value = phone || "";
-      } catch (err) {
-        console.error("Failed to get DoctorID and phone number", err);
-      }
-    }
-  }
-
   return (
     <main
       className="flex flex-col justify-start items-center min-h-screen px-4 gap-8"
@@ -30,7 +11,7 @@ export default function Page() {
         className="flex flex-col gap-5 w-full max-w-md bg-white p-8 rounded-xl shadow-lg mx-4"
         noValidate
       >
-        {/* Doctor ID */}
+        {/* Doctor ID (readonly)*/}
         <div>
           <label
             htmlFor="doctorId"
@@ -49,10 +30,11 @@ export default function Page() {
             className="w-full h-10 rounded border-0 px-3 shadow-sm text-white"
             style={{ backgroundColor: "var(--color-secondary)" }}
             data-i18n-title="doctorId_title"
+            title="Read-only doctor identifier"
           />
         </div>
 
-        {/* Phone Number */}
+        {/* Phone Number (readonly)*/}
         <div>
           <label
             htmlFor="phone"
@@ -70,6 +52,7 @@ export default function Page() {
             className="w-full h-10 rounded border-0 px-3 shadow-sm text-white"
             style={{ backgroundColor: "var(--color-secondary)" }}
             data-i18n-title="phone_title"
+            title="Auto-filled from your registration"
           />
           <p
             id="error-phone"
@@ -163,8 +146,9 @@ export default function Page() {
           Save
         </button>
       </form>
-
-      <Script src="/js/doctor-onboarding.js" strategy="afterInteractive" />
+      
+      {/* Script runs after DOM is ready */}
+      <Script src="/js/doctor-onboarding.js?v=2" strategy="afterInteractive" />
     </main>
   );
 }
@@ -186,7 +170,7 @@ function Field({
         style={{ color: "var(--color-secondary)" }}
         {...(labelKey ? { "data-i18n": labelKey } : {})}
       >
-        {labelFallback}
+        {labelFallback || ""}
       </label>
       <input
         id={id}
@@ -197,8 +181,8 @@ function Field({
           borderColor: "var(--color-primary)",
           color: "var(--color-textBlack)",
         }}
+        placeholder={placeholderFallback || ""}
         {...(placeholderKey ? { "data-i18n-placeholder": placeholderKey } : {})}
-        placeholder={placeholderFallback}
       />
     </div>
   );
