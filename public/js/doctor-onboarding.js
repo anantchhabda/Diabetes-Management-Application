@@ -1,15 +1,5 @@
 (function () {
-  const form = document.getElementById("onboardingForm");
-  const savedMsg = document.getElementById("savedMsg");
-  const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
-
-  if (!form) return;
-
-  // clear pre filled texts
-  if (savedMsg) savedMsg.textContent = "";
-
-  // avoid double submits
-  let inFlight = false;
+  if (typeof document === 'undefined') return;
 
   function t(key, fallback) {
     try {
@@ -25,6 +15,40 @@
       if (val && val !== k) return val;
     }
     return fallback != null ? String(fallback) : keys[0] || "";
+  }
+
+  //decode JWT payload
+  function decodeJwtPayload(token) {
+    try {
+      const part = token.split(".")[1] || "";
+      const b64 =
+        part.replace(/-/g, "+").replace(/_/g, "/") +
+        "===".slice((part.length + 3) % 4);
+      const json = atob(b64);
+      return JSON.parse(json);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  //prefill DoctorID & phone
+  function prefillFromToken() {
+    try {
+      const token = localStorage.getItem("onboardingToken");
+      if (!token) return;
+
+      const payload = decodeJwtPayload(token) || {};
+      const profileId = payload.profileId || payload.id || "";
+      const phone = payload.phoneNumber || payload.phone || "";
+
+      const doctorIdInput = document.getElementById("doctorId");
+      const phoneInput = document.getElementById("phone");
+
+      if (doctorIdInput) doctorIdInput.value = profileId;
+      if (phoneInput) phoneInput.value = phone;
+    } catch (e) {
+      console.error("[doctor-onboarding] prefill error:", e);
+    }
   }
 
   async function readResponseSafe(response) {
@@ -44,130 +68,142 @@
     return { data: null, text: null };
   }
 
-  form.addEventListener("submit", async function (e) {
-    e.preventDefault();
+  //form handling
+  function setupForm () {
+    const form = document.getElementById("onboardingForm");
+    const savedMsg = document.getElementById("savedMsg");
+    const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
 
-    if (inFlight) return;
-    inFlight = true;
+    if (!form) return;
 
-    // clear msg and disable button
-    if (savedMsg) savedMsg.textContent = "";
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.setAttribute("aria-busy", "true");
-    }
+    let inFlight = false;
 
-    const raw = Object.fromEntries(new FormData(form));
-    // trim strings
-    const data = Object.fromEntries(
-      Object.entries(raw).map(([k, v]) => [
-        k,
-        typeof v === "string" ? v.trim() : v,
-      ])
-    );
-
-    const errors = {};
-
-    const required = [
-      ["fullName", ["error_fullName", "error_required"]],
-      ["dateOfBirth", ["error_dateOfBirth", "error_dob", "error_required"]],
-      [
-        "clinicAddress",
-        ["error_clinicAddress", "error_address", "error_required"],
-      ],
-      ["clinicName", ["error_clinicName", "error_required"]],
-    ];
-
-    required.forEach(([field, keys]) => {
-      if (!data[field] || String(data[field]).trim() === "") {
-        errors[field] = tMulti(keys, "This field is required.");
-      }
-    });
-
-    // reset previous error messages
-    form
-      .querySelectorAll("p[id^='error-']")
-      .forEach((p) => (p.textContent = ""));
-
-    // show new errors
-    Object.entries(errors).forEach(([field, msg]) => {
-      const el = document.getElementById(`error-${field}`);
-      if (el) el.textContent = msg;
-    });
-
-    if (Object.keys(errors).length > 0) {
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      if (inFlight) return;
+      inFlight = true;
+      if (savedMsg) savedMsg.textContent = "";
       if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.removeAttribute("aria-busy");
-      }
-      inFlight = false;
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem("onboardingToken");
-      if (!token) {
-        if (savedMsg)
-          savedMsg.textContent = t(
-            "error_session_expired",
-            "Session expired, please register again"
-          );
-        return;
+        submitBtn.disabled = true;
+        submitBtn.setAttribute("aria-busy", "true");
       }
 
-      const res = await fetch("/api/auth/onboarding", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: data.fullName,
-          dob: data.dateOfBirth,
-          clinicName: data.clinicName,
-          clinicAddress: data.clinicAddress,
-        }),
+      const raw = Object.fromEntries(new FormData(form));
+      const data = Object.fromEntries(
+        Object.entries(raw).map(([k, v]) => [
+          k,
+          typeof v === "string" ? v.trim() : v,
+        ])
+      );
+
+      const errors = {};
+
+      const required = [
+        ["fullName", ["error_fullName", "error_required"]],
+        ["dateOfBirth", ["error_dateOfBirth", "error_dob", "error_required"]],
+        [
+          "clinicAddress",
+          ["error_clinicAddress", "error_address", "error_required"],
+        ],
+        ["clinicName", ["error_clinicName", "error_required"]],
+      ];
+
+      required.forEach(([field, keys]) => {
+        if (!data[field] || String(data[field]).trim() === "") {
+            errors[field] = tMulti(keys, "This field is required.");
+        }
       });
 
-      const { data: result, text } = await readResponseSafe(res);
+      //reset previous messages
+      form
+        .querySelectorAll("p[id^='error-']")
+        .forEach((p) => (p.textContent = ""));
+      Object.entries(errors).forEach(([field, msg]) => {
+        const el = document.getElementById(`error-${field}`);
+        if (el) el.textContent = msg;
+      });
 
-      if (!res.ok) {
-        const serverMsg =
-          (result && (result.error || result.message)) ||
-          (text && text.trim()) ||
-          null;
-        if (savedMsg)
-          savedMsg.textContent =
-            serverMsg || t("onboarding_failed", "Onboarding failed");
+      if (Object.keys(errors).length > 0) {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.removeAttribute("aria-busy");
+        }
+        inFlight = false;
         return;
       }
 
-      const authToken = result && (result.authToken || result.token);
-      if (authToken) localStorage.setItem("authToken", authToken);
+      try {
+        const token = localStorage.getItem("onboardingToken");
+        if (!token) {
+          if (savedMsg)
+            savedMsg.textContent = t(
+              "error_session_expired",
+              "Session expired, please register again"
+            );
+          return;
+        }
 
-      if (savedMsg)
-        savedMsg.textContent = t(
-          "onboarding_success_redirect",
-          "Onboarding successful! Redirecting to homepage"
-        );
+        const res = await fetch("/api/auth/onboarding", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            name: data.fullName,
+            dob: data.dateOfBirth,
+            clinicName: data.clinicName,
+            clinicAddress: data.clinicAddress,
+          }),
+        });
 
-      // show message briefly, then redirect
-      setTimeout(() => {
+        const { data: result, text } = await readResponseSafe(res);
+
+        if (!res.ok) {
+          const serverMsg =
+            (result && (result.error || result.message)) ||
+            (text && text.trim()) ||
+            null;
+          if (savedMsg)
+            savedMsg.textContent =
+              serverMsg || t("onboarding_failed", "Onboarding failed");
+          return;
+        }
+
+        const authToken = result && (result.authToken || result.token);
+        if (authToken) localStorage.setItem("authToken", authToken);
+
+        if (savedMsg)
+          savedMsg.textContent = t(
+            "onboarding_success_redirect",
+            "Onboarding successful! Redirecting to homepage"
+          );
+        
         window.location.href = "/doctor-homepage";
-      }, 900);
-    } catch (err) {
-      console.error("Onboarding fetch error:", err);
-      if (savedMsg)
-        savedMsg.textContent = t(
-          "error_network",
-          "Network error, please try again."
-        );
-    } finally {
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.removeAttribute("aria-busy");
+      } catch (err) {
+        console.error("[doctor-onboarding] fetch error:", err);
+        if (savedMsg)
+          savedMsg.textContent = t(
+            "error_network",
+            "Network error, please try again."
+          );
+      } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.removeAttribute("aria-busy");
+        }
+        inFlight = false;
       }
-      inFlight = false;
-    }
-  });
+    });
+  }
+
+  function init() {
+    prefillFromToken();
+    setupForm();
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init, { once: true });
+  } else {
+    init();
+  }
 })();
