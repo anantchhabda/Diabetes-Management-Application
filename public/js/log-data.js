@@ -351,6 +351,25 @@
   })();
 
   // ---------------------------
+  // Safe JSON parser for APIs (handles empty 204/empty-body cases)
+  // ---------------------------
+  async function readJsonSafe(res) {
+    // Handle 204 and empty bodies gracefully
+    if (res.status === 204) return {};
+    const ct = (res.headers.get("content-type") || "").toLowerCase();
+    // If not JSON, don't try to parse
+    if (!ct.includes("application/json")) {
+      const txt = await res.text().catch(() => "");
+      return txt ? { ok: true } : {};
+    }
+    // If JSON, parse carefully
+    try {
+      return await res.json();
+    } catch {
+      return {}; // treat empty/invalid as empty payload
+    }
+  }
+  // ---------------------------
   // Patient endpoints
   // ---------------------------
   async function fetchPatientGlucoseLog(date) {
@@ -376,20 +395,36 @@
       );
     return res.json();
   }
+
   async function updateOrDeleteGlucoseLog(date, type, glucoseLevel) {
     const res = await fetch(
       `/api/patient/me/glucoselog?date=${encodeURIComponent(date)}`,
-      {
-        method: "PATCH",
-        headers: authHeader(),
-        body: JSON.stringify({ type, glucoseLevel }),
-      }
+      { method: "PATCH", headers: authHeader(), body: JSON.stringify({ type, glucoseLevel }) }
     );
-    if (!res.ok)
-      throw new Error(
-        (await res.json().catch(() => ({}))).message || "Update failed"
-      );
-    return res.json();
+
+    if (res.status === 404 && glucoseLevel !== "" && glucoseLevel != null) {
+      const r2 = await fetch(`/api/patient/me/glucoselog`, {
+        method: "POST",
+        headers: authHeader(),
+        body: JSON.stringify({ date, type, glucoseLevel }),
+      });
+      if (!r2.ok) {
+        const j = await r2.json().catch(() => ({}));
+        const e = new Error(j.error || j.message || `HTTP ${r2.status}`);
+        e.status = r2.status;
+        throw e;
+      }
+      return readJsonSafe(r2);
+    }
+
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      const e = new Error(j.error || j.message || `HTTP ${res.status}`);
+      e.status = res.status;
+      throw e;
+    }
+
+    return readJsonSafe(res);
   }
 
   async function fetchPatientInsulinLog(date) {
@@ -415,21 +450,38 @@
       );
     return res.json();
   }
+
   async function updateOrDeleteInsulinLog(date, type, dose) {
     const res = await fetch(
       `/api/patient/me/insulinlog?date=${encodeURIComponent(date)}`,
-      {
-        method: "PATCH",
-        headers: authHeader(),
-        body: JSON.stringify({ type, dose }),
-      }
+      { method: "PATCH", headers: authHeader(), body: JSON.stringify({ type, dose }) }
     );
-    if (!res.ok)
-      throw new Error(
-        (await res.json().catch(() => ({}))).message || "Update failed"
-      );
-    return res.json();
+
+    if (res.status === 404 && dose !== "" && dose != null) {
+      const r2 = await fetch(`/api/patient/me/insulinlog`, {
+        method: "POST",
+        headers: authHeader(),
+        body: JSON.stringify({ date, type, dose }),
+      });
+      if (!r2.ok) {
+        const j = await r2.json().catch(() => ({}));
+        const e = new Error(j.error || j.message || `HTTP ${r2.status}`);
+        e.status = r2.status;
+        throw e;
+      }
+      return readJsonSafe(r2);
+    }
+
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      const e = new Error(j.error || j.message || `HTTP ${res.status}`);
+      e.status = res.status;
+      throw e;
+    }
+
+    return readJsonSafe(res);
   }
+
 
   async function fetchPatientCommentLog(date) {
     const res = await fetch(
@@ -454,20 +506,36 @@
       );
     return res.json();
   }
+
   async function updateOrDeleteCommentLog(date, comment) {
     const res = await fetch(
       `/api/patient/me/generallog?date=${encodeURIComponent(date)}`,
-      {
-        method: "PATCH",
-        headers: authHeader(),
-        body: JSON.stringify({ comment }),
-      }
+      { method: "PATCH", headers: authHeader(), body: JSON.stringify({ comment }) }
     );
-    if (!res.ok)
-      throw new Error(
-        (await res.json().catch(() => ({}))).message || "Update failed"
-      );
-    return res.json();
+
+    if (res.status === 404 && (comment ?? "").trim() !== "") {
+      const r2 = await fetch(`/api/patient/me/generallog`, {
+        method: "POST",
+        headers: authHeader(),
+        body: JSON.stringify({ date, comment }),
+      });
+      if (!r2.ok) {
+        const j = await r2.json().catch(() => ({}));
+        const e = new Error(j.error || j.message || `HTTP ${r2.status}`);
+        e.status = r2.status;
+        throw e;
+      }
+      return readJsonSafe(r2);
+    }
+
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      const e = new Error(j.error || j.message || `HTTP ${res.status}`);
+      e.status = res.status;
+      throw e;
+    }
+
+    return readJsonSafe(res);
   }
 
   // ---------------------------
@@ -1003,6 +1071,23 @@
           saveNotice.classList.remove("hidden");
           setTimeout(() => saveNotice.classList.add("hidden"), 1500);
         }
+
+        await reloadFromBackend(
+          theDate,
+          GLUCOSE_ROWS,
+          INSULIN_ROWS,
+          state,
+          dataTable,
+          commentsInput,
+          !IS_READONLY,
+          IS_READONLY ? VIEW_PATIENT || getPatientIDFromURL() : null
+        );
+
+        if (currentTab === "comments") {
+          commentsInput.value = state.comments || "";
+        } else {
+          renderRows(currentTab === "glucose" ? GLUCOSE_ROWS : INSULIN_ROWS);
+        }
         window.__offline?.flush();
       } catch (err) {
         console.warn("[save] online save failed, enqueuing", err);
@@ -1231,46 +1316,28 @@
       if (currentTab === "glucose") {
         for (const label of GLUCOSE_ROWS) {
           const raw = (state.glucose[label] ?? "").toString().trim();
-          try {
-            await updateOrDeleteGlucoseLog(
-              date,
-              label,
-              raw === "" ? "" : Number(raw)
-            );
-          } catch (err) {
-            if (err.status === 404 && raw !== "")
-              await createGlucoseLog(date, label, Number(raw));
-            else throw err;
-          }
+          await updateOrDeleteGlucoseLog(
+            date,
+            label,
+            raw === "" ? "" : Number(raw)
+          );
         }
         return;
       }
       if (currentTab === "insulin") {
         for (const label of INSULIN_ROWS) {
           const raw = (state.insulin[label] ?? "").toString().trim();
-          try {
-            await updateOrDeleteInsulinLog(
-              date,
-              label,
-              raw === "" ? "" : Number(raw)
-            );
-          } catch (err) {
-            if (err.status === 404 && raw !== "")
-              await createInsulinLog(date, label, Number(raw));
-            else throw err;
-          }
+          await updateOrDeleteInsulinLog(
+            date,
+            label,
+            raw === "" ? "" : Number(raw)
+          );
         }
         return;
       }
       if (currentTab === "comments") {
         const rawComment = (state.comments ?? "").trim();
-        try {
-          await updateOrDeleteCommentLog(date, rawComment);
-        } catch (err) {
-          if (err.status === 404 && rawComment !== "")
-            await createCommentLog(date, rawComment);
-          else throw err;
-        }
+        await updateOrDeleteCommentLog(date, rawComment);
         return;
       }
     }
