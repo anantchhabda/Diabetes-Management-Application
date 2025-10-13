@@ -510,11 +510,7 @@
   async function updateOrDeleteCommentLog(date, comment) {
     const res = await fetch(
       `/api/patient/me/generallog?date=${encodeURIComponent(date)}`,
-      {
-        method: "PATCH",
-        headers: authHeader(),
-        body: JSON.stringify({ comment }),
-      }
+      { method: "PATCH", headers: authHeader(), body: JSON.stringify({ comment }) }
     );
 
     if (res.status === 404 && (comment ?? "").trim() !== "") {
@@ -529,17 +525,17 @@
         e.status = r2.status;
         throw e;
       }
-      return r2.json();
+      return readJsonSafe(r2);
     }
 
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
       const e = new Error(j.error || j.message || `HTTP ${res.status}`);
-      e.status = res.status;         // <-- important
+      e.status = res.status;
       throw e;
     }
 
-    return res.json();
+    return readJsonSafe(res);
   }
 
   // ---------------------------
