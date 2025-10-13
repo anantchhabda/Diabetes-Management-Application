@@ -29,12 +29,12 @@
             body: JSON.stringify({
               type: mut.type,
               glucoseLevel: mut.value,
-              glucose: mut.value, // <- send both names for compatibility
+              glucose: mut.value, // compatibility
             }),
           }
         );
         if (r.status === 404 && mut.value !== "" && mut.value != null) {
-          // Create if not exists
+          // Create if it doesn't exist
           const r2 = await fetch(`/api/patient/me/glucoselog`, {
             method: "POST",
             headers,
@@ -42,7 +42,7 @@
               date: mut.date,
               type: mut.type,
               glucoseLevel: mut.value,
-              glucose: mut.value, // <- send both
+              glucose: mut.value,
             }),
           });
           if (!r2.ok) {
@@ -73,12 +73,11 @@
           }
         );
 
-        // If row doesn't exist:
         if (r.status === 404) {
-          // a) we were clearing an empty field -> nothing to do
+          // clearing empty -> nothing to do
           if (mut.value === "" || mut.value == null) return;
 
-          // b) we were setting a value -> create it
+          // set value -> create
           const r2 = await fetch(`/api/patient/me/insulinlog`, {
             method: "POST",
             headers,
@@ -105,7 +104,7 @@
         }
       });
 
-      // Comment log
+      // General comments
       window.__offline.register("comments", async (mut, { authHeader }) => {
         const headers = { ...authHeader(), "X-Idempotency-Key": mut.idem };
         const r = await fetch(
@@ -186,7 +185,7 @@
       return null;
     }
   }
-  // IMPORTANT: viewer URLs use ?patientID=GamMql&readonly=1
+  // viewer URLs use ?patientID=GamMql&readonly=1
   const VIEW_PATIENT = getParam("patientID"); // Patient.profileId
   const IS_READONLY = getParam("readonly") === "1";
 
@@ -407,7 +406,6 @@
     return readJsonSafe(res);
   }
   async function updateOrDeleteGlucoseLog(date, type, glucoseLevel) {
-    // try patch
     const res = await fetch(
       `/api/patient/me/glucoselog?date=${encodeURIComponent(
         date
@@ -477,7 +475,6 @@
     }
     return readJsonSafe(res);
   }
-
   async function updateOrDeleteInsulinLog(date, type, dose) {
     const res = await fetch(
       `/api/patient/me/insulinlog?date=${encodeURIComponent(
@@ -492,11 +489,9 @@
     );
 
     if (res.status === 404) {
-      // clearing an already-empty row → fine, nothing to delete
       if (dose === "" || dose == null) {
         return { message: "No existing log to clear" };
       }
-      // creating a brand new row
       const r2 = await fetch(`/api/patient/me/insulinlog?_=${Date.now()}`, {
         method: "POST",
         headers: authHeader(),
@@ -803,12 +798,11 @@
     adjustDateWidth();
     updateDateOverlay(dateInput, dateOverlay);
 
-    // role / viewer: decide editability and storage after we know who "me" is
+    // --- role / viewer: decide editability and storage (provisional offline-first)
     (async () => {
-      try {
-        const me = await getMe(); // { role, profile: { profileId } }
-        if (IS_READONLY) {
-          // strict viewer mode
+      // 1) If readonly viewer, disable editing immediately
+      if (IS_READONLY) {
+        try {
           commentsInput?.setAttribute("readonly", "true");
           commentsInput?.classList.add("bg-gray-100", "cursor-not-allowed");
           if (saveBtn) {
@@ -816,62 +810,102 @@
             saveBtn.disabled = true;
           }
           whenI18nReady(showReadonlyBanner);
-          STORAGE_NS = null; // never use local drafts in viewer mode
-        } else {
-          if (me.role === "Patient") {
-            const pid = resolveProfileIdFromMe(me);
-            if (pid && typeof pid === "string") {
-              STORAGE_NS = `Patient:${pid}`;
-              loadFromStorage();
-            } else {
-              STORAGE_NS = null;
-            }
+        } catch {}
+        // no STORAGE_NS in readonly mode
+      } else {
+        // 2) Not readonly → give a provisional namespace so Edit buttons show *even offline*
+        let provisional = null;
+        try {
+          const lastPid = localStorage.getItem("__active_profile_id__");
+          if (lastPid) {
+            provisional = `Patient:${lastPid}`;
           } else {
-            // doctor/family somehow on /log-data without readonly: treat as read-only
-            commentsInput?.setAttribute("readonly", "true");
-            commentsInput?.classList.add("bg-gray-100", "cursor-not-allowed");
-            if (saveBtn) {
-              saveBtn.style.display = "none";
-              saveBtn.disabled = true;
+            const anyKey = Object.keys(localStorage).find((k) =>
+              k.startsWith("logdata:v2:Patient:")
+            );
+            if (anyKey) {
+              // logdata:v2:Patient:<pid>:<date>
+              const ns = anyKey
+                .split("logdata:v2:")[1]
+                .split(":")
+                .slice(0, 2)
+                .join(":");
+              provisional = ns; // "Patient:<pid>"
             }
-            whenI18nReady(showReadonlyBanner);
-            STORAGE_NS = null;
           }
-        }
-      } catch (err) {
-        console.error(err);
-        // auth failure => read-only
-        STORAGE_NS = null;
-        commentsInput?.setAttribute("readonly", "true");
-        commentsInput?.classList.add("bg-gray-100", "cursor-not-allowed");
+        } catch {}
+        STORAGE_NS = provisional || "Patient:guest"; // guest is fine for offline drafts
+
+        // load any local drafts for the selected date
+        loadFromStorage();
+
+        // Make sure the Save button is visible/enabled in offline mode
         if (saveBtn) {
-          saveBtn.style.display = "none";
-          saveBtn.disabled = true;
+          saveBtn.style.display = "";
+          saveBtn.disabled = false;
         }
-        whenI18nReady(showReadonlyBanner);
       }
 
-      // fetch server truth for the starting date and render
+      // 3) If we have a date, fetch server truth.
       if (dateInput?.value) {
-        await reloadFromBackend(
-          dateInput.value,
-          GLUCOSE_ROWS,
-          INSULIN_ROWS,
-          state,
-          dataTable,
-          commentsInput,
-          !IS_READONLY,
-          IS_READONLY ? VIEW_PATIENT || getPatientIDFromURL() : null
-        );
+        if (navigator.onLine && !IS_READONLY) {
+          // Try to refine namespace with real profile ID (don't block first paint)
+          const refineNS = (async () => {
+            try {
+              const me = await getMe();
+              if (me.role === "Patient") {
+                const pid = resolveProfileIdFromMe(me);
+                if (pid && typeof pid === "string") {
+                  try {
+                    localStorage.setItem("__active_profile_id__", pid);
+                  } catch {}
+                  STORAGE_NS = `Patient:${pid}`;
+                  loadFromStorage();
+                }
+              } else {
+                // Non-patient on /log-data without readonly: force readonly behavior
+                commentsInput?.setAttribute("readonly", "true");
+                commentsInput?.classList.add(
+                  "bg-gray-100",
+                  "cursor-not-allowed"
+                );
+                if (saveBtn) {
+                  saveBtn.style.display = "none";
+                  saveBtn.disabled = true;
+                }
+                whenI18nReady(showReadonlyBanner);
+                STORAGE_NS = null;
+              }
+            } catch {
+              // offline/failed auth → keep provisional STORAGE_NS
+            }
+          })();
 
-        // draw glucose tab initially (server values)
-        renderRows(GLUCOSE_ROWS);
-
-        // after hydration, persist merged view (patient mode only)
-        if (!IS_READONLY && STORAGE_NS) {
+          // In parallel, fetch server logs
           try {
-            saveToStorage();
+            await reloadFromBackend(
+              dateInput.value,
+              GLUCOSE_ROWS,
+              INSULIN_ROWS,
+              state,
+              dataTable,
+              commentsInput,
+              !IS_READONLY,
+              IS_READONLY ? VIEW_PATIENT || getPatientIDFromURL() : null
+            );
           } catch {}
+
+          // First paint
+          renderRows(GLUCOSE_ROWS);
+
+          // After refining STORAGE_NS, persist local cache
+          try {
+            await refineNS;
+            if (!IS_READONLY && STORAGE_NS) saveToStorage();
+          } catch {}
+        } else {
+          // Offline or readonly: render from local state immediately
+          renderRows(GLUCOSE_ROWS);
         }
       }
     })();
@@ -896,8 +930,10 @@
           span.classList.add("text-gray-900");
           if (applyValues) {
             span.textContent = formatDisplayValue(
-              state.glucose[label],
-              "glucose"
+              currentTab === "glucose"
+                ? state.glucose[label]
+                : state.insulin[label],
+              currentTab
             );
           }
           cellRefs.set(label, span);
@@ -1186,7 +1222,7 @@
         IS_READONLY ? VIEW_PATIENT || getPatientIDFromURL() : null
       );
 
-      // if we typed before adding a date, merge those drafts once
+      // merge drafts once if they existed before date was chosen
       if (pendingDraft && !IS_READONLY && STORAGE_NS) {
         const out = { glucose: {}, insulin: {}, comments: state.comments };
         const allG = new Set([
