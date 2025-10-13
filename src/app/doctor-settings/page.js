@@ -69,7 +69,7 @@ export default function Page() {
         />
         <p
           id="error-fullName"
-          className="text-red-600 text-sm"
+          className="text-red-600 text-sm hidden"
           data-i18n="error_fullName"
         ></p>
 
@@ -82,7 +82,7 @@ export default function Page() {
         />
         <p
           id="error-dateOfBirth"
-          className="text-red-600 text-sm"
+          className="text-red-600 text-sm hidden"
           data-i18n="error_dob"
         ></p>
 
@@ -110,7 +110,7 @@ export default function Page() {
           />
           <p
             id="error-clinicAddress"
-            className="text-red-600 text-sm"
+            className="text-red-600 text-sm hidden"
             data-i18n="error_address"
           ></p>
         </div>
@@ -125,7 +125,7 @@ export default function Page() {
         />
         <p
           id="error-clinicName"
-          className="text-red-600 text-sm"
+          className="text-red-600 text-sm hidden"
           data-i18n="error_clinicName"
         ></p>
 
