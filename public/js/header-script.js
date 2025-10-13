@@ -7,8 +7,7 @@ async function getCurrentUserRole() {
     // Always get the latest token from localStorage
     const token = localStorage.getItem("authToken");
     if (!token) {
-      console.log("No auth token found");
-      return null;
+      return (localStorage.getItem("userRole") || null);
     }
 
     // Add a cache-busting query param to avoid caching issues
@@ -30,14 +29,17 @@ async function getCurrentUserRole() {
         localStorage.removeItem("userRole");
         window.location.href = "/login";
       }
-      return null;
+      return (localStorage.getItem("userRole") || null);
     }
 
     const data = await response.json();
+    if(data?.role) {
+      localStorage.setItem("userRole", data.role);
+    }
     return data.role; // Returns "Patient", "Doctor", or "Family Member"
   } catch (error) {
     console.error("Error fetching user role:", error);
-    return null;
+    return (localStorage.getItem("userRole") || null);
   }
 }
 
@@ -55,7 +57,7 @@ async function navigateToHomepage() {
       window.location.href = "/family-homepage";
       break;
     default:
-      window.location.href = "/";
+      window.location.href = "/login";
   }
 }
 
@@ -73,7 +75,7 @@ async function navigateToSettings() {
       window.location.href = "/family-settings"; 
       break;
     default:
-      window.location.href = "/";
+      window.location.href = "/login";
   }
 }
 

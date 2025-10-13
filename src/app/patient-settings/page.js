@@ -49,7 +49,7 @@ export default function Page() {
           />
           <p
             id="error-phone"
-            className="text-red-600 text-sm"
+            className="text-red-600 text-sm hidden"
             data-i18n="error_phone"
           ></p>
         </div>
@@ -64,7 +64,7 @@ export default function Page() {
         />
         <p
           id="error-fullName"
-          className="text-red-600 text-sm"
+          className="text-red-600 text-sm hidden"
           data-i18n="error_fullName"
         ></p>
 
@@ -77,7 +77,7 @@ export default function Page() {
         />
         <p
           id="error-dateOfBirth"
-          className="text-red-600 text-sm"
+          className="text-red-600 text-sm hidden"
           data-i18n="error_dob"
         ></p>
 
@@ -95,7 +95,7 @@ export default function Page() {
             name="sex"
             required
             className="w-full h-10 rounded bg-white border border-[var(--color-gray-300)] px-3 
-                       text-[var(--color-gray-900)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-tertiary)]"
+                       text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-tertiary)]"
           >
             <option value="" data-i18n="select_placeholder">
               Select...
@@ -107,7 +107,7 @@ export default function Page() {
           </select>
           <p
             id="error-sex"
-            className="text-red-600 text-sm"
+            className="text-red-600 text-sm hidden"
             data-i18n="error_sex"
           ></p>
         </div>
@@ -133,7 +133,7 @@ export default function Page() {
           />
           <p
             id="error-fullAddress"
-            className="text-red-600 text-sm"
+            className="text-red-600 text-sm hidden"
             data-i18n="error_address"
           ></p>
         </div>
@@ -149,7 +149,7 @@ export default function Page() {
         />
         <p
           id="error-yearOfDiagnosis"
-          className="text-red-600 text-sm"
+          className="text-red-600 text-sm hidden"
           data-i18n="error_yod"
         ></p>
 
@@ -167,7 +167,7 @@ export default function Page() {
             name="diagnosisType"
             required
             className="w-full h-10 rounded bg-white border border-[var(--color-gray-300)] px-3 
-                       text-[var(--color-gray-900)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-tertiary)]"
+                       text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-tertiary)]"
           >
             <option value="" data-i18n="select_placeholder">
               Select...
@@ -178,7 +178,7 @@ export default function Page() {
           </select>
           <p
             id="error-diagnosisType"
-            className="text-red-600 text-sm"
+            className="text-red-600 text-sm hidden"
             data-i18n="error_diagType"
           ></p>
         </div>
@@ -239,7 +239,7 @@ function Field({
         type={type}
         placeholder={placeholderFallback || ""}
         className="w-full h-10 rounded bg-white border border-[var(--color-gray-300)] px-3 
-                   text-[var(--color-gray-900)] placeholder-gray-600 shadow-sm 
+                   text-black placeholder-gray-600 shadow-sm 
                    focus:outline-none focus:ring-2 focus:ring-[#00C896]"
         {...(placeholderKey ? { "data-i18n-placeholder": placeholderKey } : {})}
       />

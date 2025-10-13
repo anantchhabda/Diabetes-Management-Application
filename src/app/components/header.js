@@ -63,7 +63,7 @@ export default function Header() {
 
             {/* header logic */}
             <Script
-              src={`/js/header-script.js?v=${Date.now()}`}
+              src={"/js/header-script.js"}
               strategy="afterInteractive"
             />
           </div>

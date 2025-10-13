@@ -212,8 +212,8 @@ export default function LogDataPage() {
       </div>
 
       {/* loading strategy deferred */}
-      <Script src="/js/offline.js?v=19" strategy="beforeInteractive" />
-      <Script src="/js/log-data.js?v=19" strategy="afterInteractive" />
+      <Script src="/js/offline.js" strategy="beforeInteractive" />
+      <Script src="/js/log-data.js" strategy="afterInteractive" />
     </div>
   );
 }

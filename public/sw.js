@@ -9,14 +9,17 @@ const APP_SHELL = [
   "/patient-onboarding",
   "/patient-homepage",  
   "/patient-connection",
+  "/patient-settings",
   "/log-data",
   "/reminders",
   "/doctor-onboarding",
   "/doctor-homepage",
   "/doctor-connection",
+  "/doctor-settings",
   "/family-onboarding",
   "/family-homepage",
   "/family-connection",
+  "/family-settings",
   "/offline.html",
   "/manifest.webmanifest",
   "/icons/icon-192.png",
@@ -24,6 +27,10 @@ const APP_SHELL = [
   "/icons/maskable-192.png",
   "/icons/maskable-512.png",
   "/logos/DMA-logo-green.png",
+  "/js/i18n.js",
+  "i18n/en.json",
+  "i18n/ne.json",
+  "/js/header-script.js",
 ];
 
 //pre-cache
