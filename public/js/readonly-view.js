@@ -1,6 +1,10 @@
 (function () {
   if (typeof document === "undefined") return;
 
+  // ✅ Prevent double-initialization if the script is included twice
+  if (window.__RO_BANNER_INITED__) return;
+  window.__RO_BANNER_INITED__ = true;
+
   // --- helpers ---
   function dict() {
     const d = window.__i18n && window.__i18n.dict;
@@ -13,7 +17,7 @@
   function currentLang() {
     return document.documentElement.getAttribute("lang") || "en";
   }
-  function whenI18nReady(fn, maxTries = 20) {
+  function whenI18nReady(fn, maxTries = 24) {
     const want = currentLang();
     let tries = 0;
     const tick = () => {
@@ -27,13 +31,12 @@
             : window.__i18n.dict
         ).length > 0;
       if (ready) return fn();
-      if (++tries >= maxTries) return fn();
-      setTimeout(tick, 25);
+      if (++tries >= maxTries) return fn(); // fallback once
+      setTimeout(tick, 50);
     };
     tick();
   }
 
-  // --- detect readonly from query param ---
   const readonly =
     new URL(window.location.href).searchParams.get("readonly") === "1";
 
@@ -41,7 +44,17 @@
   let roPopupEl = null;
   let roPopupTimer = null;
 
+  // Cleanup any stale banners (e.g., from very fast navigations)
+  function removeAllExistingPopups() {
+    try {
+      document.querySelectorAll("#roPopup").forEach((n) => n.remove());
+    } catch {}
+  }
+
   function ensurePopup() {
+    // Remove duplicates if any (extra safety)
+    removeAllExistingPopups();
+
     if (roPopupEl && document.body.contains(roPopupEl)) return roPopupEl;
     const el = document.createElement("div");
     el.id = "roPopup";
@@ -64,17 +77,19 @@
   function showReadonlyPopup() {
     if (!readonly) return;
 
+    // ✅ Global once-only guard for this page load
+    if (window.__RO_BANNER_SHOWN__) return;
+    window.__RO_BANNER_SHOWN__ = true;
+
     const el = ensurePopup();
     setPopupText();
 
-    // reset timer
     if (roPopupTimer) {
       clearTimeout(roPopupTimer);
       roPopupTimer = null;
     }
     el.style.opacity = "1";
 
-    // fade out after 3 seconds
     roPopupTimer = setTimeout(() => {
       el.style.opacity = "0";
       setTimeout(() => {
@@ -85,31 +100,38 @@
     }, 3000);
   }
 
-  // --- run on load ---
+  // --- show once when i18n is ready (prevents EN->NE double fire) ---
+  const start = () =>
+    whenI18nReady(() => {
+      // Queue to next frame to avoid racing with other onload handlers
+      requestAnimationFrame(showReadonlyPopup);
+    });
+
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () =>
-      whenI18nReady(showReadonlyPopup)
-    );
+    document.addEventListener("DOMContentLoaded", start, { once: true });
   } else {
-    whenI18nReady(showReadonlyPopup);
+    start();
   }
 
-  // --- update on language change ---
+  // --- update text on language change (do NOT re-show) ---
   const target = document.documentElement;
   const mo = new MutationObserver((muts) => {
     for (const m of muts) {
       if (m.type === "attributes" && m.attributeName === "lang") {
         whenI18nReady(() => {
-          if (readonly) {
-            if (roPopupEl) {
-              setPopupText();
-            } else {
-              showReadonlyPopup();
-            }
-          }
+          // Only update text if a banner is currently visible
+          if (roPopupEl) setPopupText();
+          // If no banner, DO NOT show again on lang change
         });
       }
     }
   });
   mo.observe(target, { attributes: true, attributeFilter: ["lang"] });
+
+  // --- handle back/forward cache restores cleanly ---
+  window.addEventListener("pageshow", (e) => {
+    // If BFCache restore happens, do NOT re-show; the guard prevents it anyway.
+    // But we *do* want to refresh the text if element exists.
+    if (e.persisted && roPopupEl) setPopupText();
+  });
 })();

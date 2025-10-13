@@ -32,7 +32,7 @@ export default function Header() {
             <Image
               src="/logos/DMA-logo-green.png"
               alt="Diabetes Management Logo"
-              id="homeBtn"              
+              id="homeBtn"
               width={60}
               height={60}
               priority
@@ -43,7 +43,7 @@ export default function Header() {
           {/* settings */}
           <div className="w-1/3 flex items-center justify-end">
             <button
-              id="settingsBtn"           
+              id="settingsBtn"
               className="rounded-full bg-gray-200/90 p-2 hover:bg-gray-300 transition cursor-pointer"
               aria-label="Settings"
               title="Settings"
@@ -63,10 +63,7 @@ export default function Header() {
             </button>
 
             {/* header logic */}
-            <Script
-              src={"/js/header-script.js"}
-              strategy="afterInteractive"
-            />
+            <Script src={"/js/header-script.js"} strategy="afterInteractive" />
             <Script
               id="settings-visibility"
               strategy="afterInteractive"
@@ -105,35 +102,60 @@ export default function Header() {
       <script
         dangerouslySetInnerHTML={{
           __html: `
-            // Reveal only after full load, via inline style (avoids className mismatch)
-            window.addEventListener('load', function () {
-              var backBtn = document.getElementById('backButton');
-              if (!backBtn) return;
+      (function () {
+        function pathIs(p) {
+          var cur = window.location.pathname.replace(/\\/$/, '');
+          var want = p.replace(/\\/$/, '');
+          return cur === want;
+        }
 
-              var path = window.location.pathname;
+        window.addEventListener('load', function () {
+          var backBtn = document.getElementById('backButton');
+          if (!backBtn) return;
 
-              // Do not show back button on any homepage routes
-              var homepagePaths = [
-                '/',
-                '/patient-homepage',
-                '/doctor-homepage',
-                '/family-homepage'
-              ];
+          var path = window.location.pathname.replace(/\\/$/, '');
 
-              var shouldShow = !homepagePaths.includes(path) && (window.history.length > 1);
+          // Hide on homepages
+          var homepagePaths = ['/', '/patient-homepage', '/doctor-homepage', '/family-homepage']
+            .map(function (p) { return p.replace(/\\/$/, ''); });
 
-              if (shouldShow) {
-                backBtn.style.display = ''; // unhide
-              }
+          var onDoctorConn = pathIs('/doctor-connection');
+          var onFamilyConn = pathIs('/family-connection');
 
-              backBtn.addEventListener('click', function () {
-                if (window.history.length > 1) {
-                  window.history.back();
-                } else {;
-                }
-              });
-            }, { once: true });
-          `,
+          // Always show on connection pages; otherwise show when not a homepage and there is history
+          var shouldShow =
+            onDoctorConn || onFamilyConn ||
+            (!homepagePaths.includes(path) && (window.history.length > 1));
+
+          if (shouldShow) backBtn.style.display = '';
+
+          // Remove any previously attached handlers (from older scripts)
+          var newBtn = backBtn.cloneNode(true);
+          backBtn.parentNode.replaceChild(newBtn, backBtn);
+          backBtn = newBtn;
+
+          backBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            // Force redirect from connection pages to the correct homepage
+            if (onDoctorConn) {
+              window.location.replace('/doctor-homepage');
+              return;
+            }
+            if (onFamilyConn) {
+              window.location.replace('/family-homepage');
+              return;
+            }
+
+            // Else: normal back
+            if (window.history.length > 1) {
+              window.history.back();
+            }
+          });
+        }, { once: true });
+      })();
+    `,
         }}
       />
     </>

@@ -195,7 +195,17 @@
   "sys_care_food_eyes_teeth": "आहार, आँखाको र दाँतको हेरचाह गर्नुस् :)",
    "schedule_monthly": "मासिक {day} {time}",
    "readonly_viewing_patient": "तपाईं पाठक-मात्र मोडमा बिरामीको पृष्ठ हेर्दै हुनुहुन्छ।",
-"readonly_edits_disabled": "पाठक-मात्र मोड: सम्पादनहरू अक्षम छन्।"
+"readonly_edits_disabled": "पाठक-मात्र मोड: सम्पादनहरू अक्षम छन्।",
+
+  "logout": "लगआउट",
+  "required": "आवश्यक",
+  "enter_4_digit_year": "४ अंकको वर्ष लेख्नुहोस् (जस्तै, २०२१)",
+  "session_expired": "सेसन समाप्त भयो, कृपया फेरि लगइन गर्नुहोस्",
+  "update_failed": "अद्यावधिक असफल भयो",
+  "error_try_again": "त्रुटि भयो, कृपया फेरि प्रयास गर्नुहोस्",
+  "settings_updated_successfully": "सेटिङ्ग सफलतापूर्वक अद्यावधिक भयो!",
+  "saved_message": "सेटिङहरू सफलतापूर्वक सेभ गरिएको छ!"
+
 
 
   

@@ -3,6 +3,9 @@
   const savedMsg = document.getElementById("savedMsg");
   if (!form) return;
 
+  // Keep the message hidden until we explicitly show it
+  if (savedMsg) savedMsg.classList.add("hidden");
+
   // --- Load existing doctor data ---
   async function loadUserData() {
     try {
@@ -56,7 +59,12 @@
   // --- Form submission handler ---
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (savedMsg) savedMsg.textContent = "";
+
+    // Reset message (hide + clear) before validating/saving
+    if (savedMsg) {
+      savedMsg.textContent = "";
+      savedMsg.classList.add("hidden");
+    }
 
     const data = Object.fromEntries(new FormData(form));
     const errors = {};
@@ -65,7 +73,7 @@
       if (!data[f] || data[f].trim() === "") errors[f] = "Required";
     });
 
-    // Clear all old error messages & hide them
+    // Clear old errors & hide them
     form.querySelectorAll("p[id^='error-']").forEach((p) => {
       p.textContent = "";
       p.classList.add("hidden");
@@ -85,8 +93,10 @@
     try {
       const token = localStorage.getItem("authToken");
       if (!token) {
-        if (savedMsg)
+        if (savedMsg) {
           savedMsg.textContent = "Session expired, please login again";
+          savedMsg.classList.remove("hidden");
+        }
         return;
       }
 
@@ -110,21 +120,29 @@
           (result && (result.error || result.message)) ||
           (text && text.trim()) ||
           "Update failed";
-        if (savedMsg) savedMsg.textContent = msg;
+        if (savedMsg) {
+          savedMsg.textContent = msg;
+          savedMsg.classList.remove("hidden");
+        }
         return;
       }
 
+      // Success — now show the message (was hidden before submit)
       if (savedMsg) {
         savedMsg.textContent = "Settings updated successfully!";
-        window.location.href = "/doctor-homepage";
+        savedMsg.classList.remove("hidden");
       }
+      window.location.href = "/doctor-homepage";
     } catch (err) {
       console.error("Doctor settings update error:", err);
-      if (savedMsg) savedMsg.textContent = "Error, please try again";
+      if (savedMsg) {
+        savedMsg.textContent = "Error, please try again";
+        savedMsg.classList.remove("hidden");
+      }
     }
   });
 
-  // --- Logout button handler ---
+  // --- Logout button handler (translatable via data-i18n="logout") ---
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {

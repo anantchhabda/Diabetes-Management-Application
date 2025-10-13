@@ -12,7 +12,7 @@ export default function Page() {
         id="settingsForm"
         className="flex flex-col gap-5 w-full max-w-md bg-white p-8 rounded-xl shadow-lg mx-4"
       >
-        {/* Family ID */}
+        {/* Family ID (readonly) */}
         <div>
           <label
             htmlFor="familyId"
@@ -33,7 +33,7 @@ export default function Page() {
           />
         </div>
 
-        {/* Phone Number */}
+        {/* Phone Number (readonly) */}
         <div>
           <label
             htmlFor="phone"
@@ -59,7 +59,7 @@ export default function Page() {
           ></p>
         </div>
 
-        {/* Full Name */}
+        {/* Full Name (required) */}
         <Field
           labelKey="fullName_label"
           labelFallback="Full Name*"
@@ -73,7 +73,7 @@ export default function Page() {
           data-i18n="error_fullName"
         ></p>
 
-        {/* Date of Birth */}
+        {/* Date of Birth (required) */}
         <Field
           labelKey="dob_label"
           labelFallback="Date of Birth*"
@@ -86,7 +86,7 @@ export default function Page() {
           data-i18n="error_dob"
         ></p>
 
-        {/* Full Address */}
+        {/* Full Address (required) */}
         <div>
           <label
             htmlFor="fullAddress"
@@ -115,11 +115,12 @@ export default function Page() {
           ></p>
         </div>
 
-        {/* Saved message */}
+        {/* Saved message — hidden by default; only shown after successful save */}
         <p
           id="savedMsg"
-          className="text-sm mb-2"
+          className="text-sm mb-2 hidden"
           style={{ color: "var(--color-accent)" }}
+          aria-live="polite"
           data-i18n="saved_message"
         ></p>
 
@@ -147,14 +148,14 @@ export default function Page() {
         </div>
       </form>
 
-      {/* Load i18n first so translation appears */}
+      {/* i18n + page logic */}
       <Script src="/js/i18n.js" strategy="afterInteractive" />
-      <Script src="/js/family-settings.js" strategy="afterInteractive" />
+      <Script src="/js/family-settings.js?v=3" strategy="afterInteractive" />
     </main>
   );
 }
 
-/** i18n-aware Field component (consistent with doctor/patient pages) */
+/** Minimal i18n-aware input wrapper */
 function Field({
   labelKey,
   labelFallback,

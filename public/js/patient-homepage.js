@@ -3,7 +3,7 @@
   if (typeof document === "undefined") return;
 
   // ---------------------------
-  // Query param helpers (read-only view)
+  // Helpers
   // ---------------------------
   function getParam(name) {
     try {
@@ -12,10 +12,10 @@
       return null;
     }
   }
-  const VIEW_PATIENT_ID = getParam("patientID"); // Patient.profileId
+  const VIEW_PATIENT_ID = getParam("patientID");
   const IS_READONLY = getParam("readonly") === "1";
 
-  // Persist patientID for safety so /log-data can recover if params are lost
+  // Persist patientID for safety
   if (VIEW_PATIENT_ID) {
     try {
       sessionStorage.setItem("viewerPatientID", VIEW_PATIENT_ID);
@@ -25,12 +25,10 @@
   function withViewParams(href) {
     if (!IS_READONLY || !VIEW_PATIENT_ID) return href;
     const url = new URL(href, location.origin);
-    if (!url.searchParams.get("patientID")) {
+    if (!url.searchParams.get("patientID"))
       url.searchParams.set("patientID", VIEW_PATIENT_ID);
-    }
-    if (!url.searchParams.get("readonly")) {
+    if (!url.searchParams.get("readonly"))
       url.searchParams.set("readonly", "1");
-    }
     return url.pathname + url.search + url.hash;
   }
 
@@ -62,10 +60,11 @@
   // ---------------------------
   // Init
   // ---------------------------
+  const start = () => init();
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
+    document.addEventListener("DOMContentLoaded", start, { once: true });
   } else {
-    init();
+    start();
   }
 
   function init() {
@@ -73,12 +72,12 @@
     wireNav();
     if (IS_READONLY) {
       renderExitReadonlyButton();
-      showReadonlyPopup();
       hideReadonlyControls();
+      // ⚠️ Banner is handled ONLY by readonly-view.js now (to avoid dupes)
     }
+
     observeLangChanges(() => {
       setGreeting();
-      // live-translate the Exit button label if it exists
       const exitBtn = document.getElementById("exitReadonlyBtn");
       if (exitBtn) {
         exitBtn.textContent = t("exit_patient_view", "Exit patient page");
@@ -94,7 +93,6 @@
     if (!userBtn) return;
 
     const guestTemplate = t("helloGuest", "Hello, Guest");
-
     try {
       const token = localStorage.getItem("authToken");
       if (!token) {
@@ -118,10 +116,7 @@
 
       const data = await res.json();
       const name =
-        (data &&
-          data.profile &&
-          data.profile.name &&
-          String(data.profile.name)) ||
+        (data?.profile?.name && String(data.profile.name)) ||
         t("guest", "Guest");
 
       const template = t("helloUser", "Hello, {name}");
@@ -132,16 +127,14 @@
   }
 
   // ---------------------------
-  // Read-only UI helpers
+  // Read-only controls
   // ---------------------------
   function hideReadonlyControls() {
-    // Hide "Set Reminders" & "View Connections" when readonly
     const setRemindersBtn = document.getElementById("setRemindersBtn");
     const viewConnectionsBtn = document.getElementById("viewConnectionsBtn");
     if (setRemindersBtn) setRemindersBtn.classList.add("hidden");
     if (viewConnectionsBtn) viewConnectionsBtn.classList.add("hidden");
 
-    // Optionally disable a settings icon/button if present
     const settingsBtn = document.getElementById("settingsBtn");
     if (settingsBtn) {
       if ("disabled" in settingsBtn) settingsBtn.disabled = true;
@@ -150,24 +143,7 @@
     }
   }
 
-  function showReadonlyPopup() {
-    // Translatable one-shot banner
-    const wrap = document.createElement("div");
-    wrap.className =
-      "fixed top-3 left-1/2 -translate-x-1/2 z-[9999] bg-black/80 text-white text-sm px-4 py-2 rounded shadow transition-opacity";
-    wrap.textContent = t(
-      "readonly_banner",
-      "You’re viewing a patient page in read-only mode."
-    );
-    document.body.appendChild(wrap);
-    setTimeout(() => {
-      wrap.classList.add("opacity-0");
-      setTimeout(() => wrap.remove(), 600);
-    }, 3000);
-  }
-
   function renderExitReadonlyButton() {
-    // Add a small sticky exit button (only in read-only)
     const btn = document.createElement("button");
     btn.id = "exitReadonlyBtn";
     btn.type = "button";
@@ -188,20 +164,17 @@
         if (res.ok) {
           const me = await res.json();
           const role = me?.role;
-          // Send to a role-appropriate landing we KNOW exists
           if (role === "Doctor") return (location.href = "/doctor-connection");
           if (role === "Family Member")
             return (location.href = "/family-connection");
         }
       } catch {}
-      // Fallback: best-effort back navigation
       if (
         document.referrer &&
         new URL(document.referrer).origin === location.origin
       ) {
         history.back();
       } else {
-        // If no referrer, land them on their connections list as a safe default
         location.href = "/doctor-connection";
       }
     });
@@ -213,7 +186,6 @@
   // Navigation wiring
   // ---------------------------
   function wireNav() {
-    // helper: bind single click handler
     function bindClickOnce(
       id,
       to,
@@ -237,10 +209,7 @@
       });
     }
 
-    // ✅ Forward patientID + readonly=1 into /log-data in read-only mode
     bindClickOnce("logDataBtn", "/log-data", { allowInReadonly: true });
-
-    // These are hidden in read-only; still wire in normal mode
     bindClickOnce("setRemindersBtn", "/reminders", { disableInReadonly: true });
     bindClickOnce("viewConnectionsBtn", "/patient-connection", {
       disableInReadonly: true,

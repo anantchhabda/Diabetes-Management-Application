@@ -1,17 +1,18 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect } from "react";
 
 export default function Page() {
   return (
-    <main className="flex flex-col justify-start items-center min-h-screen px-4 gap-8"
-        style={{background: 'var(--background)'}}>
+    <main
+      className="flex flex-col justify-start items-center min-h-screen px-4 gap-8"
+      style={{ background: "var(--background)" }}
+    >
       <form
         id="settingsForm"
         className="flex flex-col gap-5 w-full max-w-md bg-white p-8 rounded-xl shadow-lg mx-4"
       >
-        {/* Patient ID */}
+        {/* Patient ID (readonly) */}
         <div>
           <label
             htmlFor="patientId"
@@ -30,7 +31,7 @@ export default function Page() {
           />
         </div>
 
-        {/* Phone Number */}
+        {/* Phone Number (readonly) */}
         <div>
           <label
             htmlFor="phone"
@@ -54,34 +55,56 @@ export default function Page() {
           ></p>
         </div>
 
-        {/* Full Name */}
-        <Field
-          labelKey="fullName_label"
-          labelFallback="Full Name*"
-          id="fullName"
-          placeholderKey="fullName_placeholder"
-          placeholderFallback="Full Name"
-        />
+        {/* Full Name (required) */}
+        <div>
+          <label
+            htmlFor="fullName"
+            className="block text-lg font-semibold text-slate-800 mb-2"
+            data-i18n="fullName_label"
+          >
+            Full Name*
+          </label>
+          <input
+            id="fullName"
+            name="fullName"
+            type="text"
+            placeholder="Full Name"
+            className="w-full h-10 rounded bg-white border border-[var(--color-gray-300)] px-3 
+                       text-black placeholder-gray-600 shadow-sm 
+                       focus:outline-none focus:ring-2 focus:ring-[#00C896]"
+            data-i18n-placeholder="fullName_placeholder"
+          />
+        </div>
         <p
           id="error-fullName"
           className="text-red-600 text-sm hidden"
           data-i18n="error_fullName"
         ></p>
 
-        {/* Date of Birth */}
-        <Field
-          labelKey="dob_label"
-          labelFallback="Date of Birth*"
-          id="dateOfBirth"
-          type="date"
-        />
+        {/* Date of Birth (required) */}
+        <div>
+          <label
+            htmlFor="dateOfBirth"
+            className="block text-lg font-semibold text-slate-800 mb-2"
+            data-i18n="dob_label"
+          >
+            Date of Birth*
+          </label>
+          <input
+            id="dateOfBirth"
+            name="dateOfBirth"
+            type="date"
+            className="w-full h-10 rounded bg-white border border-[var(--color-gray-300)] px-3 
+                       text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-[#00C896]"
+          />
+        </div>
         <p
           id="error-dateOfBirth"
           className="text-red-600 text-sm hidden"
           data-i18n="error_dob"
         ></p>
 
-        {/* Sex */}
+        {/* Sex (required) */}
         <div>
           <label
             htmlFor="sex"
@@ -100,10 +123,18 @@ export default function Page() {
             <option value="" data-i18n="select_placeholder">
               Select...
             </option>
-            <option value="Male" data-i18n="sex_male">Male</option>
-            <option value="Female" data-i18n="sex_female">Female</option>
-            <option value="Intersex" data-i18n="sex_intersex">Intersex</option>
-            <option value="Prefer not to say" data-i18n="sex_prefer_not">Prefer not to say</option>
+            <option value="Male" data-i18n="sex_male">
+              Male
+            </option>
+            <option value="Female" data-i18n="sex_female">
+              Female
+            </option>
+            <option value="Intersex" data-i18n="sex_intersex">
+              Intersex
+            </option>
+            <option value="Prefer not to say" data-i18n="sex_prefer_not">
+              Prefer not to say
+            </option>
           </select>
           <p
             id="error-sex"
@@ -112,7 +143,7 @@ export default function Page() {
           ></p>
         </div>
 
-        {/* Full Address */}
+        {/* Full Address (required) */}
         <div>
           <label
             htmlFor="fullAddress"
@@ -138,43 +169,59 @@ export default function Page() {
           ></p>
         </div>
 
-        {/* Year of Diagnosis */}
-        <Field
-          labelKey="yod_label"
-          labelFallback="Year of Diagnosis*"
-          id="yearOfDiagnosis"
-          type="number"
-          placeholderKey="yod_placeholder"
-          placeholderFallback="Year of Diagnosis"
-        />
+        {/* Year of Diagnosis (optional) */}
+        <div>
+          <label
+            htmlFor="yearOfDiagnosis"
+            className="block text-lg font-semibold text-slate-800 mb-2"
+            data-i18n="yod_label"
+          >
+            Year of Diagnosis
+          </label>
+          <input
+            id="yearOfDiagnosis"
+            name="yearOfDiagnosis"
+            type="number"
+            placeholder="Year of Diagnosis"
+            className="w-full h-10 rounded bg-white border border-[var(--color-gray-300)] px-3 
+                       text-black placeholder-gray-600 shadow-sm 
+                       focus:outline-none focus:ring-2 focus:ring-[#00C896]"
+            data-i18n-placeholder="yod_placeholder"
+          />
+        </div>
         <p
           id="error-yearOfDiagnosis"
           className="text-red-600 text-sm hidden"
           data-i18n="error_yod"
         ></p>
 
-        {/* Diagnosis Type */}
+        {/* Diagnosis Type (optional) */}
         <div>
           <label
             htmlFor="diagnosisType"
             className="block text-lg font-semibold text-slate-800 mb-2"
             data-i18n="diagnosisType_label"
           >
-            Type of Diagnosis*
+            Type of Diagnosis
           </label>
           <select
             id="diagnosisType"
             name="diagnosisType"
-            required
             className="w-full h-10 rounded bg-white border border-[var(--color-gray-300)] px-3 
                        text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-tertiary)]"
           >
             <option value="" data-i18n="select_placeholder">
               Select...
             </option>
-            <option value="Type 1" data-i18n="diag_type1">Type 1</option>
-            <option value="Type 2" data-i18n="diag_type2">Type 2</option>
-            <option value="Gestational" data-i18n="diag_gestational">Gestational</option>
+            <option value="Type 1" data-i18n="diag_type1">
+              Type 1
+            </option>
+            <option value="Type 2" data-i18n="diag_type2">
+              Type 2
+            </option>
+            <option value="Gestational" data-i18n="diag_gestational">
+              Gestational
+            </option>
           </select>
           <p
             id="error-diagnosisType"
@@ -183,10 +230,11 @@ export default function Page() {
           ></p>
         </div>
 
-        {/* Saved message */}
+        {/* Saved message — hidden by default; shown only after successful save */}
         <p
           id="savedMsg"
-          className="text-green-600 text-sm mb-2"
+          className="text-green-600 text-sm mb-2 hidden"
+          aria-live="polite"
           data-i18n="saved_message"
         ></p>
 
@@ -210,39 +258,8 @@ export default function Page() {
         </div>
       </form>
 
-      <Script src="/js/patient-settings.js" strategy="afterInteractive" />
+      {/* page logic */}
+      <Script src="/js/patient-settings.js?v=4" strategy="afterInteractive" />
     </main>
-  );
-}
-
-/** Wrapped Field with i18n-friendly props */
-function Field({
-  labelKey,
-  labelFallback,
-  id,
-  type = "text",
-  placeholderKey,
-  placeholderFallback,
-}) {
-  return (
-    <div>
-      <label
-        htmlFor={id}
-        className="block text-lg font-semibold text-slate-800 mb-2"
-        {...(labelKey ? { "data-i18n": labelKey } : {})}
-      >
-        {labelFallback || ""}
-      </label>
-      <input
-        id={id}
-        name={id}
-        type={type}
-        placeholder={placeholderFallback || ""}
-        className="w-full h-10 rounded bg-white border border-[var(--color-gray-300)] px-3 
-                   text-black placeholder-gray-600 shadow-sm 
-                   focus:outline-none focus:ring-2 focus:ring-[#00C896]"
-        {...(placeholderKey ? { "data-i18n-placeholder": placeholderKey } : {})}
-      />
-    </div>
   );
 }

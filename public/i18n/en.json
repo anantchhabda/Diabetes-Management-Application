@@ -194,7 +194,17 @@
   "sys_care_food_eyes_teeth": "Take care of your food, eyes and teeth :)",
   "schedule_monthly": "Monthly {day} {time}",
   "readonly_viewing_patient": "You’re viewing a patient page in read-only mode.",
-"readonly_edits_disabled": "Read-only view: edits are disabled."
+"readonly_edits_disabled": "Read-only view: edits are disabled.",
+
+  "logout": "Logout",
+  "required": "Required",
+  "enter_4_digit_year": "Enter a 4-digit year (e.g., 2021)",
+  "session_expired": "Session expired, please login again",
+  "update_failed": "Update failed",
+  "error_try_again": "Error, please try again",
+  "settings_updated_successfully": "Settings updated successfully!"
+
+
 
 
 

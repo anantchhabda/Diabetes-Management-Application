@@ -1,10 +1,53 @@
+// public/js/patient-settings.js
 (function () {
   const form = document.getElementById("settingsForm");
   const savedMsg = document.getElementById("savedMsg");
 
+  // --- i18n helpers (same pattern as other pages) ---
+  function dict() {
+    const d = window.__i18n && window.__i18n.dict;
+    return (typeof d === "function" ? d() : d) || {};
+  }
+  function t(key, fallback) {
+    const d = dict();
+    return (d && d[key]) != null ? String(d[key]) : fallback ?? key;
+  }
+  function whenI18nReady(fn, maxTries = 20) {
+    let tries = 0;
+    const want =
+      (document.documentElement && document.documentElement.lang) || "en";
+    const tick = () => {
+      const D = window.__i18n && window.__i18n.dict;
+      const ready =
+        window.__i18n &&
+        window.__i18n.lang === want &&
+        D &&
+        Object.keys(typeof D === "function" ? D() : D).length > 0;
+      if (ready) return fn();
+      if (++tries >= maxTries) return fn();
+      setTimeout(tick, 25);
+    };
+    tick();
+  }
+
+  // helpers for the banner
+  function hideSavedMsg() {
+    if (!savedMsg) return;
+    savedMsg.textContent = "";
+    savedMsg.classList.add("hidden");
+  }
+  function showSavedMsg(text) {
+    if (!savedMsg) return;
+    savedMsg.textContent = text || "";
+    savedMsg.classList.remove("hidden");
+  }
+
+  // Ensure hidden from the start
+  hideSavedMsg();
+
   if (!form) return;
 
-  // Load existing patient data when page loads
+  // Load existing patient data
   async function loadUserData() {
     try {
       const token = localStorage.getItem("authToken");
@@ -17,8 +60,9 @@
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
+        cache: "no-store",
       });
 
       if (!response.ok) {
@@ -27,19 +71,21 @@
       }
 
       const result = await response.json();
-      const userData = result.profile;
-      const phoneNumber = result.phoneNumber;
+      const userData = result.profile || {};
+      const phoneNumber = result.phoneNumber || "";
 
-      // Populate form fields with existing data
       const fields = {
         patientId: userData.profileId,
         fullName: userData.name,
-        dateOfBirth: userData.dob ? userData.dob.slice(0, 10) : "",
+        dateOfBirth: userData.dob ? String(userData.dob).slice(0, 10) : "",
         sex: userData.sex,
         fullAddress: userData.address,
-        yearOfDiagnosis: userData.yearOfDiag,
-        diagnosisType: userData.typeOfDiag,
-        phone: phoneNumber
+        yearOfDiagnosis:
+          typeof userData.yearOfDiag === "number"
+            ? String(userData.yearOfDiag)
+            : "",
+        diagnosisType: userData.typeOfDiag || "",
+        phone: phoneNumber,
       };
 
       Object.entries(fields).forEach(([fieldId, value]) => {
@@ -49,6 +95,7 @@
         }
       });
 
+      hideSavedMsg();
     } catch (error) {
       console.error("Error loading user data:", error);
     }
@@ -71,50 +118,69 @@
     return { data: null, text: null };
   }
 
-  // Handle form submission
+  // Submit handler
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
-
-    // clear previous saved message
-    if (savedMsg) savedMsg.textContent = "";
+    hideSavedMsg();
 
     const data = Object.fromEntries(new FormData(form));
     const errors = {};
 
-    // required fields, skipping readonly fields 
-    [
-      "fullName",
-      "dateOfBirth",
-      "sex",
-      "fullAddress",
-      "yearOfDiagnosis",
-      "diagnosisType"
-    ].forEach((f) => {
+    // Required fields ONLY: name, dob, sex, address
+    ["fullName", "dateOfBirth", "sex", "fullAddress"].forEach((f) => {
       if (!data[f] || data[f].trim() === "") {
-        errors[f] = "Required";
+        errors[f] = t("required", "Required");
       }
     });
 
-    form
-      .querySelectorAll("p[id^='error-']")
-      .forEach((p) => {p.textContent = ""; p.classList.add('hidden');});
+    // Optional: yearOfDiagnosis (if present, must be 4 digits)
+    if (data.yearOfDiagnosis && data.yearOfDiagnosis.trim() !== "") {
+      if (!/^\d{4}$/.test(data.yearOfDiagnosis.trim())) {
+        errors.yearOfDiagnosis = t(
+          "enter_4_digit_year",
+          "Enter a 4-digit year (e.g., 2021)"
+        );
+      }
+    }
+    // Optional: diagnosisType — no validation if empty
 
+    // Reset inline error labels
+    form.querySelectorAll("p[id^='error-']").forEach((p) => {
+      p.textContent = "";
+      p.classList.add("hidden");
+    });
+
+    // Render errors
     Object.entries(errors).forEach(([key, msg]) => {
       const el = document.getElementById(`error-${key}`);
-      if (el){ el.textContent = msg; el.classList.remove('hidden'); }
+      if (el) {
+        el.textContent = msg;
+        el.classList.remove("hidden");
+      }
     });
 
     if (Object.keys(errors).length > 0) return;
 
-    // Convert yearOfDiagnosis to number
-    let yearOfDiag = Number(data.yearOfDiagnosis);
-    if (isNaN(yearOfDiag)) yearOfDiag = undefined;
+    // Build payload with optionals only when provided
+    const payload = {
+      name: data.fullName,
+      dob: data.dateOfBirth,
+      sex: data.sex,
+      address: data.fullAddress,
+    };
+
+    const y = (data.yearOfDiagnosis || "").trim();
+    if (y && /^\d{4}$/.test(y)) payload.yearOfDiag = Number(y);
+
+    const type = (data.diagnosisType || "").trim();
+    if (type) payload.typeOfDiag = type;
 
     try {
       const token = localStorage.getItem("authToken");
       if (!token) {
-        if (savedMsg)
-          savedMsg.textContent = "Session expired, please login again";
+        showSavedMsg(
+          t("session_expired", "Session expired, please login again")
+        );
         return;
       }
 
@@ -124,41 +190,58 @@
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          name: data.fullName,
-          dob: data.dateOfBirth,
-          sex: data.sex,
-          address: data.fullAddress,
-          yearOfDiag: Number(data.yearOfDiagnosis),
-          typeOfDiag: data.diagnosisType,
-        }),
+        body: JSON.stringify(payload),
       });
 
-      const ct = res.headers.get?.("content-type") || "";
       const { data: result, text } = await readResponseSafe(res);
 
       if (!res.ok) {
         const msg =
           (result && (result.error || result.message)) ||
           (text && text.trim()) ||
-          "Update failed";
-        if (savedMsg) savedMsg.textContent = msg;
+          t("update_failed", "Update failed");
+        showSavedMsg(msg);
         return;
       }
 
-      if (savedMsg) {
-        savedMsg.textContent = "Settings updated successfully!";
-        window.location.href = "/patient-homepage";
-      }
-
+      // Success — show message only now
+      showSavedMsg(
+        t("settings_updated_successfully", "Settings updated successfully!")
+      );
+      window.location.href = "/patient-homepage";
     } catch (err) {
       console.error("Patient settings update error:", err);
-      if (savedMsg) savedMsg.textContent = "Error, please try again";
+      showSavedMsg(t("error_try_again", "Error, please try again"));
     }
   });
 
+  // Hide any banner while the user types/changes fields
+  form.addEventListener(
+    "input",
+    function () {
+      hideSavedMsg();
+    },
+    { passive: true }
+  );
+  form.addEventListener(
+    "change",
+    function () {
+      hideSavedMsg();
+    },
+    { passive: true }
+  );
+
+  // Logout (also make text translatable)
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
+    // Label (if your HTML doesn't already set data-i18n="logout")
+    whenI18nReady(() => {
+      logoutBtn.textContent = t("logout", "Logout");
+      logoutBtn.setAttribute("data-i18n", "logout");
+      logoutBtn.setAttribute("title", t("logout", "Logout"));
+      logoutBtn.setAttribute("data-i18n-title", "logout");
+    });
+
     logoutBtn.addEventListener("click", function () {
       localStorage.removeItem("authToken");
       localStorage.removeItem("userData");
@@ -167,42 +250,52 @@
     });
   }
 
+  // Initial load
   loadUserData();
 
-  // --- minimal touched-only validation (append-only) ---
+  // --- Minimal touched-only validation (year/type optional) ---
   (function () {
-    const form = document.getElementById('settingsForm');
-    if (!form) return;
-
     const fields = [
-      { id: 'fullName',        err: 'error-fullName' },
-      { id: 'dateOfBirth',     err: 'error-dateOfBirth' },
-      { id: 'sex',             err: 'error-sex' },
-      { id: 'fullAddress',     err: 'error-fullAddress' },
-      { id: 'yearOfDiagnosis', err: 'error-yearOfDiagnosis' },
-      { id: 'diagnosisType',   err: 'error-diagnosisType' },
+      { id: "fullName", err: "error-fullName", required: true },
+      { id: "dateOfBirth", err: "error-dateOfBirth", required: true },
+      { id: "sex", err: "error-sex", required: true },
+      { id: "fullAddress", err: "error-fullAddress", required: true },
+      { id: "yearOfDiagnosis", err: "error-yearOfDiagnosis", required: false },
+      { id: "diagnosisType", err: "error-diagnosisType", required: false },
     ];
 
     const touched = Object.create(null);
-    const required = (v) => v != null && String(v).trim() !== '';
-
-    function validateOne(fid, eid) {
+    function validateOne(fid, eid, req) {
       const f = document.getElementById(fid);
       const e = document.getElementById(eid);
       if (!f || !e) return true;
-      let ok = required(f.value);
-      if (fid === 'yearOfDiagnosis') ok = ok && /^\d{4}$/.test(f.value);
-      e.classList.toggle('hidden', !touched[fid] || ok);
+
+      const val = String(f.value || "").trim();
+      let ok = true;
+
+      if (req) ok = val !== "";
+      if (fid === "yearOfDiagnosis" && val !== "") {
+        ok = /^\d{4}$/.test(val);
+      }
+
+      e.textContent =
+        fid === "yearOfDiagnosis" && val !== "" && !/^\d{4}$/.test(val)
+          ? t("enter_4_digit_year", "Enter a 4-digit year (e.g., 2021)")
+          : t("required", "Required");
+      e.classList.toggle("hidden", !touched[fid] || ok);
       return ok;
     }
 
-    fields.forEach(({ id, err }) => {
+    fields.forEach(({ id, err, required }) => {
       const el = document.getElementById(id);
       if (!el) return;
-      const mark = () => { touched[id] = true; validateOne(id, err); };
-      el.addEventListener('blur', mark);
-      el.addEventListener('input', () => validateOne(id, err));
-      el.addEventListener('change', () => validateOne(id, err));
+      const mark = () => {
+        touched[id] = true;
+        validateOne(id, err, required);
+      };
+      el.addEventListener("blur", mark);
+      el.addEventListener("input", () => validateOne(id, err, required));
+      el.addEventListener("change", () => validateOne(id, err, required));
     });
   })();
 })();

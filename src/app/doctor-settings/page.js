@@ -129,11 +129,12 @@ export default function Page() {
           data-i18n="error_clinicName"
         ></p>
 
-        {/* Saved message */}
+        {/* Saved message — hidden by default; only shown after successful save */}
         <p
           id="savedMsg"
-          className="text-sm mb-2"
+          className="text-sm mb-2 hidden"
           style={{ color: "var(--color-accent)" }}
+          aria-live="polite"
           data-i18n="saved_message"
         ></p>
 
@@ -161,9 +162,9 @@ export default function Page() {
         </div>
       </form>
 
-      {/* Make sure i18n is available for this page */}
+      {/* i18n + page logic */}
       <Script src="/js/i18n.js" strategy="afterInteractive" />
-      <Script src="/js/doctor-settings.js" strategy="afterInteractive" />
+      <Script src="/js/doctor-settings.js?v=2" strategy="afterInteractive" />
     </main>
   );
 }
@@ -173,7 +174,7 @@ function Field({
   labelFallback,
   id,
   type = "text",
-  placeholderKey = null,   // ✅ Default to null
+  placeholderKey = null,
   placeholderFallback = "",
 }) {
   return (
@@ -201,4 +202,3 @@ function Field({
     </div>
   );
 }
-

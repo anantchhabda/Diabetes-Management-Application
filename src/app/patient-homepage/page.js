@@ -48,7 +48,7 @@ export default function HomePage() {
         <Script src="/js/readonly-view.js?v=7" strategy="afterInteractive" />
 
         {/* external logic js */}
-        <Script src="/js/patient-homepage.js?v=3" strategy="afterInteractive" />
+        <Script src="/js/patient-homepage.js?v=7" strategy="afterInteractive" />
       </main>
     </div>
   );
