@@ -79,6 +79,7 @@
   "doctorId_title": "केवल-पढ्ने डाक्टर पहिचान",
 
   "clinicAddress_label": "क्लिनिक ठेगाना*",
+  "clinicAddress_placeholder": "मार्ग, शहर, देश",
   "clinicName_label": "क्लिनिक नाम*",
   "clinicName_placeholder": "क्लिनिक नाम",
 
@@ -117,6 +118,7 @@
   "warn_numbers_only": "⚠️ कृपया संख्याहरू मात्र प्रविष्ट गर्नुहोस्",
   "warn_valid_numeric": "कृपया मान्य संख्यात्मक मूल्य प्रविष्ट गर्नुहोस् (दशमलव अनुमति)।",
   "unit_mgdl": "mg/dL",
+  "saved_offline": "अफलाइनमा सुरक्षित गरियो। तपाईं अनलाइन हुँदा सिंक हुनेछ.",
 
   "row_before_breakfast": "नास्ता अघि",
   "row_after_breakfast": "नास्ता पछि",
