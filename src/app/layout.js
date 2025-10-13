@@ -3,8 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 import Header from "./components/header";
-import Footer from './components/footer';
-
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({
@@ -44,8 +42,6 @@ export default function RootLayout({ children }) {
 
         {/* page content */}
         {children}
-
-        {/*<Footer />*/}
 
         {/* load i18n after page hydrated */}
         <Script src="/js/i18n.js" strategy="lazyOnload" />
