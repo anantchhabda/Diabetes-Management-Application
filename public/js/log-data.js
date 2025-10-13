@@ -1,5 +1,114 @@
 (function () {
   if (typeof document === "undefined") return;
+  // --- Always register pushers (GLOBAL) ---
+  (function registerLogDataPushers(){
+    function ready(fn){
+      if (window.__offline && window.__offline.register) return fn();
+      const iv = setInterval(() => {
+        if (window.__offline && window.__offline.register) {
+          clearInterval(iv); fn();
+        }
+      }, 50);
+      setTimeout(() => {clearInterval(iv), 5000});
+    }
+
+    ready(() => {
+      if (window.__LOG_PUSHERS_READY__) return;
+      window.__LOG_PUSHERS_READY__ = true;
+
+      // Glucose rows
+      window.__offline.register("glucose", async (mut, { authHeader }) => {
+        const headers = { ...authHeader(), "X-Idempotency-Key": mut.idem };
+        // PATCH then POST-if-404 (same behavior as online save)
+        const r = await fetch(`/api/patient/me/glucoselog?date=${encodeURIComponent(mut.date)}`, {
+          method: "PATCH", headers, body: JSON.stringify({ type: mut.type, glucoseLevel: mut.value })
+        });
+        if (r.status === 404 && mut.value !== "" && mut.value != null) {
+          const r2 = await fetch(`/api/patient/me/glucoselog`, {
+            method: "POST", headers, body: JSON.stringify({ date: mut.date, type: mut.type, glucoseLevel: mut.value })
+          });
+          if (!r2.ok) {
+            const j = await r2.json().catch(()=>({}));
+            const e = new Error(j.error || j.message || `HTTP ${r2.status}`); e.status = r2.status; throw e;
+          }
+          return;
+        }
+        if (!r.ok && r.status !== 404) {
+          const j = await r.json().catch(()=>({}));
+          const e = new Error(j.error || j.message || `HTTP ${r.status}`); e.status = r.status; throw e;
+        }
+      });
+
+      // Insulin rows
+      window.__offline.register("insulin", async (mut, { authHeader }) => {
+        const headers = { ...authHeader(), "X-Idempotency-Key": mut.idem };
+        const r = await fetch(`/api/patient/me/insulinlog?date=${encodeURIComponent(mut.date)}`, {
+          method: "PATCH", headers, body: JSON.stringify({ type: mut.type, dose: mut.value })
+        });
+        if (r.status === 404 && mut.value !== "" && mut.value != null) {
+          const r2 = await fetch(`/api/patient/me/insulinlog`, {
+            method: "POST", headers, body: JSON.stringify({ date: mut.date, type: mut.type, dose: mut.value })
+          });
+          if (!r2.ok) {
+            const j = await r2.json().catch(()=>({}));
+            const e = new Error(j.error || j.message || `HTTP ${r2.status}`); e.status = r2.status; throw e;
+          }
+          return;
+        }
+        if (!r.ok && r.status !== 404) {
+          const j = await r.json().catch(()=>({}));
+          const e = new Error(j.error || j.message || `HTTP ${r.status}`); e.status = r.status; throw e;
+        }
+      });
+
+      // Comment log
+      window.__offline.register("comments", async (mut, { authHeader }) => {
+        const headers = { ...authHeader(), "X-Idempotency-Key": mut.idem };
+        const r = await fetch(`/api/patient/me/generallog?date=${encodeURIComponent(mut.date)}`, {
+          method: "PATCH", headers, body: JSON.stringify({ comment: mut.comment ?? "" })
+        });
+        if (r.status === 404 && (mut.comment ?? "").trim() !== "") {
+          const r2 = await fetch(`/api/patient/me/generallog`, {
+            method: "POST", headers, body: JSON.stringify({ date: mut.date, comment: mut.comment ?? "" })
+          });
+          if (!r2.ok) {
+            const j = await r2.json().catch(()=>({}));
+            const e = new Error(j.error || j.message || `HTTP ${r2.status}`); e.status = r2.status; throw e;
+          }
+          return;
+        }
+        if (!r.ok && r.status !== 404) {
+          const j = await r.json().catch(()=>({}));
+          const e = new Error(j.error || j.message || `HTTP ${r.status}`); e.status = r.status; throw e;
+        } 
+      });
+      setTimeout(() => { try { window.__offline?.flush?.(); } catch {} }, 0);
+    });
+  })();
+
+  // 2) Attach GLOBAL flush triggers (❗outside route guard + not in init)
+  (function attachGlobalFlushers(){
+    if (window.__OFFLINE_FLUSHERS_ATTACHED__) return;
+    window.__OFFLINE_FLUSHERS_ATTACHED__ = true;
+
+    const tryFlush = () => window.__offline?.flush();
+
+    // once after DOM is ready (or immediately if already ready)
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", tryFlush, { once: true });
+    } else {
+      setTimeout(tryFlush, 0);
+    }
+
+    // flush on connectivity / visibility / focus
+    window.addEventListener("online", tryFlush);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") tryFlush();
+    });
+    window.addEventListener("focus", tryFlush);
+  })();
+
+  // --- Only the UI stays behind the /log-data guard ---    
   if (!/\/log-data(?:\/|$)/.test(window.location.pathname)) return;
   if (window.__LOG_DATA_ACTIVE__) return;
   window.__LOG_DATA_ACTIVE__ = true;
@@ -252,20 +361,25 @@
     }
   }
 
-  // loading strategy
-  window.addEventListener(
-    "load",
-    () => {
-      const kickoff = () =>
-        setTimeout(() => {
-          if ("requestIdleCallback" in window)
-            requestIdleCallback(init, { timeout: 600 });
-          else setTimeout(init, 120);
-        }, 0);
-      requestAnimationFrame(() => requestAnimationFrame(kickoff));
-    },
-    { once: true }
-  );
+  // loading strategy — run at DOM ready (or immediately if already ready)
+  (function boot() {
+    const start = () => {
+      // keep your idle scheduling, but don't depend on 'load'
+      if ("requestIdleCallback" in window) {
+        requestIdleCallback(init, { timeout: 600 });
+      } else {
+        // a short timeout avoids blocking hydration
+        setTimeout(init, 0);
+      }
+    };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start, { once: true });
+  } else {
+    start();
+  }
+})();
+
 
   function init() {
     const $ = (id) => document.getElementById(id);
@@ -640,18 +754,35 @@
       dateInput?.classList.remove("ring-2", "ring-red-500", "border-red-500");
       dateWarning?.classList.add("hidden");
 
-      try {
-        await saveAllToBackend(dateInput.value, GLUCOSE_ROWS, INSULIN_ROWS, state, currentTab, commentsInput, canEdit);
+      const theDate = dateInput.value;
 
+      //If offline: enqueue and show banner
+      if (!navigator.onLine) {
+        await enqueueForCurrentTabOffline(theDate);
+        saveToStorage();
+        window.__offline?.showBanner(t(
+          "saved_offline", "Saved offline. Will sync when you're online."
+        ));
+        return;
+      }
+
+      //Online: try save to backend; on failure, enqueue
+      try {
+        await saveAllToBackend(theDate, GLUCOSE_ROWS, INSULIN_ROWS, state, currentTab, commentsInput, canEdit);
         saveToStorage();
         if (saveNotice) {
           saveNotice.textContent = t("saved_successfully", "Saved successfully");
           saveNotice.classList.remove("hidden");
           setTimeout(() => saveNotice.classList.add("hidden"), 1500);
         }
+        window.__offline?.flush();
       } catch (err) {
-        console.error(err);
-        alert(err.message || "Save failed. Please try again.");
+        console.warn("[save] online save failed, enqueuing", err);
+        await enqueueForCurrentTabOffline(theDate);
+        saveToStorage();
+        window.__offline?.showBanner(t(
+          "saved_offline", "Saved offline. Will sync when you're online."
+        ));
       }
     });
 
@@ -711,29 +842,6 @@
     });
 
     //Backend orchestration
-    async function parseViewerPayload(payload) {
-      const out = { glucose: {}, insulin: {}, comments: "" };
-      const logs = Array.isArray(payload.logs) ? payload.logs : [];
-      for (const log of logs) {
-        if (log && typeof log.type === "string") {
-          if (Object.prototype.hasOwnProperty.call(log, "glucoseLevel")) {
-            out.glucose[log.type] = (log.glucoseLevell ?? "").toString();
-          }
-          if (Object.prototype.hasOwnProperty.call(log, "dose")) {
-            out.insulin[log.type] = (log.dose ?? "").toString();
-          }
-        }
-        if (typeof log?.comment === "string" && !out.comments) {
-          out.comments = log.comment;
-        }
-      }
-      if (!out.comments) {
-        const c = payload?.comment || payload?.log?.comment || (Array.isArray(payload?.logs) && payload.logs[0]?.comment);
-        if (typeof c === "string") out.comments = c;
-      }
-      return out;
-    }
-
     async function reloadFromBackend(date, GLUCOSE_ROWS, INSULIN_ROWS, state, dataTable, commentsInput, canEdit, viewerPatientID) {
       dataTable.innerHTML = `
         <tr class="border">
@@ -872,6 +980,43 @@
             throw err; 
           }
         }
+        return;
+      }
+    }
+
+    async function enqueueForCurrentTabOffline(theDate) {
+      if (!canEdit) return;
+
+      if (currentTab === 'glucose') {
+        for (const label of GLUCOSE_ROWS) {
+          const raw = (state.glucose[label] ?? '').toString().trim();
+          await window.__offline?.enqueue('glucose', {
+            date: theDate,
+            type: label,
+            value: raw === '' ? '' : Number(raw)
+          });
+        }
+        return;
+      }
+
+      if (currentTab === 'insulin') {
+        for (const label of INSULIN_ROWS) {
+          const raw = (state.insulin[label] ?? '').toString().trim();
+          await window.__offline?.enqueue('insulin', {
+            date: theDate,
+            type: label,
+            value: raw === '' ? '' : Number(raw)
+          });
+        }
+        return;
+      }
+
+      if (currentTab === 'comments') {
+        const rawComment = (state.comments ?? '').trim();
+        await window.__offline?.enqueue('comments', {
+          date: theDate,
+          comment: rawComment
+        });
         return;
       }
     }

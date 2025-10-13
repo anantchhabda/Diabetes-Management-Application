@@ -83,12 +83,12 @@
 
     // required fields, skipping readonly fields 
     [
-      "name",
-      "dob",
+      "fullName",
+      "dateOfBirth",
       "sex",
-      "address",
-      "yearOfDiag",
-      "typeOfDiag"
+      "fullAddress",
+      "yearOfDiagnosis",
+      "diagnosisType"
     ].forEach((f) => {
       if (!data[f] || data[f].trim() === "") {
         errors[f] = "Required";
@@ -97,11 +97,11 @@
 
     form
       .querySelectorAll("p[id^='error-']")
-      .forEach((p) => (p.textContent = ""));
+      .forEach((p) => {p.textContent = ""; p.classList.add('hidden');});
 
     Object.entries(errors).forEach(([key, msg]) => {
       const el = document.getElementById(`error-${key}`);
-      if (el) el.textContent = msg;
+      if (el){ el.textContent = msg; el.classList.remove('hidden'); }
     });
 
     if (Object.keys(errors).length > 0) return;
@@ -168,4 +168,41 @@
   }
 
   loadUserData();
+
+  // --- minimal touched-only validation (append-only) ---
+  (function () {
+    const form = document.getElementById('settingsForm');
+    if (!form) return;
+
+    const fields = [
+      { id: 'fullName',        err: 'error-fullName' },
+      { id: 'dateOfBirth',     err: 'error-dateOfBirth' },
+      { id: 'sex',             err: 'error-sex' },
+      { id: 'fullAddress',     err: 'error-fullAddress' },
+      { id: 'yearOfDiagnosis', err: 'error-yearOfDiagnosis' },
+      { id: 'diagnosisType',   err: 'error-diagnosisType' },
+    ];
+
+    const touched = Object.create(null);
+    const required = (v) => v != null && String(v).trim() !== '';
+
+    function validateOne(fid, eid) {
+      const f = document.getElementById(fid);
+      const e = document.getElementById(eid);
+      if (!f || !e) return true;
+      let ok = required(f.value);
+      if (fid === 'yearOfDiagnosis') ok = ok && /^\d{4}$/.test(f.value);
+      e.classList.toggle('hidden', !touched[fid] || ok);
+      return ok;
+    }
+
+    fields.forEach(({ id, err }) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const mark = () => { touched[id] = true; validateOne(id, err); };
+      el.addEventListener('blur', mark);
+      el.addEventListener('input', () => validateOne(id, err));
+      el.addEventListener('change', () => validateOne(id, err));
+    });
+  })();
 })();
