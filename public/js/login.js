@@ -125,6 +125,23 @@
         localStorage.setItem("authToken", data.authToken);
         localStorage.setItem("userRole", data.role || "");
         purgeLogDrafts(); // reset drafts for new user
+
+        // 🔑 Store profile namespace for offline use
+        try {
+          if (data.profileId) {
+            localStorage.setItem(
+              "__active_profile_id__",
+              String(data.profileId)
+            );
+          }
+          // Minimal userData cache so homepage/log-data can restore namespace offline
+          const cachedUser = {
+            role: data.role || "",
+            profile: { profileId: data.profileId || null, name: "" },
+          };
+          localStorage.setItem("userData", JSON.stringify(cachedUser));
+        } catch {}
+
         if (data.role === "Patient") {
           window.location.href = "/patient-homepage";
           return;

@@ -69,7 +69,7 @@ export default function Page() {
         </button>
       </form>
 
-      <Script src="/js/login.js" strategy="afterInteractive" />
+      <Script src="/js/login.js?v=6" strategy="afterInteractive" />
     </main>
   );
 }

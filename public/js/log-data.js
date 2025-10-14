@@ -20,7 +20,6 @@
       // Glucose rows
       window.__offline.register("glucose", async (mut, { authHeader }) => {
         const headers = { ...authHeader(), "X-Idempotency-Key": mut.idem };
-        // Try PATCH first
         const r = await fetch(
           `/api/patient/me/glucoselog?date=${encodeURIComponent(mut.date)}`,
           {
@@ -29,12 +28,11 @@
             body: JSON.stringify({
               type: mut.type,
               glucoseLevel: mut.value,
-              glucose: mut.value, // compatibility
+              glucose: mut.value,
             }),
           }
         );
         if (r.status === 404 && mut.value !== "" && mut.value != null) {
-          // Create if it doesn't exist
           const r2 = await fetch(`/api/patient/me/glucoselog`, {
             method: "POST",
             headers,
@@ -74,10 +72,7 @@
         );
 
         if (r.status === 404) {
-          // clearing empty -> nothing to do
           if (mut.value === "" || mut.value == null) return;
-
-          // set value -> create
           const r2 = await fetch(`/api/patient/me/insulinlog`, {
             method: "POST",
             headers,
@@ -175,19 +170,38 @@
   window.__LOG_DATA_ACTIVE__ = true;
 
   // ---------------------------
-  // Read-only / viewer context
+  // Read-only / viewer context (more permissive)
   // ---------------------------
-  function getParam(name) {
+  function getParamLoose(...names) {
     try {
       const u = new URL(location.href);
-      return u.searchParams.get(name);
+      for (const n of names) {
+        const v = u.searchParams.get(n);
+        if (v != null) return v;
+        // also try case variants
+        const lower = n.toLowerCase();
+        for (const [k, val] of u.searchParams.entries()) {
+          if (k.toLowerCase() === lower) return val;
+        }
+      }
+    } catch {}
+    return null;
+  }
+  const READONLY_RAW = getParamLoose("readonly", "ro");
+  const IS_READONLY =
+    READONLY_RAW === "1" || (READONLY_RAW || "").toLowerCase() === "true";
+
+  function resolveViewerPatientID() {
+    // accept patientID, profileId, pid (any case)
+    const fromUrl = getParamLoose("patientID", "profileId", "pid") || null;
+    if (fromUrl) return fromUrl;
+    try {
+      return sessionStorage.getItem("viewerPatientID") || null;
     } catch {
       return null;
     }
   }
-  // viewer URLs use ?patientID=GamMql&readonly=1
-  const VIEW_PATIENT = getParam("patientID"); // Patient.profileId
-  const IS_READONLY = getParam("readonly") === "1";
+  const VIEW_PATIENT = resolveViewerPatientID();
 
   // Expose for other scripts (keeps params on links)
   window.READONLY_CTX = {
@@ -309,15 +323,7 @@
     Authorization: `Bearer ${localStorage.getItem("authToken") || ""}`,
   });
 
-  const getPatientIDFromURL = () => {
-    const id = new URL(window.location.href).searchParams.get("patientID");
-    if (id) return id;
-    try {
-      return sessionStorage.getItem("viewerPatientID") || null;
-    } catch {
-      return null;
-    }
-  };
+  const getPatientIDFromURL = resolveViewerPatientID;
 
   async function getMe() {
     const res = await fetch(`/api/auth/me?_=${Date.now()}`, {
@@ -328,16 +334,10 @@
       },
       cache: "no-store",
     });
-    if (!res.ok) {
-      const j = await res.json().catch(() => ({}));
-      const err = new Error(j.error || j.message || "Unauthorized");
-      err.status = res.status;
-      throw err;
-    }
+    if (!res.ok) throw new Error("Unauthorized");
     return res.json();
   }
 
-  // profile id resolver (stable per patient)
   function resolveProfileIdFromMe(me) {
     return (
       me?.profile?.profileId ||
@@ -348,7 +348,6 @@
     );
   }
 
-  // one-time purge of legacy v1 localStorage keys
   (function clearLegacyCacheOnce() {
     try {
       if (localStorage.getItem("__logdata_v2_cleared__")) return;
@@ -359,7 +358,6 @@
     } catch {}
   })();
 
-  // --- Namespace index + migration helpers (offline aware) ---
   function readNsIndex() {
     try {
       return JSON.parse(localStorage.getItem("logdata:index") || "{}");
@@ -419,51 +417,32 @@
     touchNamespace(to);
   }
 
-  // ---------------------------
-  // Safe JSON parser for APIs
-  // ---------------------------
-  async function readJsonSafe(res) {
-    if (res.status === 204) return {};
-    const ct = (res.headers.get("content-type") || "").toLowerCase();
-    if (!ct.includes("application/json")) {
+  async function fetchJSON(url, opts = {}, timeoutMs = 2500) {
+    const ctrl = new AbortController();
+    const id = setTimeout(() => ctrl.abort(), timeoutMs);
+    try {
+      const res = await fetch(url, { ...opts, signal: ctrl.signal });
+      if (res.status >= 500) {
+        const err = new Error(`Server unavailable (${res.status})`);
+        err.status = res.status;
+        throw err;
+      }
+      const ct = (res.headers.get("content-type") || "").toLowerCase();
+      if (ct.includes("application/json")) return res.json();
       const txt = await res.text().catch(() => "");
       return txt ? { ok: true } : {};
-    }
-    try {
-      return await res.json();
-    } catch {
-      return {};
+    } finally {
+      clearTimeout(id);
     }
   }
 
-  // ---------------------------
-  // Patient endpoints (cache-busted GETs)
-  // ---------------------------
   async function fetchPatientGlucoseLog(date) {
-    const res = await fetch(
+    return await fetchJSON(
       `/api/patient/me/glucoselog?date=${encodeURIComponent(
         date
       )}&_=${Date.now()}`,
       { method: "GET", headers: authHeader(), cache: "no-store" }
     );
-    if (!res.ok)
-      throw new Error(
-        (await res.json().catch(() => ({}))).message || "Failed to load logs"
-      );
-    return res.json();
-  }
-  async function createGlucoseLog(date, type, glucoseLevel) {
-    const res = await fetch(`/api/patient/me/glucoselog?_=${Date.now()}`, {
-      method: "POST",
-      headers: authHeader(),
-      cache: "no-store",
-      body: JSON.stringify({ date, type, glucoseLevel, glucose: glucoseLevel }),
-    });
-    if (!res.ok) {
-      const j = await res.json().catch(() => ({}));
-      throw new Error(j.error || j.message || `HTTP ${res.status}`);
-    }
-    return readJsonSafe(res);
   }
   async function updateOrDeleteGlucoseLog(date, type, glucoseLevel) {
     const res = await fetch(
@@ -477,7 +456,6 @@
         body: JSON.stringify({ type, glucoseLevel, glucose: glucoseLevel }),
       }
     );
-
     if (res.status === 404 && glucoseLevel !== "" && glucoseLevel != null) {
       const r2 = await fetch(`/api/patient/me/glucoselog?_=${Date.now()}`, {
         method: "POST",
@@ -490,50 +468,20 @@
           glucose: glucoseLevel,
         }),
       });
-      if (!r2.ok) {
-        const j = await r2.json().catch(() => ({}));
-        const e = new Error(j.error || j.message || `HTTP ${r2.status}`);
-        e.status = r2.status;
-        throw e;
-      }
-      return readJsonSafe(r2);
+      if (!r2.ok) throw new Error(`HTTP ${r2.status}`);
+      return (await r2.json().catch(() => ({}))) || {};
     }
-
-    if (!res.ok) {
-      const j = await res.json().catch(() => ({}));
-      const e = new Error(j.error || j.message || `HTTP ${res.status}`);
-      e.status = res.status;
-      throw e;
-    }
-
-    return readJsonSafe(res);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return (await res.json().catch(() => ({}))) || {};
   }
 
   async function fetchPatientInsulinLog(date) {
-    const res = await fetch(
+    return await fetchJSON(
       `/api/patient/me/insulinlog?date=${encodeURIComponent(
         date
       )}&_=${Date.now()}`,
       { method: "GET", headers: authHeader(), cache: "no-store" }
     );
-    if (!res.ok)
-      throw new Error(
-        (await res.json().catch(() => ({}))).message || "Failed to load logs"
-      );
-    return res.json();
-  }
-  async function createInsulinLog(date, type, dose) {
-    const res = await fetch(`/api/patient/me/insulinlog?_=${Date.now()}`, {
-      method: "POST",
-      headers: authHeader(),
-      cache: "no-store",
-      body: JSON.stringify({ date, type, dose }),
-    });
-    if (!res.ok) {
-      const j = await res.json().catch(() => ({}));
-      throw new Error(j.error || j.message || `HTTP ${res.status}`);
-    }
-    return readJsonSafe(res);
   }
   async function updateOrDeleteInsulinLog(date, type, dose) {
     const res = await fetch(
@@ -547,61 +495,29 @@
         body: JSON.stringify({ type, dose }),
       }
     );
-
     if (res.status === 404) {
-      if (dose === "" || dose == null) {
+      if (dose === "" || dose == null)
         return { message: "No existing log to clear" };
-      }
       const r2 = await fetch(`/api/patient/me/insulinlog?_=${Date.now()}`, {
         method: "POST",
         headers: authHeader(),
         cache: "no-store",
         body: JSON.stringify({ date, type, dose }),
       });
-      if (!r2.ok) {
-        const j = await r2.json().catch(() => ({}));
-        const e = new Error(j.error || j.message || `HTTP ${r2.status}`);
-        e.status = r2.status;
-        throw e;
-      }
+      if (!r2.ok) throw new Error(`HTTP ${r2.status}`);
       return (await r2.json().catch(() => ({}))) || {};
     }
-
-    if (!res.ok) {
-      const j = await res.json().catch(() => ({}));
-      const e = new Error(j.error || j.message || `HTTP ${res.status}`);
-      e.status = res.status;
-      throw e;
-    }
-
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return (await res.json().catch(() => ({}))) || {};
   }
 
   async function fetchPatientCommentLog(date) {
-    const res = await fetch(
+    return await fetchJSON(
       `/api/patient/me/generallog?date=${encodeURIComponent(
         date
       )}&_=${Date.now()}`,
       { method: "GET", headers: authHeader(), cache: "no-store" }
     );
-    if (!res.ok)
-      throw new Error(
-        (await res.json().catch(() => ({}))).message || "Failed to load logs"
-      );
-    return res.json();
-  }
-  async function createCommentLog(date, comment) {
-    const res = await fetch(`/api/patient/me/generallog?_=${Date.now()}`, {
-      method: "POST",
-      headers: authHeader(),
-      cache: "no-store",
-      body: JSON.stringify({ date, comment }),
-    });
-    if (!res.ok) {
-      const j = await res.json().catch(() => ({}));
-      throw new Error(j.error || j.message || `HTTP ${res.status}`);
-    }
-    return readJsonSafe(res);
   }
   async function updateOrDeleteCommentLog(date, comment) {
     const res = await fetch(
@@ -615,7 +531,6 @@
         body: JSON.stringify({ comment }),
       }
     );
-
     if (res.status === 404 && (comment ?? "").trim() !== "") {
       const r2 = await fetch(`/api/patient/me/generallog?_=${Date.now()}`, {
         method: "POST",
@@ -623,60 +538,40 @@
         cache: "no-store",
         body: JSON.stringify({ date, comment }),
       });
-      if (!r2.ok) {
-        const j = await r2.json().catch(() => ({}));
-        const e = new Error(j.error || j.message || `HTTP ${r2.status}`);
-        e.status = r2.status;
-        throw e;
-      }
-      return readJsonSafe(r2);
+      if (!r2.ok) throw new Error(`HTTP ${r2.status}`);
+      return (await r2.json().catch(() => ({}))) || {};
     }
-
-    if (!res.ok) {
-      const j = await res.json().catch(() => ({}));
-      const e = new Error(j.error || j.message || `HTTP ${res.status}`);
-      e.status = res.status;
-      throw e;
-    }
-
-    return readJsonSafe(res);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return (await res.json().catch(() => ({}))) || {};
   }
 
-  // ---------------------------
-  // Viewer endpoints (Doctor/Family) — cache-busted GETs
-  // ---------------------------
+  // Viewer endpoints
   async function fetchViewerGlucoseLog(date, patientID) {
     if (!patientID) throw new Error("Missing patientID");
-    const res = await fetch(
+    return await fetchJSON(
       `/api/auth/me/patient/${encodeURIComponent(
         patientID
       )}/viewlog/glucoselog?date=${encodeURIComponent(date)}&_=${Date.now()}`,
       { method: "GET", headers: authHeader(), cache: "no-store" }
     );
-    if (!res.ok) throw new Error("Failed to load logs");
-    return res.json();
   }
   async function fetchViewerInsulinLog(date, patientID) {
     if (!patientID) throw new Error("Missing patientID");
-    const res = await fetch(
+    return await fetchJSON(
       `/api/auth/me/patient/${encodeURIComponent(
         patientID
       )}/viewlog/insulinlog?date=${encodeURIComponent(date)}&_=${Date.now()}`,
       { method: "GET", headers: authHeader(), cache: "no-store" }
     );
-    if (!res.ok) throw new Error("Failed to load logs");
-    return res.json();
   }
   async function fetchViewerCommentLog(date, patientID) {
     if (!patientID) throw new Error("Missing patientID");
-    const res = await fetch(
+    return await fetchJSON(
       `/api/auth/me/patient/${encodeURIComponent(
         patientID
       )}/viewlog/generallog?date=${encodeURIComponent(date)}&_=${Date.now()}`,
       { method: "GET", headers: authHeader(), cache: "no-store" }
     );
-    if (!res.ok) throw new Error("Failed to load logs");
-    return res.json();
   }
 
   // ---------------------------
@@ -698,7 +593,6 @@
     }
   }
 
-  // loading strategy — run at DOM ready (or immediately if already ready)
   (function boot() {
     const start = () => {
       if ("requestIdleCallback" in window) {
@@ -799,7 +693,6 @@
       };
       try {
         localStorage.setItem(key, JSON.stringify(payload));
-        // NEW: touch namespace index so we can pick it offline later
         touchNamespace(STORAGE_NS);
       } catch {}
     }
@@ -860,9 +753,10 @@
     adjustDateWidth();
     updateDateOverlay(dateInput, dateOverlay);
 
-    // --- role / viewer: decide editability and storage (provisional offline-first)
+    // --- role / viewer: decide editability and storage (OFFLINE-FIRST for patient) ---
     (async () => {
-      // 1) If readonly viewer, disable editing immediately
+      const isOnline = navigator.onLine;
+
       if (IS_READONLY) {
         try {
           commentsInput?.setAttribute("readonly", "true");
@@ -873,12 +767,10 @@
           }
           whenI18nReady(showReadonlyBanner);
         } catch {}
-        // no STORAGE_NS in readonly mode
       } else {
-        // 2) Not readonly → pick best patient namespace even offline
+        // Patient mode: choose namespace (even offline)
         let ns = pickBestNamespaceOffline();
         if (!ns) {
-          // fallback to any previous Patient:* we find, else guest
           try {
             const anyKey = Object.keys(localStorage).find((k) =>
               k.startsWith("logdata:v2:Patient:")
@@ -888,73 +780,27 @@
                 .split("logdata:v2:")[1]
                 .split(":")
                 .slice(0, 2)
-                .join(":"); // Patient:<pid>
+                .join(":");
             }
           } catch {}
         }
         STORAGE_NS = ns || "Patient:guest";
 
-        // load any local drafts for the selected date
-        loadFromStorage();
-
-        // Make sure the Save button is visible/enabled in offline mode
         if (saveBtn) {
           saveBtn.style.display = "";
           saveBtn.disabled = false;
         }
       }
-      // 3) If we have a date, fetch server truth.
-      if (dateInput?.value) {
-        // In editable (patient) mode, refine STORAGE_NS in the background.
-        let refineNS = Promise.resolve();
-        if (!IS_READONLY) {
-          refineNS = (async () => {
-            try {
-              const me = await getMe();
-              if (me.role === "Patient") {
-                const pid = resolveProfileIdFromMe(me);
-                if (pid && typeof pid === "string") {
-                  try {
-                    localStorage.setItem("__active_profile_id__", pid);
-                  } catch {}
-                  // migrate guest drafts if present (keep your existing behavior)
-                  if (
-                    typeof migrateGuestDraftsTo === "function" &&
-                    STORAGE_NS === "Patient:guest"
-                  ) {
-                    try {
-                      migrateGuestDraftsTo(pid);
-                    } catch {}
-                  }
-                  STORAGE_NS = `Patient:${pid}`;
-                  loadFromStorage(); // reload state from the correct namespace
-                  if (typeof touchNamespace === "function") {
-                    try {
-                      touchNamespace(STORAGE_NS);
-                    } catch {}
-                  }
-                }
-              } else {
-                // Non-patient on /log-data without readonly: force readonly behavior
-                commentsInput?.setAttribute("readonly", "true");
-                commentsInput?.classList.add(
-                  "bg-gray-100",
-                  "cursor-not-allowed"
-                );
-                if (saveBtn) {
-                  saveBtn.style.display = "none";
-                  saveBtn.disabled = true;
-                }
-                whenI18nReady(showReadonlyBanner);
-                STORAGE_NS = null;
-              }
-            } catch {
-              // offline/failed auth → keep provisional STORAGE_NS
-            }
-          })();
-        }
 
-        // ALWAYS try to fetch server truth when there is a date (patient or readonly).
+      if (!dateInput?.value) return;
+
+      // ==== PATIENT: OFFLINE-FIRST ====
+      if (!IS_READONLY) {
+        if (!isOnline) {
+          loadFromStorage();
+          renderRows(GLUCOSE_ROWS);
+          return;
+        }
         try {
           await reloadFromBackend(
             dateInput.value,
@@ -963,21 +809,69 @@
             state,
             dataTable,
             commentsInput,
-            !IS_READONLY,
-            IS_READONLY ? VIEW_PATIENT || getPatientIDFromURL() : null
+            true,
+            null
           );
         } catch {
-          // If fetch fails (offline, etc.), we’ll still render from whatever state we have.
+          loadFromStorage();
         }
-
-        // First paint
         renderRows(GLUCOSE_ROWS);
+        saveToStorage();
 
-        // After refining STORAGE_NS, persist local cache (editable only)
-        try {
-          await refineNS;
-          if (!IS_READONLY && STORAGE_NS) saveToStorage();
-        } catch {}
+        (async () => {
+          try {
+            const me = await getMe();
+            if (me.role === "Patient") {
+              const pid = resolveProfileIdFromMe(me);
+              if (pid && typeof pid === "string") {
+                try {
+                  localStorage.setItem("__active_profile_id__", pid);
+                  localStorage.setItem("userData", JSON.stringify(me));
+                } catch {}
+                if (STORAGE_NS === "Patient:guest") migrateGuestDraftsTo(pid);
+                STORAGE_NS = `Patient:${pid}`;
+                touchNamespace(STORAGE_NS);
+              }
+            }
+          } catch {}
+        })();
+
+        return;
+      }
+
+      // ==== READ-ONLY (Doctor / Family): fetch immediately when online ====
+      const pid = VIEW_PATIENT || getPatientIDFromURL();
+      if (!navigator.onLine) {
+        dataTable.innerHTML = `
+          <tr class="border">
+            <td class="px-3 py-2 text-sm sm:text-base text-red-700" colspan="2">
+              ${t(
+                "offline_viewer",
+                "Offline: viewer mode needs internet to load data."
+              )}
+            </td>
+          </tr>`;
+        return;
+      }
+      try {
+        await reloadFromBackend(
+          dateInput.value,
+          GLUCOSE_ROWS,
+          INSULIN_ROWS,
+          state,
+          dataTable,
+          commentsInput,
+          false,
+          pid
+        );
+        renderRows(GLUCOSE_ROWS);
+      } catch (err) {
+        dataTable.innerHTML = `
+          <tr class="border">
+            <td class="px-3 py-2 text-sm sm:text-base text-red-700" colspan="2">
+              ${err?.message || "Failed to load logs."}
+            </td>
+          </tr>`;
       }
     })();
 
@@ -1093,7 +987,6 @@
       renderRows(next === "glucose" ? GLUCOSE_ROWS : INSULIN_ROWS);
     }
 
-    // editor modal
     function openEditor(label) {
       if (IS_READONLY || !STORAGE_NS) return;
       currentRowKey = label;
@@ -1152,12 +1045,10 @@
       }
     });
 
-    // tabs
     tabGlucose.addEventListener("click", () => setActiveTab("glucose"));
     tabInsulin.addEventListener("click", () => setActiveTab("insulin"));
     tabComments.addEventListener("click", () => setActiveTab("comments"));
 
-    // comments live edit
     commentsInput?.addEventListener("input", (e) => {
       if (IS_READONLY || !STORAGE_NS) return;
       state.comments = e.target.value;
@@ -1167,7 +1058,6 @@
       }
     });
 
-    // save button (resilient; no false "offline")
     let isSaving = false;
     saveBtn?.addEventListener("click", async () => {
       if (IS_READONLY || !STORAGE_NS) {
@@ -1211,7 +1101,6 @@
           return;
         }
 
-        // Online save
         await saveAllToBackend(
           theDate,
           GLUCOSE_ROWS,
@@ -1221,7 +1110,6 @@
         );
         saveToStorage();
 
-        // Refresh state from backend so patient immediately sees server truth
         await reloadFromBackend(
           theDate,
           GLUCOSE_ROWS,
@@ -1232,6 +1120,8 @@
           !IS_READONLY,
           IS_READONLY ? VIEW_PATIENT || getPatientIDFromURL() : null
         );
+        saveToStorage();
+
         if (currentTab === "comments") {
           commentsInput.value = state.comments || "";
         } else {
@@ -1247,7 +1137,6 @@
           setTimeout(() => saveNotice.classList.add("hidden"), 1500);
         }
 
-        // Flush any queued ops (if any)
         window.__offline?.flush?.();
       } catch (err) {
         console.warn("[save] online save failed, will enqueue", err);
@@ -1268,7 +1157,6 @@
       }
     });
 
-    // date input behavior
     dateInput?.addEventListener("input", () => {
       adjustDateWidth();
       updateDateOverlay(dateInput, dateOverlay);
@@ -1282,6 +1170,16 @@
       adjustDateWidth();
       updateDateOverlay(dateInput, dateOverlay);
 
+      if (!IS_READONLY && !navigator.onLine) {
+        loadFromStorage();
+        if (currentTab === "comments") {
+          commentsInput.value = state.comments || "";
+        } else {
+          renderRows(currentTab === "glucose" ? GLUCOSE_ROWS : INSULIN_ROWS);
+        }
+        return;
+      }
+
       await reloadFromBackend(
         dateInput.value,
         GLUCOSE_ROWS,
@@ -1293,7 +1191,6 @@
         IS_READONLY ? VIEW_PATIENT || getPatientIDFromURL() : null
       );
 
-      // merge drafts once if they existed before date was chosen
       if (pendingDraft && !IS_READONLY && STORAGE_NS) {
         const out = { glucose: {}, insulin: {}, comments: state.comments };
         const allG = new Set([
@@ -1337,12 +1234,10 @@
       }
     });
 
-    // initial tab styling
     setButtonActive(tabGlucose, true);
     setButtonActive(tabInsulin, false);
     setButtonActive(tabComments, false);
 
-    // i18n re-render
     observeLangChanges(() => {
       whenI18nReady(() => {
         tabGlucose.textContent = t("tab_glucose", "Glucose");
@@ -1390,7 +1285,7 @@
       state,
       dataTable,
       commentsInput,
-      _canEdit,
+      canEditPatient,
       viewerPatientID
     ) {
       dataTable.innerHTML = `
@@ -1401,70 +1296,61 @@
       state.insulin = {};
       state.comments = "";
 
-      try {
-        if (IS_READONLY) {
-          const pid = viewerPatientID || VIEW_PATIENT || getPatientIDFromURL();
-          const [g, i, c] = await Promise.allSettled([
-            fetchViewerGlucoseLog(date, pid),
-            fetchViewerInsulinLog(date, pid),
-            fetchViewerCommentLog(date, pid),
-          ]);
-          if (g.status === "fulfilled") {
-            (Array.isArray(g.value?.logs) ? g.value.logs : []).forEach((l) => {
-              if (GLUCOSE_ROWS.includes(l?.type))
-                state.glucose[l.type] = (l.glucoseLevel ?? "").toString();
-            });
-          }
-          if (i.status === "fulfilled") {
-            (Array.isArray(i.value?.logs) ? i.value.logs : []).forEach((l) => {
-              if (INSULIN_ROWS.includes(l?.type))
-                state.insulin[l.type] = (l.dose ?? "").toString();
-            });
-          }
-          if (c.status === "fulfilled") {
-            const p = c.value;
-            state.comments =
-              (p?.comment ??
-                p?.log?.comment ??
-                (Array.isArray(p?.logs) ? p.logs[0]?.comment : "")) ||
-              "";
-          }
-        } else {
-          const [g, i, c] = await Promise.allSettled([
-            fetchPatientGlucoseLog(date),
-            fetchPatientInsulinLog(date),
-            fetchPatientCommentLog(date),
-          ]);
-          if (g.status === "fulfilled") {
-            (Array.isArray(g.value?.logs) ? g.value.logs : []).forEach((l) => {
-              if (GLUCOSE_ROWS.includes(l?.type))
-                state.glucose[l.type] = (l.glucoseLevel ?? "").toString();
-            });
-          }
-          if (i.status === "fulfilled") {
-            (Array.isArray(i.value?.logs) ? i.value.logs : []).forEach((l) => {
-              if (INSULIN_ROWS.includes(l?.type))
-                state.insulin[l.type] = (l.dose ?? "").toString();
-            });
-          }
-          if (c.status === "fulfilled") {
-            const p = c.value;
-            state.comments =
-              (p?.comment ??
-                p?.log?.comment ??
-                (Array.isArray(p?.logs) ? p.logs[0]?.comment : "")) ||
-              "";
-          }
+      if (IS_READONLY) {
+        const pid = viewerPatientID || VIEW_PATIENT || getPatientIDFromURL();
+        const [g, i, c] = await Promise.allSettled([
+          fetchViewerGlucoseLog(date, pid),
+          fetchViewerInsulinLog(date, pid),
+          fetchViewerCommentLog(date, pid),
+        ]);
+        if (g.status === "fulfilled") {
+          (Array.isArray(g.value?.logs) ? g.value.logs : []).forEach((l) => {
+            if (GLUCOSE_ROWS.includes(l?.type))
+              state.glucose[l.type] = (l.glucoseLevel ?? "").toString();
+          });
         }
-      } catch (err) {
-        console.error(err);
-        dataTable.innerHTML = `
-          <tr class="border">
-            <td class="px-3 py-2 text-sm sm:text-base text-red-700" colspan="2">
-              ${err.message || "Failed to load logs."}
-            </td>
-          </tr>`;
+        if (i.status === "fulfilled") {
+          (Array.isArray(i.value?.logs) ? i.value.logs : []).forEach((l) => {
+            if (INSULIN_ROWS.includes(l?.type))
+              state.insulin[l.type] = (l.dose ?? "").toString();
+          });
+        }
+        if (c.status === "fulfilled") {
+          const p = c.value;
+          state.comments =
+            (p?.comment ??
+              p?.log?.comment ??
+              (Array.isArray(p?.logs) ? p.logs[0]?.comment : "")) ||
+            "";
+        }
         return;
+      }
+
+      // Patient (online)
+      const [g, i, c] = await Promise.allSettled([
+        fetchPatientGlucoseLog(date),
+        fetchPatientInsulinLog(date),
+        fetchPatientCommentLog(date),
+      ]);
+      if (g.status === "fulfilled") {
+        (Array.isArray(g.value?.logs) ? g.value.logs : []).forEach((l) => {
+          if (GLUCOSE_ROWS.includes(l?.type))
+            state.glucose[l.type] = (l.glucoseLevel ?? "").toString();
+        });
+      }
+      if (i.status === "fulfilled") {
+        (Array.isArray(i.value?.logs) ? i.value.logs : []).forEach((l) => {
+          if (INSULIN_ROWS.includes(l?.type))
+            state.insulin[l.type] = (l.dose ?? "").toString();
+        });
+      }
+      if (c.status === "fulfilled") {
+        const p = c.value;
+        state.comments =
+          (p?.comment ??
+            p?.log?.comment ??
+            (Array.isArray(p?.logs) ? p.logs[0]?.comment : "")) ||
+          "";
       }
     }
 
@@ -1509,7 +1395,6 @@
     }
 
     async function enqueueForCurrentTabOffline(theDate) {
-      // Only allow enqueue in patient-edit mode
       if (IS_READONLY || !STORAGE_NS) return;
 
       if (currentTab === "glucose") {
@@ -1544,43 +1429,6 @@
         });
         return;
       }
-    }
-
-    // --- Force initial fetch for doctors (read-only viewer) on mobile ---
-    // Ensures first load shows today's data without requiring a manual date change.
-    if (IS_READONLY) {
-      (async () => {
-        try {
-          const theDate = dateInput && dateInput.value;
-          const pid =
-            VIEW_PATIENT ||
-            getPatientIDFromURL() ||
-            (sessionStorage && sessionStorage.getItem("viewerPatientID"));
-          if (theDate && pid) {
-            await reloadFromBackend(
-              theDate,
-              GLUCOSE_ROWS,
-              INSULIN_ROWS,
-              state,
-              dataTable,
-              commentsInput,
-              /* _canEdit */ false,
-              /* viewerPatientID */ pid
-            );
-            // Paint with freshly loaded state
-            renderRows(GLUCOSE_ROWS);
-          }
-        } catch (_) {
-          // As a fallback, synthesize a "change" to trigger existing handler
-          if (dateInput && dateInput.value) {
-            setTimeout(() => {
-              try {
-                dateInput.dispatchEvent(new Event("change", { bubbles: true }));
-              } catch {}
-            }, 0);
-          }
-        }
-      })();
     }
   }
 })();

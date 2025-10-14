@@ -2,129 +2,6 @@
 (function () {
   if (typeof document === "undefined") return;
 
-  // --- Offline identity cache (adds caching without changing existing behavior) ---
-  (function () {
-    const CK = {
-      me: "userData", // full /api/auth/me payload cache
-      ts: "userData:ts", // last-fetched timestamp
-      pid: "__active_profile_id__", // stable per-patient id (used by log-data.js)
-    };
-
-    function persistMe(me) {
-      if (!me) return;
-      try {
-        localStorage.setItem(CK.me, JSON.stringify(me));
-        localStorage.setItem(CK.ts, String(Date.now()));
-        const pid =
-          me?.profile?.profileId ||
-          me?.profile?.profileID ||
-          me?.profileId ||
-          me?.id ||
-          null;
-        if (pid) localStorage.setItem(CK.pid, pid);
-        // Helpful for viewer pages too
-        try {
-          if (pid) sessionStorage.setItem("viewerPatientID", pid);
-        } catch {}
-      } catch {}
-    }
-
-    function readCachedMe() {
-      try {
-        const raw = localStorage.getItem(CK.me);
-        return raw ? JSON.parse(raw) : null;
-      } catch {
-        return null;
-      }
-    }
-
-    async function getMeSmart({ force = false } = {}) {
-      if (!navigator.onLine && !force) return readCachedMe();
-      try {
-        const r = await fetch("/api/auth/me?_=" + Date.now(), {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("authToken") || ""}`,
-          },
-          cache: "no-store",
-        });
-        if (!r.ok) throw new Error("HTTP " + r.status);
-        const me = await r.json();
-        persistMe(me);
-        return me;
-      } catch (err) {
-        const cached = readCachedMe();
-        if (cached) return cached;
-        throw err;
-      }
-    }
-
-    // Expose in case you want to use it elsewhere
-    window.getMeSmart = getMeSmart;
-
-    // Shim fetch so existing code that calls /api/auth/me works offline with cache
-    const _fetch = window.fetch.bind(window);
-    window.fetch = async function (input, init = {}) {
-      const url = (typeof input === "string" ? input : input?.url) || "";
-      const isMe = url.startsWith("/api/auth/me");
-
-      if (isMe && !navigator.onLine) {
-        const cached = readCachedMe();
-        if (cached) {
-          return new Response(JSON.stringify(cached), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          });
-        }
-      }
-
-      try {
-        const res = await _fetch(input, init);
-        if (isMe && res.ok) {
-          res
-            .clone()
-            .json()
-            .then(persistMe)
-            .catch(() => {});
-        }
-        return res;
-      } catch (err) {
-        if (isMe) {
-          const cached = readCachedMe();
-          if (cached) {
-            return new Response(JSON.stringify(cached), {
-              status: 200,
-              headers: { "Content-Type": "application/json" },
-            });
-          }
-        }
-        throw err;
-      }
-    };
-
-    // Preload identity on page load (uses cache if offline)
-    (async function bootIdentity() {
-      try {
-        const me = await getMeSmart();
-        if (me) {
-          window.__ME__ = me;
-          document.dispatchEvent(new CustomEvent("me:ready", { detail: me }));
-        }
-      } catch {}
-    })();
-
-    // Optional helper you can call from your logout flow
-    window.__onLogout = function () {
-      try {
-        localStorage.removeItem(CK.me);
-        localStorage.removeItem(CK.ts);
-        localStorage.removeItem(CK.pid);
-        sessionStorage.removeItem("viewerPatientID");
-      } catch {}
-    };
-  })();
-
   // ---------------------------
   // Helpers
   // ---------------------------
@@ -138,7 +15,7 @@
   const VIEW_PATIENT_ID = getParam("patientID");
   const IS_READONLY = getParam("readonly") === "1";
 
-  // Persist patientID for safety
+  // Persist patientID for safety (viewer flows)
   if (VIEW_PATIENT_ID) {
     try {
       sessionStorage.setItem("viewerPatientID", VIEW_PATIENT_ID);
@@ -191,12 +68,14 @@
   }
 
   function init() {
+    // 🔁 Ensure namespace is restored offline even before any fetch:
+    restoreNamespaceFromCache();
+
     setGreeting();
     wireNav();
     if (IS_READONLY) {
       renderExitReadonlyButton();
       hideReadonlyControls();
-      // ⚠️ Banner is handled ONLY by readonly-view.js now (to avoid dupes)
     }
 
     observeLangChanges(() => {
@@ -208,18 +87,46 @@
     });
   }
 
+  function restoreNamespaceFromCache() {
+    try {
+      const cached = JSON.parse(localStorage.getItem("userData") || "null");
+      const pid = cached?.profile?.profileId || cached?.profileId || null;
+      if (pid) localStorage.setItem("__active_profile_id__", String(pid));
+    } catch {}
+  }
+
   // ---------------------------
-  // Greeting logic
+  // Greeting logic (online-first, offline fallback)
   // ---------------------------
   async function setGreeting() {
     const userBtn = document.getElementById("userBtn");
     if (!userBtn) return;
 
     const guestTemplate = t("helloGuest", "Hello, Guest");
+
+    const setFromCache = () => {
+      try {
+        const cached = JSON.parse(localStorage.getItem("userData") || "null");
+        // ✅ also keep namespace hot for offline log-data
+        const pid = cached?.profile?.profileId || cached?.profileId || null;
+        if (pid) localStorage.setItem("__active_profile_id__", String(pid));
+
+        const name =
+          (cached?.profile?.name && String(cached.profile.name)) ||
+          t("guest", "Guest");
+        const template = t("helloUser", "Hello, {name}");
+        userBtn.textContent = template.replace("{name}", name);
+        return true;
+      } catch {}
+      userBtn.textContent = guestTemplate;
+      return false;
+    };
+
     try {
       const token = localStorage.getItem("authToken");
       if (!token) {
-        userBtn.textContent = guestTemplate;
+        if (!navigator.onLine) setFromCache();
+        else userBtn.textContent = guestTemplate;
         return;
       }
 
@@ -233,19 +140,27 @@
       });
 
       if (!res.ok) {
-        userBtn.textContent = guestTemplate;
+        if (!setFromCache()) userBtn.textContent = guestTemplate;
         return;
       }
 
       const data = await res.json();
+
+      // Persist for offline namespace selection
+      try {
+        localStorage.setItem("userData", JSON.stringify(data));
+        if (data?.profile?.profileId) {
+          localStorage.setItem("__active_profile_id__", data.profile.profileId);
+        }
+      } catch {}
+
       const name =
         (data?.profile?.name && String(data.profile.name)) ||
         t("guest", "Guest");
-
       const template = t("helloUser", "Hello, {name}");
       userBtn.textContent = template.replace("{name}", name);
     } catch {
-      userBtn.textContent = guestTemplate;
+      if (!setFromCache()) userBtn.textContent = guestTemplate;
     }
   }
 

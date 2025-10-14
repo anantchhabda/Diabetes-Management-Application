@@ -196,7 +196,7 @@ export default function Page() {
         </button>
       </form>
 
-      <Script src="/js/patient-onboarding.js?v=5" strategy="afterInteractive" />
+      <Script src="/js/patient-onboarding.js?v=7" strategy="afterInteractive" />
     </main>
   );
 }

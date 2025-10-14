@@ -24,6 +24,19 @@
     } catch {}
   }
 
+  // Try to decode a JWT (best-effort, no validation; just for prefill UX)
+  function decodeJwtPayload(token) {
+    try {
+      const base64 = token.split(".")[1];
+      // atob expects plain base64, not base64url; fix if needed
+      const fixed = base64.replace(/-/g, "+").replace(/_/g, "/");
+      const json = atob(fixed);
+      return JSON.parse(json);
+    } catch {
+      return null;
+    }
+  }
+
   onReady(function () {
     const form = document.getElementById("onboardingForm");
     const savedMsg = document.getElementById("savedMsg");
@@ -33,16 +46,13 @@
     // pre-fill fields after dom ready
     try {
       const token = localStorage.getItem("onboardingToken");
-      if (token) {
-        const base64 = token.split(".")[1];
-        const payload = JSON.parse(atob(base64));
-        const profileId = payload && payload.profileId;
-        const phone = payload && payload.phoneNumber;
-        const patientInput = document.getElementById("patientId");
-        const phoneInput = document.getElementById("phone");
-        if (patientInput) patientInput.value = profileId || "";
-        if (phoneInput) phoneInput.value = phone || "";
-      }
+      const payload = token ? decodeJwtPayload(token) : null;
+      const profileId = payload && payload.profileId;
+      const phone = payload && payload.phoneNumber;
+      const patientInput = document.getElementById("patientId");
+      const phoneInput = document.getElementById("phone");
+      if (patientInput) patientInput.value = profileId || "";
+      if (phoneInput) phoneInput.value = phone || "";
     } catch (err) {
       console.error("Failed to read onboarding token", err);
     }
@@ -147,6 +157,30 @@
           if (savedMsg) savedMsg.textContent = "Onboarding already completed";
           // proceed to homepage anyway
           purgeLogDrafts();
+
+          // 🧭 Make sure offline namespace is ready even in this edge case
+          try {
+            const meRes = await fetch(`/api/auth/me?_=${Date.now()}`, {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${
+                  localStorage.getItem("authToken") || token
+                }`,
+              },
+              cache: "no-store",
+            });
+            if (meRes.ok) {
+              const me = await meRes.json();
+              localStorage.setItem("userData", JSON.stringify(me));
+              if (me?.profile?.profileId) {
+                localStorage.setItem(
+                  "__active_profile_id__",
+                  String(me.profile.profileId)
+                );
+              }
+            }
+          } catch {}
+
           window.location.href = "/patient-homepage";
           return;
         }
@@ -160,8 +194,66 @@
           return;
         }
 
+        // Expect an auth token back
         const authToken = result && (result.authToken || result.token);
         if (authToken) localStorage.setItem("authToken", authToken);
+
+        // ✅ Align with login.js: cache userData + __active_profile_id__ so patient-homepage + log-data work offline
+        try {
+          const meRes = await fetch(`/api/auth/me?_=${Date.now()}`, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken || ""}`,
+            },
+            cache: "no-store",
+          });
+          if (meRes.ok) {
+            const me = await meRes.json();
+            localStorage.setItem("userData", JSON.stringify(me));
+            if (me?.profile?.profileId) {
+              localStorage.setItem(
+                "__active_profile_id__",
+                String(me.profile.profileId)
+              );
+            }
+          } else {
+            // fallback: at least store a minimal object to keep namespace
+            const ob = decodeJwtPayload(authToken || "") || {};
+            const cachedUser = {
+              role: "Patient",
+              profile: {
+                profileId: ob.profileId || null,
+                name: data.fullName || "",
+              },
+            };
+            localStorage.setItem("userData", JSON.stringify(cachedUser));
+            if (cachedUser.profile.profileId) {
+              localStorage.setItem(
+                "__active_profile_id__",
+                String(cachedUser.profile.profileId)
+              );
+            }
+          }
+        } catch {
+          // safe fallback if /me fails
+          const ob = decodeJwtPayload(authToken || "") || {};
+          const cachedUser = {
+            role: "Patient",
+            profile: {
+              profileId: ob.profileId || null,
+              name: data.fullName || "",
+            },
+          };
+          try {
+            localStorage.setItem("userData", JSON.stringify(cachedUser));
+            if (cachedUser.profile.profileId) {
+              localStorage.setItem(
+                "__active_profile_id__",
+                String(cachedUser.profile.profileId)
+              );
+            }
+          } catch {}
+        }
 
         if (savedMsg)
           savedMsg.textContent = "Onboarding successful! Redirecting...";
