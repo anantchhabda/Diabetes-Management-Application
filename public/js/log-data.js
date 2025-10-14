@@ -903,12 +903,12 @@
           saveBtn.disabled = false;
         }
       }
-
       // 3) If we have a date, fetch server truth.
       if (dateInput?.value) {
-        if (navigator.onLine && !IS_READONLY) {
-          // Try to refine namespace with real profile ID (don't block first paint)
-          const refineNS = (async () => {
+        // In editable (patient) mode, refine STORAGE_NS in the background.
+        let refineNS = Promise.resolve();
+        if (!IS_READONLY) {
+          refineNS = (async () => {
             try {
               const me = await getMe();
               if (me.role === "Patient") {
@@ -917,10 +917,22 @@
                   try {
                     localStorage.setItem("__active_profile_id__", pid);
                   } catch {}
-                  if (STORAGE_NS === "Patient:guest") migrateGuestDraftsTo(pid);
+                  // migrate guest drafts if present (keep your existing behavior)
+                  if (
+                    typeof migrateGuestDraftsTo === "function" &&
+                    STORAGE_NS === "Patient:guest"
+                  ) {
+                    try {
+                      migrateGuestDraftsTo(pid);
+                    } catch {}
+                  }
                   STORAGE_NS = `Patient:${pid}`;
-                  loadFromStorage(); // reload state from the now-correct namespace
-                  touchNamespace(STORAGE_NS);
+                  loadFromStorage(); // reload state from the correct namespace
+                  if (typeof touchNamespace === "function") {
+                    try {
+                      touchNamespace(STORAGE_NS);
+                    } catch {}
+                  }
                 }
               } else {
                 // Non-patient on /log-data without readonly: force readonly behavior
@@ -940,33 +952,32 @@
               // offline/failed auth → keep provisional STORAGE_NS
             }
           })();
-
-          // In parallel, fetch server logs
-          try {
-            await reloadFromBackend(
-              dateInput.value,
-              GLUCOSE_ROWS,
-              INSULIN_ROWS,
-              state,
-              dataTable,
-              commentsInput,
-              !IS_READONLY,
-              IS_READONLY ? VIEW_PATIENT || getPatientIDFromURL() : null
-            );
-          } catch {}
-
-          // First paint
-          renderRows(GLUCOSE_ROWS);
-
-          // After refining STORAGE_NS, persist local cache
-          try {
-            await refineNS;
-            if (!IS_READONLY && STORAGE_NS) saveToStorage();
-          } catch {}
-        } else {
-          // Offline or readonly: render from local state immediately
-          renderRows(GLUCOSE_ROWS);
         }
+
+        // ALWAYS try to fetch server truth when there is a date (patient or readonly).
+        try {
+          await reloadFromBackend(
+            dateInput.value,
+            GLUCOSE_ROWS,
+            INSULIN_ROWS,
+            state,
+            dataTable,
+            commentsInput,
+            !IS_READONLY,
+            IS_READONLY ? VIEW_PATIENT || getPatientIDFromURL() : null
+          );
+        } catch {
+          // If fetch fails (offline, etc.), we’ll still render from whatever state we have.
+        }
+
+        // First paint
+        renderRows(GLUCOSE_ROWS);
+
+        // After refining STORAGE_NS, persist local cache (editable only)
+        try {
+          await refineNS;
+          if (!IS_READONLY && STORAGE_NS) saveToStorage();
+        } catch {}
       }
     })();
 
@@ -1533,6 +1544,43 @@
         });
         return;
       }
+    }
+
+    // --- Force initial fetch for doctors (read-only viewer) on mobile ---
+    // Ensures first load shows today's data without requiring a manual date change.
+    if (IS_READONLY) {
+      (async () => {
+        try {
+          const theDate = dateInput && dateInput.value;
+          const pid =
+            VIEW_PATIENT ||
+            getPatientIDFromURL() ||
+            (sessionStorage && sessionStorage.getItem("viewerPatientID"));
+          if (theDate && pid) {
+            await reloadFromBackend(
+              theDate,
+              GLUCOSE_ROWS,
+              INSULIN_ROWS,
+              state,
+              dataTable,
+              commentsInput,
+              /* _canEdit */ false,
+              /* viewerPatientID */ pid
+            );
+            // Paint with freshly loaded state
+            renderRows(GLUCOSE_ROWS);
+          }
+        } catch (_) {
+          // As a fallback, synthesize a "change" to trigger existing handler
+          if (dateInput && dateInput.value) {
+            setTimeout(() => {
+              try {
+                dateInput.dispatchEvent(new Event("change", { bubbles: true }));
+              } catch {}
+            }, 0);
+          }
+        }
+      })();
     }
   }
 })();
