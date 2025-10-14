@@ -93,14 +93,14 @@
            data-i18n="role_patient">
         ${t("role_patient", "Patient")}
       </div>
-      <div class="bg-gray-200 text-[var(--color-textBlack)] flex items-center px-3 font-semibold justify-start">
+      <div class="bg-gray-200 text-[var(--color-textBlack)] flex items-center pl-3 pr-3 font-semibold justify-start min-w-0 whitespace-normal break-words [overflow-wrap:anywhere] [word-break:break-word] leading-snug">
         ${name}
       </div>
-      <button class="view-btn bg-green-600 text-white font-bold px-3 py-1 m-1 rounded hover:opacity-90"
+      <button class="view-btn bg-green-600 text-white font-bold px-3 py-1 m-1 rounded hover:opacity-90 self-center"
               data-i18n="view">
         ${t("view", "View")}
       </button>
-      <button class="remove-btn bg-red-600 text-white font-bold px-3 py-1 m-1 rounded hover:opacity-90"
+      <button class="remove-btn bg-red-600 text-white font-bold px-3 py-1 m-1 rounded hover:opacity-90 self-center"
               data-i18n="remove">
         ${t("remove", "Remove")}
       </button>
@@ -118,10 +118,10 @@
            data-i18n="role_patient">
         ${t("role_patient", "Patient")}
       </div>
-      <div class="bg-gray-200 text-[var(--color-textBlack)] flex items-center px-3 font-semibold justify-start">
+      <div class="bg-gray-200 text-[var(--color-textBlack)] flex items-center pl-3 pr-3 font-semibold justify-start min-w-0 whitespace-normal break-words [overflow-wrap:anywhere] [word-break:break-word] leading-snug">
         ${patientName}
       </div>
-      <button class="cancel-btn bg-red-600 text-white font-bold px-3 py-1 m-1 rounded hover:opacity-90"
+      <button class="cancel-btn bg-red-600 text-white font-bold px-3 py-1 m-1 rounded hover:opacity-90 self-center"
               data-i18n="cancel">
         ${t("cancel", "Cancel")}
       </button>

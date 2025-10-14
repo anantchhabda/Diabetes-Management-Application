@@ -102,18 +102,18 @@
   function currentConnectionRow({ name, id }) {
     const row = document.createElement("div");
     row.className =
-      "grid grid-cols-[100px_1fr_auto_auto] border border-black transition-opacity duration-300";
+      "grid grid-cols-[100px_1fr_auto_auto] items-stretch border border-black transition-opacity duration-300";
     row.innerHTML = `
       <div class="role-cell bg-[var(--color-secondary)] text-white font-semibold flex items-center justify-center px-2 py-2">
         ${roleLabel("Patient")}
       </div>
-      <div class="bg-gray-200 text-[var(--color-textBlack)] flex items-center px-3 font-semibold justify-start">
+      <div class="bg-gray-200 text-[var(--color-textBlack)] flex items-center pl-3 pr-3 font-semibold justify-start min-w-0 whitespace-normal break-words [overflow-wrap:anywhere] [word-break:break-word] leading-snug">
         ${name}
       </div>
-      <button class="view-btn bg-green-600 text-white font-bold px-3 py-1 m-1 rounded hover:opacity-90">
+      <button class="view-btn bg-green-600 text-white font-bold px-3 py-1 m-1 rounded hover:opacity-90 self-center">
         ${t("view", "View")}
       </button>
-      <button class="remove-btn bg-red-600 text-white font-bold px-3 py-1 m-1 rounded hover:opacity-90">
+      <button class="remove-btn bg-red-600 text-white font-bold px-3 py-1 m-1 rounded hover:opacity-90 self-center">
         ${t("remove", "Remove")}
       </button>
     `;
@@ -124,15 +124,15 @@
   function outgoingRequestRow({ requestId, patientName }) {
     const row = document.createElement("div");
     row.className =
-      "grid grid-cols-[100px_1fr_auto] border border-black transition-all duration-300";
+      "grid grid-cols-[100px_1fr_auto] items-stretch border border-black transition-all duration-300";
     row.innerHTML = `
       <div class="role-cell bg-[var(--color-secondary)] text-white font-semibold flex items-center justify-center px-2 py-2">
         ${roleLabel("Patient")}
       </div>
-      <div class="bg-gray-200 text-[var(--color-textBlack)] flex items-center px-3 font-semibold justify-start">
+      <div class="bg-gray-200 text-[var(--color-textBlack)] flex items-center pl-3 pr-3 font-semibold justify-start min-w-0 whitespace-normal break-words [overflow-wrap:anywhere] [word-break:break-word] leading-snug">
         ${patientName}
       </div>
-      <button class="cancel-btn bg-red-600 text-white font-bold px-3 py-1 m-1 rounded hover:opacity-90">
+      <button class="cancel-btn bg-red-600 text-white font-bold px-3 py-1 m-1 rounded hover:opacity-90 self-center">
         ${t("cancel", "Cancel")}
       </button>
     `;

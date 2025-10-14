@@ -359,6 +359,66 @@
     } catch {}
   })();
 
+  // --- Namespace index + migration helpers (offline aware) ---
+  function readNsIndex() {
+    try {
+      return JSON.parse(localStorage.getItem("logdata:index") || "{}");
+    } catch {
+      return {};
+    }
+  }
+  function writeNsIndex(idx) {
+    try {
+      localStorage.setItem("logdata:index", JSON.stringify(idx));
+    } catch {}
+  }
+  function touchNamespace(ns) {
+    if (!ns) return;
+    const idx = readNsIndex();
+    idx[ns] = { lastUsed: Date.now() };
+    writeNsIndex(idx);
+  }
+  function pickBestNamespaceOffline() {
+    try {
+      const pid = localStorage.getItem("__active_profile_id__");
+      if (pid) return `Patient:${pid}`;
+      const ud = JSON.parse(localStorage.getItem("userData") || "null");
+      const pid2 = ud?.profile?.profileId || ud?.profileId || null;
+      if (pid2) return `Patient:${pid2}`;
+      const idx = readNsIndex();
+      const candidates = Object.keys(idx).filter((k) =>
+        k.startsWith("Patient:")
+      );
+      if (candidates.length) {
+        candidates.sort(
+          (a, b) => (idx[b]?.lastUsed || 0) - (idx[a]?.lastUsed || 0)
+        );
+        return candidates[0];
+      }
+    } catch {}
+    return null;
+  }
+  function migrateGuestDraftsTo(pid) {
+    if (!pid) return;
+    const from = "Patient:guest";
+    const to = `Patient:${pid}`;
+    const toMove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(`logdata:v2:${from}:`)) toMove.push(k);
+    }
+    toMove.forEach((k) => {
+      try {
+        const suffix = k.split(`logdata:v2:${from}:`)[1];
+        const newKey = `logdata:v2:${to}:${suffix}`;
+        const val = localStorage.getItem(k);
+        localStorage.setItem(newKey, val);
+        localStorage.removeItem(k);
+      } catch {}
+    });
+    touchNamespace(to);
+  }
+
   // ---------------------------
   // Safe JSON parser for APIs
   // ---------------------------
@@ -739,6 +799,8 @@
       };
       try {
         localStorage.setItem(key, JSON.stringify(payload));
+        // NEW: touch namespace index so we can pick it offline later
+        touchNamespace(STORAGE_NS);
       } catch {}
     }
     function loadFromStorage() {
@@ -813,28 +875,24 @@
         } catch {}
         // no STORAGE_NS in readonly mode
       } else {
-        // 2) Not readonly → give a provisional namespace so Edit buttons show *even offline*
-        let provisional = null;
-        try {
-          const lastPid = localStorage.getItem("__active_profile_id__");
-          if (lastPid) {
-            provisional = `Patient:${lastPid}`;
-          } else {
+        // 2) Not readonly → pick best patient namespace even offline
+        let ns = pickBestNamespaceOffline();
+        if (!ns) {
+          // fallback to any previous Patient:* we find, else guest
+          try {
             const anyKey = Object.keys(localStorage).find((k) =>
               k.startsWith("logdata:v2:Patient:")
             );
             if (anyKey) {
-              // logdata:v2:Patient:<pid>:<date>
-              const ns = anyKey
+              ns = anyKey
                 .split("logdata:v2:")[1]
                 .split(":")
                 .slice(0, 2)
-                .join(":");
-              provisional = ns; // "Patient:<pid>"
+                .join(":"); // Patient:<pid>
             }
-          }
-        } catch {}
-        STORAGE_NS = provisional || "Patient:guest"; // guest is fine for offline drafts
+          } catch {}
+        }
+        STORAGE_NS = ns || "Patient:guest";
 
         // load any local drafts for the selected date
         loadFromStorage();
@@ -859,8 +917,10 @@
                   try {
                     localStorage.setItem("__active_profile_id__", pid);
                   } catch {}
+                  if (STORAGE_NS === "Patient:guest") migrateGuestDraftsTo(pid);
                   STORAGE_NS = `Patient:${pid}`;
-                  loadFromStorage();
+                  loadFromStorage(); // reload state from the now-correct namespace
+                  touchNamespace(STORAGE_NS);
                 }
               } else {
                 // Non-patient on /log-data without readonly: force readonly behavior
@@ -1473,24 +1533,6 @@
         });
         return;
       }
-    }
-
-    // 🩵 Ensure initial fetch for readonly/mobile timing issues
-    if (IS_READONLY && dateInput && dateInput.value) {
-      setTimeout(() => {
-        reloadFromBackend(
-          dateInput.value,
-          GLUCOSE_ROWS,
-          INSULIN_ROWS,
-          state,
-          dataTable,
-          commentsInput,
-          !IS_READONLY,
-          IS_READONLY ? VIEW_PATIENT || getPatientIDFromURL() : null
-        ).then(() => {
-          renderRows(GLUCOSE_ROWS);
-        });
-      }, 300);
     }
   }
 })();
