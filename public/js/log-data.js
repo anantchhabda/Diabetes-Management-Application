@@ -1474,5 +1474,23 @@
         return;
       }
     }
+
+    // 🩵 Ensure initial fetch for readonly/mobile timing issues
+    if (IS_READONLY && dateInput && dateInput.value) {
+      setTimeout(() => {
+        reloadFromBackend(
+          dateInput.value,
+          GLUCOSE_ROWS,
+          INSULIN_ROWS,
+          state,
+          dataTable,
+          commentsInput,
+          !IS_READONLY,
+          IS_READONLY ? VIEW_PATIENT || getPatientIDFromURL() : null
+        ).then(() => {
+          renderRows(GLUCOSE_ROWS);
+        });
+      }, 300);
+    }
   }
 })();
